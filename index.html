@@ -2,6 +2,12 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<script>
+  /* Prevent the browser from restoring a previous scroll position for this URL
+     (this is what makes the page appear to jump down right after opening it) */
+  if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+  window.scrollTo(0, 0);
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050505">
 <title>RelationSync.AI — Новый уровень ваших отношений</title>
@@ -57,8 +63,8 @@
   }
 
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html{scroll-behavior:smooth; background:#050505;}
-  html,body{margin:0;background:#050505;}
+  html{scroll-behavior:smooth; background:#050505; overflow-anchor:none;}
+  html,body{margin:0;background:#050505; overflow-anchor:none;}
   html.is-open,html.is-open body{overflow:hidden;height:100%;}
   body{
     font-family:'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -308,6 +314,8 @@
   /* ================= BELOW-FOLD PAGE ================= */
   .page{position:relative; z-index:1; background:#050505;}
   .section{padding:clamp(76px,10vw,128px) 0; position:relative; scroll-margin-top:110px;}
+  .section-start{border-top:1px solid var(--line);}
+  .section-alt{background:radial-gradient(ellipse 80% 55% at 50% 0%, rgba(255,255,255,.032), rgba(255,255,255,.006) 55%, transparent 100%);}
   .wrap{max-width:1200px; margin:0 auto; padding:0 clamp(22px,6vw,75px);}
   .section-head{max-width:680px; margin:0 auto 52px; text-align:center;}
   .eyebrow{display:inline-flex; align-items:center; gap:8px; margin-bottom:16px; padding:6px 13px; border-radius:5px; border:1px solid var(--line); background:var(--card); font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);}
@@ -638,7 +646,7 @@
 <main class="page">
 
   <!-- ===================== HOW IT WORKS ===================== -->
-  <section class="section" id="how">
+  <section class="section section-start" id="how">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow">Как это работает</span>
@@ -715,7 +723,7 @@
   </section>
 
   <!-- ===================== BENEFITS ===================== -->
-  <section class="section" id="benefits">
+  <section class="section section-start section-alt" id="benefits">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow">Возможности</span>
@@ -758,7 +766,7 @@
   </section>
 
   <!-- ===================== COMPARISON ===================== -->
-  <section class="section" style="padding-top:0">
+  <section class="section section-alt" style="padding-top:0">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow">Сравнение</span>
@@ -800,7 +808,7 @@
   </section>
 
   <!-- ===================== PRICING ===================== -->
-  <section class="section" id="pricing">
+  <section class="section section-start" id="pricing">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow">Тарифы</span>
@@ -880,7 +888,7 @@
   </section>
 
   <!-- ===================== FAQ ===================== -->
-  <section class="section" id="faq">
+  <section class="section section-start section-alt" id="faq">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow">Вопросы</span>
@@ -928,7 +936,7 @@
   </section>
 
   <!-- ===================== FINAL CTA ===================== -->
-  <section class="section" id="start">
+  <section class="section section-start" id="start">
     <div class="wrap">
       <div class="final-cta reveal">
         <span class="eyebrow">Ранний доступ</span>
@@ -984,6 +992,15 @@
 
 <script>
 (function(){
+  /* belt-and-suspenders: force the page to open at the very top, even if a
+     stray URL hash is present or the browser tries to restore an old scroll
+     position from a cached history entry (e.g. bfcache on Safari/iOS) */
+  if (location.hash) {
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+  window.scrollTo(0, 0);
+  window.addEventListener('pageshow', function(){ window.scrollTo(0, 0); });
+
   var stage = document.querySelector('.stage');
   var burger = document.getElementById('burger');
   var menu = document.getElementById('menu');
