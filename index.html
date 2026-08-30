@@ -238,11 +238,12 @@
   .brand{
     position:absolute; pointer-events:auto;
     left:calc(75 * var(--u)); top:calc(27 * var(--u));
-    width:calc(31.5 * var(--u)); height:calc(48.5 * var(--u));
-    display:block;
+    height:calc(48.5 * var(--u)); width:auto;
+    display:flex; align-items:center; gap:calc(10 * var(--u));
     animation:rise .8s cubic-bezier(.22,1,.36,1) both;
   }
-  .brand svg{width:100%;height:100%;display:block;}
+  .brand svg{width:calc(31.5 * var(--u));height:calc(48.5 * var(--u));display:block;flex:none;}
+  .brand .word{font-size:calc(20 * var(--u));font-weight:600;letter-spacing:-0.02em;color:#fff;white-space:nowrap;}
 
   .links{
     position:absolute; pointer-events:auto;
@@ -502,7 +503,9 @@
     .links, .pill-nav{display:none;}
     .burger{display:flex;}
 
-    .brand{left:24px; top:20px; width:26px; height:40px;}
+    .brand{left:24px; top:20px; height:40px; width:auto; gap:9px;}
+    .brand svg{width:26px; height:40px;}
+    .brand .word{font-size:16.5px;}
 
     main.hero{display:flex; flex-direction:column; justify-content:flex-end; padding:0 24px calc(40 * var(--m)); inset:auto; position:absolute; left:0; right:0; bottom:0; top:auto;}
     .headline{position:static; white-space:normal; font-size:clamp(34px, calc(44 * var(--m)), 56px); line-height:1.08; letter-spacing:0; margin:0;}
@@ -609,6 +612,7 @@
       <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/>
       <rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
     </svg>
+    <span class="word">RelationSync.ai</span>
   </a>
 
   <nav class="links" aria-label="Основное">
