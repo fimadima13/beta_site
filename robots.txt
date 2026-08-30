@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.perplexity.ai/computer/a/relationsync-ai-23vrNUUFShei62zA8fTzUg/sitemap.xml
