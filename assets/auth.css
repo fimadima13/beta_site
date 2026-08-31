@@ -1,0 +1,161 @@
+/* RelationSync.ai — shared styles for auth (login.html) and cabinet (cabinet.html)
+   Reuses the same design tokens as index.html so both pages feel native to the site. */
+
+:root{
+  --ink:#fafafa;
+  --muted:#a7a6a6;
+  --nav:#b6b5b5;
+  --line: rgba(255,255,255,.10);
+  --card: rgba(255,255,255,.025);
+  --card-hover: rgba(255,255,255,.055);
+  --pill:#ffffff;
+  --pill-ink:#050505;
+  --err:#ff6b6b;
+  --ok:#7ee0a8;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{background:#050505;}
+html,body{margin:0;background:#050505;}
+body{
+  min-height:100vh;
+  min-height:100dvh;
+  font-family:'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  color:var(--ink);
+  display:flex;
+  flex-direction:column;
+}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;background:none;border:0;color:inherit;cursor:pointer;touch-action:manipulation;}
+img,svg{display:block;}
+
+/* ---------- top mini header (both pages) ---------- */
+.mini-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:22px 24px;
+  max-width:1100px; width:100%; margin:0 auto;
+}
+.brand{display:inline-flex; align-items:center; gap:10px;}
+.brand svg{width:19px; height:29px;}
+.brand .word{font-size:16px; font-weight:600; letter-spacing:-.01em;}
+.brand .word .dim{color:var(--muted);}
+.back-link{font-size:14px; color:var(--nav); display:inline-flex; align-items:center; gap:6px; transition:color .2s ease;}
+.back-link:hover{color:#fff;}
+
+/* ---------- auth (login/register) page ---------- */
+.auth-wrap{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.auth-card{
+  width:100%; max-width:392px; margin:0 auto;
+  border:1px solid var(--line);
+  background:var(--card);
+  border-radius:20px;
+  padding:34px 30px 30px;
+}
+.auth-eyebrow{
+  display:inline-flex; align-items:center; gap:8px; margin-bottom:14px;
+  padding:6px 13px; border-radius:5px; border:1px solid var(--line);
+  background:rgba(255,255,255,.03); font-size:11.5px; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+}
+.auth-title{font-size:24px; font-weight:700; margin:0 0 8px; letter-spacing:-.01em;}
+.auth-sub{font-size:14.5px; color:var(--muted); margin:0 0 26px; line-height:1.5;}
+
+.auth-tabs{display:flex; gap:6px; padding:4px; border:1px solid var(--line); border-radius:999px; margin-bottom:24px;}
+.auth-tab{flex:1; height:38px; border-radius:999px; font-size:13.5px; font-weight:600; color:var(--nav); transition:background .2s ease, color .2s ease;}
+.auth-tab.active{background:var(--pill); color:var(--pill-ink);}
+
+.field{margin-bottom:14px;}
+.field label{display:block; font-size:12.5px; color:var(--muted); margin-bottom:7px; font-weight:600;}
+.field input{
+  width:100%; height:48px; border-radius:12px; border:1px solid var(--line);
+  background:rgba(255,255,255,.03); color:#fff; padding:0 16px; font-size:15px;
+  font-family:inherit; transition:border-color .2s ease;
+}
+.field input::placeholder{color:var(--muted);}
+.field input:focus{outline:none; border-color:rgba(255,255,255,.4);}
+
+.auth-submit{
+  width:100%; height:50px; border-radius:999px; background:var(--pill); color:var(--pill-ink);
+  font-size:15px; font-weight:600; margin-top:8px; display:flex; align-items:center; justify-content:center;
+  gap:8px; transition:opacity .15s ease, transform .15s ease;
+}
+.auth-submit:active{transform:scale(.98);}
+.auth-submit:disabled{opacity:.55; cursor:default;}
+
+.auth-msg{
+  margin-top:16px; padding:11px 14px; border-radius:10px; font-size:13.5px; line-height:1.45; display:none;
+}
+.auth-msg.show{display:block;}
+.auth-msg.error{background:rgba(255,107,107,.1); border:1px solid rgba(255,107,107,.25); color:var(--err);}
+.auth-msg.ok{background:rgba(126,224,168,.1); border:1px solid rgba(126,224,168,.25); color:var(--ok);}
+
+.auth-foot-note{margin-top:20px; font-size:12.5px; color:var(--muted); line-height:1.5; text-align:center;}
+
+.spinner{
+  width:16px; height:16px; border-radius:50%;
+  border:2px solid rgba(5,5,5,.25); border-top-color:var(--pill-ink);
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* config warning banner (shown if supabase-config.js not filled in) */
+.config-warning{
+  max-width:392px; margin:0 auto 18px; padding:14px 16px; border-radius:12px;
+  border:1px solid rgba(255,193,107,.3); background:rgba(255,193,107,.08);
+  font-size:13px; color:#ffc16b; line-height:1.5;
+}
+.config-warning code{background:rgba(255,255,255,.08); padding:1px 6px; border-radius:5px; font-size:12px;}
+
+/* ---------- cabinet (dashboard) page ---------- */
+.cab-topbar{
+  border-bottom:1px solid var(--line);
+}
+.cab-user{display:flex; align-items:center; gap:12px;}
+.cab-user-email{font-size:13.5px; color:var(--muted); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.logout-btn{
+  height:38px; padding:0 18px; border-radius:999px; border:1px solid var(--line);
+  font-size:13.5px; font-weight:600; color:#fff; transition:border-color .2s ease, background .2s ease;
+}
+.logout-btn:hover{background:var(--card-hover); border-color:rgba(255,255,255,.25);}
+
+.cab-main{max-width:1100px; width:100%; margin:0 auto; padding:36px 24px 80px; flex:1;}
+.cab-hello{font-size:26px; font-weight:700; letter-spacing:-.01em; margin:0 0 6px;}
+.cab-hello .dim{color:var(--muted); font-weight:500;}
+.cab-sub{font-size:14.5px; color:var(--muted); margin:0 0 34px;}
+
+.cab-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+.cab-card{
+  position:relative; border:1px solid var(--line); background:var(--card);
+  border-radius:16px; padding:26px 24px; transition:background .25s ease, border-color .25s ease;
+}
+.cab-card:hover{background:var(--card-hover); border-color:rgba(255,255,255,.18);}
+.cab-badge{
+  position:absolute; top:20px; right:20px; font-size:10.5px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--muted); border:1px solid var(--line); padding:4px 9px; border-radius:999px;
+}
+.cab-card-icon{
+  width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,.05);
+  display:flex; align-items:center; justify-content:center; margin-bottom:16px; color:var(--ink);
+}
+.cab-card-icon svg{width:19px; height:19px;}
+.cab-card h3{font-size:16.5px; font-weight:700; margin:0 0 8px;}
+.cab-card p{font-size:13.5px; color:var(--muted); line-height:1.55; margin:0;}
+
+.cab-loading{
+  flex:1; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px;
+  color:var(--muted); font-size:14px; text-align:center; padding:24px; max-width:520px; margin:0 auto;
+}
+.cab-loading .spinner{border:2px solid rgba(255,255,255,.15); border-top-color:#fff;}
+
+@media (max-width: 780px){
+  .cab-grid{grid-template-columns:1fr;}
+  .cab-user-email{display:none;}
+}

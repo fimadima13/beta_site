@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>Вход в личный кабинет — RelationSync.ai</title>
+<meta name="robots" content="noindex, follow">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/auth.css">
+<script src="assets/supabase-config.js"></script>
+</head>
+<body>
+
+<header class="mini-header">
+  <a href="index.html" class="brand" aria-label="На главную">
+    <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
+      <defs>
+        <linearGradient id="bg1" x1="8" y1="0" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#9e9e9e"/><stop offset=".28" stop-color="#a6a6a6"/>
+          <stop offset=".34" stop-color="#a3a3a3"/><stop offset=".40" stop-color="#3a3a3a"/>
+          <stop offset=".55" stop-color="#414141"/><stop offset=".60" stop-color="#7a7a7a"/>
+          <stop offset=".68" stop-color="#8e8e8e"/><stop offset=".80" stop-color="#a9a9a9"/>
+          <stop offset=".95" stop-color="#c4c4c4"/><stop offset="1" stop-color="#cccccc"/>
+        </linearGradient>
+      </defs>
+      <path d="M21.5 0 L21.5 19.5 L31.5 19.5 L31.5 29 L10 48.5 L10 28.5 L0.5 28.5 L0.5 18.5 Z" fill="url(#bg1)"/>
+      <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/>
+      <rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
+    </svg>
+    <span class="word">RelationSync<span class="dim">.ai</span></span>
+  </a>
+  <a href="index.html" class="back-link">← На сайт</a>
+</header>
+
+<main class="auth-wrap">
+  <div style="width:100%;">
+
+    <div id="configWarning" class="config-warning" style="display:none;">
+      Личный кабинет пока не подключён к базе данных. Владельцу сайта нужно
+      указать ключи Supabase в файле <code>assets/supabase-config.js</code> —
+      подробности в <code>SETUP-SUPABASE.md</code>.
+    </div>
+
+    <div class="auth-card">
+      <span class="auth-eyebrow">Личный кабинет</span>
+      <h1 class="auth-title" id="cardTitle">Вход в аккаунт</h1>
+      <p class="auth-sub" id="cardSub">Войдите, чтобы продолжить анкету и получить свой план.</p>
+
+      <div class="auth-tabs" role="tablist">
+        <button class="auth-tab active" id="tabLogin" type="button">Войти</button>
+        <button class="auth-tab" id="tabRegister" type="button">Регистрация</button>
+      </div>
+
+      <form id="authForm" autocomplete="on">
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="password">Пароль</label>
+          <input type="password" id="password" name="password" placeholder="Минимум 6 символов" required minlength="6" autocomplete="current-password">
+        </div>
+        <button type="submit" class="auth-submit" id="submitBtn">
+          <span id="submitLabel">Войти</span>
+        </button>
+      </form>
+
+      <div class="auth-msg" id="authMsg"></div>
+
+      <p class="auth-foot-note">Продолжая, вы соглашаетесь с условиями обработки данных.<br>Это ранняя версия кабинета — часть функций появится позже.</p>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+  import { getClient, isConfigured, getSession } from "./assets/auth.js";
+
+  const configWarning = document.getElementById('configWarning');
+  const authForm = document.getElementById('authForm');
+  const authMsg = document.getElementById('authMsg');
+  const submitBtn = document.getElementById('submitBtn');
+  const submitLabel = document.getElementById('submitLabel');
+  const tabLogin = document.getElementById('tabLogin');
+  const tabRegister = document.getElementById('tabRegister');
+  const cardTitle = document.getElementById('cardTitle');
+  const cardSub = document.getElementById('cardSub');
+
+  let mode = 'login'; // 'login' | 'register'
+
+  function setMode(next) {
+    mode = next;
+    const isLogin = mode === 'login';
+    tabLogin.classList.toggle('active', isLogin);
+    tabRegister.classList.toggle('active', !isLogin);
+    cardTitle.textContent = isLogin ? 'Вход в аккаунт' : 'Создать аккаунт';
+    cardSub.textContent = isLogin
+      ? 'Войдите, чтобы продолжить анкету и получить свой план.'
+      : 'Пара минут — и вы попадёте в свой личный кабинет.';
+    submitLabel.textContent = isLogin ? 'Войти' : 'Создать аккаунт';
+    document.getElementById('password').setAttribute(
+      'autocomplete', isLogin ? 'current-password' : 'new-password'
+    );
+    hideMsg();
+  }
+  tabLogin.addEventListener('click', () => setMode('login'));
+  tabRegister.addEventListener('click', () => setMode('register'));
+
+  function showMsg(text, type) {
+    authMsg.textContent = text;
+    authMsg.className = 'auth-msg show ' + type;
+  }
+  function hideMsg() {
+    authMsg.className = 'auth-msg';
+  }
+
+  if (!isConfigured()) {
+    configWarning.style.display = 'block';
+    authForm.querySelectorAll('input, button').forEach(el => el.disabled = true);
+  } else {
+    const client = getClient();
+
+    // If already logged in, go straight to the cabinet.
+    getSession(client).then(session => {
+      if (session) window.location.href = 'cabinet.html';
+    });
+
+    authForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideMsg();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      submitBtn.disabled = true;
+      const originalLabel = submitLabel.textContent;
+      submitLabel.innerHTML = '<span class="spinner"></span>';
+
+      try {
+        if (mode === 'login') {
+          const { error } = await client.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          window.location.href = 'cabinet.html';
+        } else {
+          const { data, error } = await client.auth.signUp({ email, password });
+          if (error) throw error;
+          if (data.session) {
+            window.location.href = 'cabinet.html';
+          } else {
+            setMode('login');
+            showMsg('Аккаунт создан. Проверьте почту и подтвердите email, затем войдите.', 'ok');
+          }
+        }
+      } catch (err) {
+        showMsg(translateError(err.message), 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitLabel.textContent = originalLabel;
+      }
+    });
+  }
+
+  function translateError(msg) {
+    if (!msg) return 'Что-то пошло не так. Попробуйте ещё раз.';
+    if (/invalid login credentials/i.test(msg)) return 'Неверный email или пароль.';
+    if (/already registered|already exists/i.test(msg)) return 'Этот email уже зарегистрирован — попробуйте войти.';
+    if (/password.*(least|short)/i.test(msg)) return 'Пароль слишком короткий — минимум 6 символов.';
+    if (/rate limit/i.test(msg)) return 'Слишком много попыток. Подождите немного и попробуйте снова.';
+    return msg;
+  }
+</script>
+
+</body>
+</html>
