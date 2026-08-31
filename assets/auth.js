@@ -25,24 +25,60 @@ export async function getSession(client) {
 }
 
 /**
- * Сохраняет (создаёт или обновляет) анкету пары для текущего пользователя.
+ * Сохраняет (создаёт или обновляет) расширенную анкету пары для текущего пользователя.
  * Таблица: public.couple_profiles, PK/unique — user_id.
  * Требует настроенных RLS-политик (см. supabase-schema.sql).
  *
  * @param {import('@supabase/supabase-js').SupabaseClient} client
  * @param {string} userId - session.user.id
- * @param {object} profile - поля анкеты
+ * @param {object} profile - поля анкеты (см. questionnaire.html: state)
  */
 export async function saveCoupleProfile(client, userId, profile) {
+  const toIntOrNull = (v) => {
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) ? n : null;
+  };
+
   const payload = {
     user_id: userId,
+
+    // о пользователе — база
+    user_age: toIntOrNull(profile.user_age),
+    user_name: profile.user_name || "",
+    user_gender: profile.user_gender || "",
+    relationship_orientation: profile.relationship_orientation || "",
+
+    // о пользователе — ценности и ожидания
     values: profile.values || [],
     expectations: profile.expectations || "",
+
+    // о пользователе — стиль привязанности / язык любви
     attachment_style: profile.attachment_style || "",
+    love_language: profile.love_language || "",
+
+    // о пользователе — конфликты и опыт
+    conflict_style: profile.conflict_style || "",
+    triggers: profile.triggers || "",
+    past_experience: profile.past_experience || "",
+
+    // о партнёре — база
+    partner_age: toIntOrNull(profile.partner_age),
+    partner_gender: profile.partner_gender || "",
+    known_duration: profile.known_duration || "",
+    how_met: profile.how_met || "",
+
+    // о партнёре — характер
     partner_info: profile.partner_info || "",
     partner_attachment_style: profile.partner_attachment_style || "",
+    partner_conflict_style: profile.partner_conflict_style || "",
+    appreciation: profile.appreciation || "",
+
+    // стадия отношений и цели
     relationship_stage: profile.relationship_stage || "",
+    stage_detail: profile.stage_detail || "",
     stage_note: profile.stage_note || "",
+    goals: profile.goals || [],
+
     updated_at: new Date().toISOString(),
   };
 
@@ -58,31 +94,45 @@ export async function saveCoupleProfile(client, userId, profile) {
 
 /**
  * Загружает анкету пары текущего пользователя, если она уже существует.
- * Возвращает null, если анкета ещё не заполнена.
+ * Возвращает null, если анкета ещё не заполнена (или таблицы/доступа нет —
+ * ошибка логируется в консоль, но не блокирует остальной UI).
  *
  * @param {import('@supabase/supabase-js').SupabaseClient} client
  * @param {string} userId
  */
 export async function loadCoupleProfile(client, userId) {
-  const { data, error } = await client
-    .from("couple_profiles")
-    .select("*")
-    .eq("user_id", userId)
-    .maybeSingle();
+  try {
+    const { data, error } = await client
+      .from("couple_profiles")
+      .select("*")
+      .eq("user_id", userId)
+      .maybeSingle();
 
-  if (error) {
-    console.error("loadCoupleProfile error:", error);
+    if (error) {
+      console.error("loadCoupleProfile error:", error);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.error("loadCoupleProfile exception:", err);
     return null;
   }
-  return data;
 }
 
 /**
  * Проверяет, заполнена ли анкета (для показа статуса в кабинете).
+ * Никогда не бросает исключение — при любой ошибке возвращает false,
+ * чтобы не блокировать отрисовку личного кабинета.
+ *
  * @param {import('@supabase/supabase-js').SupabaseClient} client
  * @param {string} userId
  */
 export async function hasCoupleProfile(client, userId) {
-  const profile = await loadCoupleProfile(client, userId);
-  return !!(profile && profile.relationship_stage);
+  try {
+    const profile = await loadCoupleProfile(client, userId);
+    return !!(profile && profile.relationship_stage);
+  } catch (err) {
+    console.error("hasCoupleProfile exception:", err);
+    return false;
+  }
 }
