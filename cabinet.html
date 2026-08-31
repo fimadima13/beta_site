@@ -21,8 +21,8 @@
 .cab-loading a{color:#fff; text-decoration:underline;}
 .cab-loading code{background:rgba(255,255,255,.08); padding:1px 6px; border-radius:5px; font-size:12.5px;}
 
-/* Плавающий стек в левом нижнем углу: сверху — тариф, снизу — аккаунт.
-   Виден на всех страницах кабинета, оба элемента visually сгруппированы как "про меня". */
+/* Плавающий стек в левом нижнем углу: сверху — тариф (круг с $), снизу — аккаунт.
+   Обе кнопки одинаковой формы/размера — визуально парные, различаются цветом рамки. */
 .fab-stack{
   position:fixed;
   left:20px;
@@ -30,49 +30,15 @@
   z-index:40;
   display:flex;
   flex-direction:column;
-  align-items:flex-start;
+  align-items:center;
   gap:10px;
 }
 
-.plan-pill{
-  display:inline-grid;
-  grid-auto-flow:column;
-  align-items:center;
-  gap:7px;
-  height:38px;
-  padding:0 14px 0 6px;
-  border-radius:999px;
-  border:1px solid var(--line);
-  background:rgba(20,20,20,.9);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-  text-decoration:none;
-  cursor:pointer;
-  transition:background .18s ease, border-color .18s ease;
-}
-.plan-pill:hover{background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.3);}
-
-.plan-pill .plan-dot{
-  width:7px; height:7px; border-radius:50%; background:var(--muted);
-  align-self:center;
-}
-.plan-pill.premium .plan-dot, .plan-pill.couple .plan-dot{background:#7ee0a8;}
-
-.plan-pill .plan-label{
-  font-size:13px; font-weight:600; color:var(--ink);
-  align-self:center;
-}
-
-.plan-pill .plan-chevron{
-  width:12px; height:12px; color:var(--muted);
-  align-self:center;
-}
-
-.account-fab{
+.fab-circle{
   width:48px;
   height:48px;
   border-radius:50%;
-  border:1px solid var(--line);
+  border:1.5px solid var(--line);
   background:rgba(20,20,20,.9);
   backdrop-filter:blur(12px);
   -webkit-backdrop-filter:blur(12px);
@@ -82,16 +48,21 @@
   text-decoration:none;
   transition:background .18s ease, border-color .18s ease, transform .15s ease;
 }
-.account-fab:hover{background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.3);}
-.account-fab:active{transform:scale(.94);}
-.account-fab svg{width:20px; height:20px; color:var(--ink);}
+.fab-circle:hover{background:rgba(255,255,255,.08); transform:scale(1.04);}
+.fab-circle:active{transform:scale(.94);}
+.fab-circle svg{width:20px; height:20px; color:var(--ink);}
+
+.fab-circle.plan-free{border-color:var(--line);}
+.fab-circle.plan-premium, .fab-circle.plan-couple{
+  border-color:#7ee0a8;
+  box-shadow:0 0 0 1px rgba(126,224,168,.15);
+}
+.fab-circle.plan-premium svg, .fab-circle.plan-couple svg{color:#7ee0a8;}
 
 @media (max-width:560px){
   .fab-stack{left:14px; bottom:14px; gap:8px;}
-  .plan-pill{padding:0 10px 0 6px; height:34px;}
-  .plan-pill .plan-label{font-size:12px;}
-  .account-fab{width:44px; height:44px;}
-  .account-fab svg{width:18px; height:18px;}
+  .fab-circle{width:44px; height:44px;}
+  .fab-circle svg{width:18px; height:18px;}
 }
 </style>
 </head>
@@ -170,12 +141,12 @@
 </div>
 
 <div class="fab-stack">
-  <a href="pricing.html" class="plan-pill" id="planPill">
-    <span class="plan-dot"></span>
-    <span class="plan-label" id="planPillLabel">Бесплатно</span>
-    <svg class="plan-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <a href="pricing.html" class="fab-circle plan-free" id="planFab" aria-label="Тариф" title="Тариф: Бесплатно">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+    </svg>
   </a>
-  <a href="account.html" class="account-fab" aria-label="Настройки аккаунта" title="Настройки аккаунта">
+  <a href="account.html" class="fab-circle" aria-label="Настройки аккаунта" title="Настройки аккаунта">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/>
     </svg>
@@ -257,12 +228,10 @@ function showFatal(html) {
       await setSelectedPlan(client, session.user.id, landingPlan);
       plan = landingPlan;
     }
-    const planPill = document.getElementById("planPill");
-    const planPillLabel = document.getElementById("planPillLabel");
-    planPillLabel.textContent = PLAN_LABELS[plan] || "Бесплатно";
-    planPill.classList.remove("premium", "couple");
-    if (plan === "premium") planPill.classList.add("premium");
-    if (plan === "couple") planPill.classList.add("couple");
+    const planFab = document.getElementById("planFab");
+    planFab.classList.remove("plan-free", "plan-premium", "plan-couple");
+    planFab.classList.add("plan-" + plan);
+    planFab.setAttribute("title", "Тариф: " + (PLAN_LABELS[plan] || "Бесплатно"));
   } catch (err) {
     console.error("plan sync failed (non-fatal):", err);
   }
