@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>О сервисе — RelationSync.ai</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/auth.css">
+<script src="assets/supabase-config.js"></script>
+<style>
+*{box-sizing:border-box;}
+.ab-hero{
+  position:relative;
+  overflow:hidden;
+  padding:90px 24px 70px;
+  text-align:center;
+  border-bottom:1px solid var(--line);
+}
+.ab-hero::before{
+  content:"";
+  position:absolute; inset:-40% -10% auto -10%;
+  height:420px;
+  background:radial-gradient(ellipse 60% 100% at 50% 0%, rgba(255,255,255,.09), transparent 70%);
+  pointer-events:none;
+  animation:abGlow 8s ease-in-out infinite alternate;
+}
+@keyframes abGlow{
+  from{opacity:.6; transform:translateY(0);}
+  to{opacity:1; transform:translateY(14px);}
+}
+.ab-logo{
+  position:relative; z-index:1;
+  width:58px; height:89px; margin:0 auto 28px;
+  animation:abFloat 5s ease-in-out infinite;
+}
+@keyframes abFloat{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-8px);}
+}
+.ab-logo svg{width:100%; height:100%; display:block;}
+.ab-eyebrow{
+  position:relative; z-index:1;
+  display:inline-flex; align-items:center; gap:8px; margin-bottom:18px;
+  padding:6px 14px; border-radius:5px; border:1px solid var(--line);
+  background:rgba(255,255,255,.03); font-size:11.5px; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+}
+.ab-title{
+  position:relative; z-index:1;
+  font-size:clamp(28px,4.4vw,44px); font-weight:700; letter-spacing:-.01em;
+  margin:0 0 18px; line-height:1.15; color:var(--ink);
+}
+.ab-lead{
+  position:relative; z-index:1;
+  font-size:clamp(15px,1.8vw,17.5px); color:var(--muted); line-height:1.65;
+  max-width:640px; margin:0 auto;
+}
+
+.ab-section{max-width:760px; margin:0 auto; padding:64px 24px;}
+.ab-section + .ab-section{border-top:1px solid var(--line);}
+.ab-section-eyebrow{
+  display:inline-flex; align-items:center; gap:8px; margin-bottom:16px;
+  padding:6px 13px; border-radius:5px; border:1px solid var(--line);
+  background:rgba(255,255,255,.03); font-size:11px; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+}
+.ab-section h2{font-size:clamp(22px,2.8vw,28px); font-weight:700; margin:0 0 18px; color:var(--ink); letter-spacing:-.01em;}
+.ab-section p{font-size:15px; line-height:1.75; color:var(--muted); margin:0 0 16px;}
+.ab-section p strong{color:var(--ink); font-weight:600;}
+
+.ab-methods-grid{
+  display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:24px;
+}
+.ab-method-card{
+  border:1px solid var(--line); background:var(--card); border-radius:14px;
+  padding:22px 20px;
+}
+.ab-method-card .ab-method-tag{
+  display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--muted); border:1px solid var(--line);
+  padding:3px 9px; border-radius:999px; margin-bottom:12px;
+}
+.ab-method-card h4{font-size:15px; font-weight:700; margin:0 0 8px; color:var(--ink);}
+.ab-method-card p{font-size:13.5px; line-height:1.6; color:var(--muted); margin:0;}
+
+.ab-stats-grid{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:28px;
+}
+.ab-stat-card{
+  border:1px solid var(--line); background:var(--card); border-radius:14px;
+  padding:24px 20px; text-align:center;
+}
+.ab-stat-value{font-size:clamp(26px,3.4vw,34px); font-weight:700; color:var(--ink); margin:0 0 8px; line-height:1;}
+.ab-stat-label{font-size:12.5px; color:var(--muted); line-height:1.5; margin:0;}
+.ab-stat-source{font-size:10.5px; color:var(--muted); opacity:.7; margin-top:8px; display:block;}
+
+.ab-quote-block{
+  max-width:680px; margin:0 auto; padding:70px 24px 90px; text-align:center;
+}
+.ab-quote-mark{font-size:52px; line-height:1; color:var(--line); margin-bottom:6px; font-family:Georgia,serif;}
+.ab-quote-text{
+  font-size:clamp(19px,2.6vw,25px); font-weight:500; line-height:1.5; color:var(--ink);
+  margin:0 0 20px; letter-spacing:-.01em;
+}
+.ab-quote-author{font-size:13.5px; color:var(--muted); font-weight:600;}
+.ab-quote-author span{color:var(--muted); font-weight:400;}
+
+.ab-cta-band{
+  border-top:1px solid var(--line); text-align:center; padding:60px 24px 80px;
+}
+.ab-cta-band a{
+  display:inline-flex; align-items:center; justify-content:center; height:50px;
+  padding:0 30px; border-radius:999px; background:var(--pill); color:var(--pill-ink);
+  font-size:15px; font-weight:600; text-decoration:none;
+}
+.ab-cta-band p{font-size:13.5px; color:var(--muted); margin:16px 0 0;}
+
+@media (max-width:640px){
+  .ab-methods-grid{grid-template-columns:1fr;}
+  .ab-stats-grid{grid-template-columns:1fr;}
+  .ab-hero{padding:64px 20px 48px;}
+  .ab-section{padding:48px 20px;}
+}
+</style>
+</head>
+<body>
+
+<header class="mini-header">
+  <a href="cabinet.html" class="brand" aria-label="RelationSync.ai">
+    <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
+      <defs>
+        <linearGradient id="bg1" x1="8" y1="10" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#9e9e9e"/><stop offset=".28" stop-color="#a6a6a6"/>
+          <stop offset=".34" stop-color="#a3a3a3"/><stop offset=".40" stop-color="#3a3a3a"/>
+          <stop offset=".55" stop-color="#414141"/><stop offset=".60" stop-color="#7a7a7a"/>
+          <stop offset=".68" stop-color="#8e8e8e"/><stop offset=".80" stop-color="#a9a9a9"/>
+          <stop offset=".95" stop-color="#c4c4c4"/><stop offset="1" stop-color="#cccccc"/>
+        </linearGradient>
+      </defs>
+      <path d="M21.5 0 L21.5 19.5 L31.5 19.5 L31.5 29 L10 48.5 L10 28.5 L0.5 28.5 L0.5 18.5 Z" fill="url(#bg1)"/>
+      <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/>
+      <rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
+    </svg>
+    <span class="word">RelationSync<span class="dim">.ai</span></span>
+  </a>
+  <a href="cabinet.html" class="back-link">← В кабинет</a>
+</header>
+
+<main>
+
+  <section class="ab-hero">
+    <div class="ab-logo">
+      <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
+        <defs>
+          <linearGradient id="bgHero" x1="8" y1="10" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#c4c4c4"/><stop offset=".4" stop-color="#8e8e8e"/>
+            <stop offset=".7" stop-color="#4a4a4a"/><stop offset="1" stop-color="#e8e8e8"/>
+          </linearGradient>
+        </defs>
+        <path d="M21.5 0 L21.5 19.5 L31.5 19.5 L31.5 29 L10 48.5 L10 28.5 L0.5 28.5 L0.5 18.5 Z" fill="url(#bgHero)"/>
+        <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/>
+        <rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
+      </svg>
+    </div>
+    <span class="ab-eyebrow">О сервисе</span>
+    <h1 class="ab-title">Зачем мы создаём<br>RelationSync.AI</h1>
+    <p class="ab-lead">Мы верим, что здоровые отношения — это не удача, а навык, который можно поддерживать системно. Наша цель — сделать научно обоснованную поддержку для пар такой же доступной, как ежедневное приложение, а не редкую роскошь визита к специалисту.</p>
+  </section>
+
+  <section class="ab-section">
+    <span class="ab-section-eyebrow">Наша миссия</span>
+    <h2>Психологическое здоровье пары — это инфраструктура, а не разовое усилие</h2>
+    <p>Большинство пар обращаются за помощью только в момент кризиса — когда накопилось слишком много непроговорённого. RelationSync.AI существует, чтобы это изменить: дать людям <strong>ежедневную, доступную и приватную</strong> поддержку, основанную на реальной методологии психотерапии, а не на общих советах из интернета.</p>
+    <p>Мы не заменяем терапию — мы создаём пространство между сессиями и для тех, кто пока не готов или не может пойти к специалисту, но хочет разбираться в себе и партнёре осознанно. Наша задача — привить культуру заботы об отношениях так же, как забота о физическом здоровье стала нормой за последние годы.</p>
+  </section>
+
+  <section class="ab-section">
+    <span class="ab-section-eyebrow">Методология</span>
+    <h2>Мы опираемся на подходы с доказанной эффективностью</h2>
+    <p>Каждая рекомендация в RelationSync.AI строится на признанных психотерапевтических моделях — а не только на общих знаниях языковой модели. Это то, что отличает нас от обычного чат-бота.</p>
+    <div class="ab-methods-grid">
+      <div class="ab-method-card">
+        <span class="ab-method-tag">КПТ</span>
+        <h4>Когнитивно-поведенческая терапия</h4>
+        <p>Помогает распознать автоматические мысли и паттерны реакций, которые усиливают конфликт, и заменить их более конструктивными.</p>
+      </div>
+      <div class="ab-method-card">
+        <span class="ab-method-tag">ЭФТ</span>
+        <h4>Эмоционально-фокусированная терапия</h4>
+        <p>Работает с эмоциональной привязанностью партнёров, помогая распознать уязвимость за конфликтом и восстановить чувство безопасности.</p>
+      </div>
+      <div class="ab-method-card">
+        <span class="ab-method-tag">MBT</span>
+        <h4>Терапия, основанная на ментализации</h4>
+        <p>Развивает способность понимать собственные и чужие мысли и чувства — основу эмпатии и снижения недопонимания в паре.</p>
+      </div>
+      <div class="ab-method-card">
+        <span class="ab-method-tag">Метод Готтмана</span>
+        <h4>Gottman Method</h4>
+        <p>Основан на десятилетиях наблюдений за реальными парами — определяет конкретные паттерны, которые предсказывают благополучие или распад отношений.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="ab-section">
+    <span class="ab-section-eyebrow">Почему это важно сейчас</span>
+    <h2>Глобальная тенденция последних десятилетий</h2>
+    <p>Забота о психологическом здоровье и качестве отношений становится всё более насущной задачей — данные Всемирной организации здравоохранения и Института показателей здоровья (IHME) показывают устойчивый рост распространённости психических расстройств в мире.</p>
+    <div class="ab-stats-grid">
+      <div class="ab-stat-card">
+        <div class="ab-stat-value">+95,5%</div>
+        <p class="ab-stat-label">Рост числа людей с психическими расстройствами в мире с 1990 по 2023 год</p>
+        <span class="ab-stat-source">IHME, Global Burden of Disease, 2023</span>
+      </div>
+      <div class="ab-stat-card">
+        <div class="ab-stat-value">1,17 млрд</div>
+        <p class="ab-stat-label">Человек живут с психическим расстройством в мире по данным на 2023 год</p>
+        <span class="ab-stat-source">IHME / WHO, 2023</span>
+      </div>
+      <div class="ab-stat-card">
+        <div class="ab-stat-value">17%+</div>
+        <p class="ab-stat-label">Доля психических расстройств в общей структуре инвалидизации в мире — ведущая причина</p>
+        <span class="ab-stat-source">IHME, Global Burden of Disease, 2023</span>
+      </div>
+    </div>
+    <p style="margin-top:24px;">Одновременно растёт и доказательная база в пользу структурированных методов поддержки пар: например, метод Готтмана показывает восстановление доверия в <strong>73% случаев</strong> даже после серьёзного кризиса, включая измену, а эмоционально-фокусированная терапия — устойчивое улучшение у <strong>70–73% пар</strong>. Мы строим RelationSync.AI на этой доказательной базе, а не на общих утверждениях.</p>
+  </section>
+
+  <section class="ab-quote-block">
+    <div class="ab-quote-mark">"</div>
+    <p class="ab-quote-text">Больше всего на свете психологическое здоровье определяется способностью чувствовать себя в безопасности с другими людьми.</p>
+    <div class="ab-quote-author">Джон Готтман<span>, психолог, соавтор метода Готтмана</span></div>
+  </section>
+
+  <section class="ab-cta-band">
+    <a href="cabinet.html">Вернуться в кабинет</a>
+    <p>Заполните анкету, чтобы получить первый персональный чек-лист.</p>
+  </section>
+
+</main>
+</body>
+</html>
