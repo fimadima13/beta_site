@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>Тарифы — RelationSync.ai</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/auth.css">
+<script src="assets/supabase-config.js"></script>
+<style>
+.pr-wrap{
+  flex:1; width:100%; max-width:1040px; margin:0 auto; padding:20px 24px 80px;
+}
+.pr-head{max-width:640px; margin:0 0 34px;}
+.pr-eyebrow{
+  display:inline-flex; align-items:center; gap:8px; margin-bottom:14px;
+  padding:6px 13px; border-radius:5px; border:1px solid var(--line);
+  background:rgba(255,255,255,.03); font-size:11.5px; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+}
+.pr-title{font-size:24px; font-weight:700; margin:0 0 8px; letter-spacing:-.01em;}
+.pr-sub{font-size:14px; color:var(--muted); margin:0; line-height:1.55;}
+
+.pr-current{
+  display:flex; align-items:center; gap:12px; border:1px solid rgba(126,224,168,.3);
+  background:rgba(126,224,168,.08); border-radius:14px; padding:15px 18px; margin-bottom:30px;
+  font-size:13.5px; color:var(--ok); line-height:1.5;
+}
+.pr-current svg{flex:none; width:18px; height:18px;}
+.pr-current strong{color:inherit;}
+
+.pr-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px; align-items:stretch;}
+.pr-card{
+  border:1px solid var(--line); background:var(--card); border-radius:18px;
+  padding:30px 26px; display:flex; flex-direction:column; position:relative;
+}
+.pr-card.current{border-color:rgba(126,224,168,.4); background:rgba(126,224,168,.05);}
+.pr-card.featured{border-color:rgba(255,255,255,.32); background:var(--card-hover);}
+.pr-badge{
+  position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+  background:var(--pill); color:var(--pill-ink); font-size:11.5px; font-weight:700;
+  padding:5px 14px; border-radius:999px;
+}
+.pr-badge.current-badge{background:#7ee0a8; color:#0a0a0a;}
+.pr-card h3{font-size:18px; font-weight:600; margin:0 0 6px;}
+.pr-plan-desc{font-size:13.5px; color:var(--muted); margin:0 0 20px;}
+.pr-amount{display:flex; align-items:baseline; gap:6px; margin-bottom:20px;}
+.pr-amount .value{font-size:34px; font-weight:600; color:var(--ink);}
+.pr-amount .period{font-size:14px; color:var(--muted);}
+.pr-features{list-style:none; margin:0 0 26px; padding:0; display:flex; flex-direction:column; gap:11px; flex:1;}
+.pr-features li{display:flex; align-items:flex-start; gap:10px; font-size:13.5px; color:var(--ink); line-height:1.5;}
+.pr-features svg{width:15px; height:15px; flex:none; margin-top:2px; color:var(--muted);}
+.pr-cta{
+  display:flex; align-items:center; justify-content:center; height:46px; border-radius:999px;
+  font-size:14.5px; font-weight:600; border:1px solid var(--line); color:#fff;
+  transition:opacity .15s ease, transform .15s ease; cursor:pointer; background:none; font-family:inherit;
+  text-decoration:none;
+}
+.pr-cta:active{transform:scale(.98);}
+.pr-cta.primary{background:var(--pill); color:var(--pill-ink); border-color:transparent;}
+.pr-cta.disabled{opacity:.5; cursor:default; pointer-events:none;}
+
+.pr-note{text-align:center; margin-top:26px; font-size:12.5px; color:var(--muted);}
+
+@media (max-width:900px){
+  .pr-grid{grid-template-columns:1fr; max-width:420px; margin:0 auto;}
+}
+.cab-loading{max-width:560px; margin:0 auto; text-align:center; line-height:1.6;}
+.cab-loading a{color:#fff; text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<div id="loadingState" class="cab-loading">
+  <span class="spinner"></span>
+</div>
+
+<div id="appRoot" style="display:none">
+
+  <header class="mini-header cab-topbar">
+    <a href="cabinet.html" class="brand" aria-label="RelationSync.ai">
+      <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
+        <defs>
+          <linearGradient id="bg1" x1="8" y1="10" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#9e9e9e"/><stop offset=".28" stop-color="#a6a6a6"/>
+            <stop offset=".34" stop-color="#a3a3a3"/><stop offset=".40" stop-color="#3a3a3a"/>
+            <stop offset=".55" stop-color="#414141"/><stop offset=".60" stop-color="#7a7a7a"/>
+            <stop offset=".68" stop-color="#8e8e8e"/><stop offset=".80" stop-color="#a9a9a9"/>
+            <stop offset=".95" stop-color="#c4c4c4"/><stop offset="1" stop-color="#cccccc"/>
+          </linearGradient>
+        </defs>
+        <path d="M21.5 0 L21.5 19.5 L31.5 19.5 L31.5 29 L10 48.5 L10 28.5 L0.5 28.5 L0.5 18.5 Z" fill="url(#bg1)"/>
+        <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/>
+        <rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
+      </svg>
+      <span class="word">RelationSync<span class="dim">.ai</span></span>
+    </a>
+    <a href="cabinet.html" class="back-link">← В кабинет</a>
+  </header>
+
+  <div class="pr-wrap">
+
+    <div class="pr-head">
+      <span class="pr-eyebrow">Тарифы</span>
+      <h1 class="pr-title">Выберите план</h1>
+      <p class="pr-sub">Начните бесплатно. Переходите на Премиум или тариф для пары, когда захотите больше глубины и совместных инструментов.</p>
+    </div>
+
+    <div id="currentPlanBanner"></div>
+
+    <div class="pr-grid">
+
+      <div class="pr-card" data-plan="free" id="cardFree">
+        <h3>Бесплатно</h3>
+        <p class="pr-plan-desc">Начните разбираться в своих отношениях</p>
+        <div class="pr-amount"><span class="value">0 ₽</span><span class="period">навсегда</span></div>
+        <ul class="pr-features">
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Анкета о себе и партнёре</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Первый персональный чек-лист</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Обновление чек-листа</li>
+        </ul>
+        <button type="button" class="pr-cta" data-select-plan="free">Оставаться на бесплатном</button>
+      </div>
+
+      <div class="pr-card featured" data-plan="premium" id="cardPremium">
+        <span class="pr-badge">Популярный</span>
+        <h3>Премиум</h3>
+        <p class="pr-plan-desc">Полная поддержка на каждом этапе отношений</p>
+        <div class="pr-amount"><span class="value">990 ₽</span><span class="period">/мес</span></div>
+        <ul class="pr-features">
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Всё из бесплатного тарифа</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Чат с ИИ 24/7</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Приоритетное обновление рекомендаций</li>
+        </ul>
+        <button type="button" class="pr-cta primary" data-select-plan="premium">Выбрать Премиум</button>
+      </div>
+
+      <div class="pr-card" data-plan="couple" id="cardCouple">
+        <h3>Премиум для пары</h3>
+        <p class="pr-plan-desc">Общий доступ для вас и партнёра</p>
+        <div class="pr-amount"><span class="value">1490 ₽</span><span class="period">/мес</span></div>
+        <ul class="pr-features">
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Всё из Премиум</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Общие чек-листы с партнёром</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Каждый аккаунт остаётся приватным</li>
+        </ul>
+        <button type="button" class="pr-cta" data-select-plan="couple">Выбрать для пары</button>
+      </div>
+
+    </div>
+
+    <p class="pr-note">Оплата подключается следующим шагом — сейчас выбор тарифа сохраняется в профиле без списаний. Отменить или сменить план можно в любой момент.</p>
+  </div>
+</div>
+
+<script type="module">
+import { getClient, isConfigured, getSession, getSelectedPlan, setSelectedPlan } from "./assets/auth.js";
+
+const loadingState = document.getElementById("loadingState");
+const appRoot = document.getElementById("appRoot");
+const currentPlanBanner = document.getElementById("currentPlanBanner");
+
+const PLAN_LABELS = { free: "Бесплатно", premium: "Премиум", couple: "Премиум для пары" };
+
+function showFatal(html) {
+  loadingState.innerHTML = html;
+}
+
+function renderCurrentPlan(plan) {
+  document.querySelectorAll(".pr-card").forEach((card) => {
+    card.classList.remove("current");
+    const existingBadge = card.querySelector(".current-badge");
+    if (existingBadge) existingBadge.remove();
+    const btn = card.querySelector("[data-select-plan]");
+    btn.classList.remove("disabled");
+    btn.textContent = btn.dataset.selectPlan === "free" ? "Оставаться на бесплатном"
+      : btn.dataset.selectPlan === "premium" ? "Выбрать Премиум" : "Выбрать для пары";
+  });
+
+  if (!plan) {
+    currentPlanBanner.innerHTML = "";
+    return;
+  }
+
+  const activeCard = document.querySelector(`.pr-card[data-plan="${plan}"]`);
+  if (activeCard) {
+    activeCard.classList.add("current");
+    const badge = document.createElement("span");
+    badge.className = "pr-badge current-badge";
+    badge.textContent = "Ваш план";
+    activeCard.insertBefore(badge, activeCard.firstChild);
+    const btn = activeCard.querySelector("[data-select-plan]");
+    btn.textContent = "Текущий план";
+    btn.classList.add("disabled");
+  }
+
+  currentPlanBanner.innerHTML = `
+    <div class="pr-current">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12l5 5L20 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Сейчас выбран тариф: <strong>${PLAN_LABELS[plan] || plan}</strong>${plan !== "free" ? " — оплата будет подключена следующим шагом, пока действует без списаний." : ""}</span>
+    </div>`;
+}
+
+document.querySelectorAll("[data-select-plan]").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    const plan = btn.dataset.selectPlan;
+    btn.disabled = true;
+    try {
+      await setSelectedPlan(window.__rsClient, window.__rsUserId, plan);
+      renderCurrentPlan(plan);
+    } catch (err) {
+      console.error("setSelectedPlan failed:", err);
+      alert("Не удалось сохранить выбор тарифа. Попробуйте ещё раз.");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+});
+
+async function init(){
+  if (!isConfigured()){
+    showFatal('<span>Supabase не настроен — заполните <code>assets/supabase-config.js</code>. <a href="login.html">Ко входу</a></span>');
+    return;
+  }
+
+  let client, session;
+  try {
+    client = getClient();
+    session = await getSession(client);
+  } catch (err) {
+    console.error("auth init failed:", err);
+    showFatal('<span>Не удалось проверить сессию. <a href="login.html">Ко входу</a></span>');
+    return;
+  }
+
+  if (!session){
+    window.location.href = "login.html?next=pricing.html";
+    return;
+  }
+
+  window.__rsClient = client;
+  window.__rsUserId = session.user.id;
+
+  try {
+    const plan = await getSelectedPlan(client, session.user.id);
+    renderCurrentPlan(plan);
+  } catch (err) {
+    console.error("getSelectedPlan failed (non-fatal):", err);
+  }
+
+  loadingState.style.display = "none";
+  appRoot.style.display = "block";
+}
+
+init();
+</script>
+</body>
+</html>

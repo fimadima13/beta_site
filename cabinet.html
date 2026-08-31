@@ -20,6 +20,13 @@
 .cab-loading{max-width:560px; margin:0 auto; text-align:center; line-height:1.6;}
 .cab-loading a{color:#fff; text-decoration:underline;}
 .cab-loading code{background:rgba(255,255,255,.08); padding:1px 6px; border-radius:5px; font-size:12.5px;}
+/* делаем сетку резиновой на 4 карточки без изменения auth.css */
+@media (min-width:901px){
+  .cab-grid.cab-grid-4{grid-template-columns:repeat(4,1fr);}
+}
+@media (max-width:900px) and (min-width:561px){
+  .cab-grid.cab-grid-4{grid-template-columns:repeat(2,1fr);}
+}
 </style>
 </head>
 <body>
@@ -57,7 +64,7 @@
     <h1 class="cab-hello">Привет, <span class="dim" id="helloName"></span></h1>
     <p class="cab-sub">Это личный кабинет RelationSync.ai. Заполните анкету, чтобы получить персональный чек-лист.</p>
 
-    <div class="cab-grid">
+    <div class="cab-grid cab-grid-4">
 
       <a href="questionnaire.html" class="cab-card is-link" id="questionnaireCard">
         <span class="cab-badge todo" id="questionnaireBadge">Начать</span>
@@ -81,6 +88,17 @@
         <p id="checklistDesc">План на основе анкеты — сейчас в черновой версии, ИИ-персонализация появится следующим шагом.</p>
       </a>
 
+      <a href="pricing.html" class="cab-card is-link" id="pricingCard">
+        <span class="cab-badge" id="pricingBadge">Бесплатно</span>
+        <div class="cab-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <h3>Тарифы</h3>
+        <p id="pricingDesc">Бесплатно, Премиум или тариф для пары — управляйте планом здесь.</p>
+      </a>
+
       <div class="cab-card">
         <span class="cab-badge">Скоро</span>
         <div class="cab-card-icon">
@@ -97,10 +115,11 @@
 </div>
 
 <script type="module">
-import { getClient, isConfigured, getSession, hasCoupleProfile, loadChecklist } from "./assets/auth.js";
+import { getClient, isConfigured, getSession, hasCoupleProfile, loadChecklist, getSelectedPlan, setSelectedPlan, getLandingSelectedPlan } from "./assets/auth.js";
 
 const loadingState = document.getElementById("loadingState");
 const cabinetApp = document.getElementById("cabinetApp");
+const PLAN_LABELS = { free: "Бесплатно", premium: "Премиум", couple: "Премиум для пары" };
 
 function showFatal(html) {
   loadingState.innerHTML = html;
@@ -117,7 +136,7 @@ function showFatal(html) {
     client = getClient();
   } catch (err) {
     console.error("getClient failed:", err);
-    showFatal('<span>Ошибка инициализации Supabase. Проверьте консоль браузера (F12). <a href="login.html">Ко входу</a></span>');
+    showFatal('<span>Ошибка инициализации Supabase. <a href="login.html">Ко входу</a></span>');
     return;
   }
 
@@ -126,7 +145,7 @@ function showFatal(html) {
     session = await getSession(client);
   } catch (err) {
     console.error("getSession failed:", err);
-    showFatal('<span>Не удалось проверить сессию. Проверьте консоль браузера (F12). <a href="login.html">Ко входу</a></span>');
+    showFatal('<span>Не удалось проверить сессию. <a href="login.html">Ко входу</a></span>');
     return;
   }
 
@@ -161,6 +180,25 @@ function showFatal(html) {
     }
   } catch (err) {
     console.error("status check failed (non-fatal):", err);
+  }
+
+  try {
+    // Если пользователь выбрал тариф ещё на лендинге (до регистрации) —
+    // подхватываем это значение один раз при первом визите в кабинет.
+    let plan = await getSelectedPlan(client, session.user.id);
+    const landingPlan = getLandingSelectedPlan();
+    if (landingPlan && landingPlan !== plan) {
+      await setSelectedPlan(client, session.user.id, landingPlan);
+      plan = landingPlan;
+    }
+    const pricingBadge = document.getElementById("pricingBadge");
+    pricingBadge.textContent = PLAN_LABELS[plan] || "Бесплатно";
+    if (plan !== "free") {
+      pricingBadge.classList.add("done");
+      document.getElementById("pricingDesc").textContent = "Оплата будет подключена следующим шагом — пока план активен без списаний.";
+    }
+  } catch (err) {
+    console.error("plan sync failed (non-fatal):", err);
   }
 
   loadingState.style.display = "none";
