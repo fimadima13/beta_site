@@ -1,5 +1,5 @@
 // RelationSync.ai — общая логика авторизации и данных для login.html, cabinet.html,
-// questionnaire.html и checklist.html.
+// questionnaire.html, checklist.html и pricing.html.
 // Использует Supabase JS SDK (через ESM CDN, без сборки — подходит для GitHub Pages).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -29,11 +29,6 @@ export async function getSession(client) {
    АНКЕТА О ПАРЕ (couple_profiles)
    ============================================================ */
 
-/**
- * Сохраняет (создаёт или обновляет) расширенную анкету пары для текущего пользователя.
- * Таблица: public.couple_profiles, PK/unique — user_id.
- * Требует настроенных RLS-политик (см. supabase-schema.sql).
- */
 export async function saveCoupleProfile(client, userId, profile) {
   const toIntOrNull = (v) => {
     const n = parseInt(v, 10);
@@ -78,10 +73,6 @@ export async function saveCoupleProfile(client, userId, profile) {
   return data;
 }
 
-/**
- * Загружает анкету пары текущего пользователя, если она уже существует.
- * Возвращает null при отсутствии анкеты или ошибке доступа (логируется в консоль).
- */
 export async function loadCoupleProfile(client, userId) {
   try {
     const { data, error } = await client
@@ -101,10 +92,6 @@ export async function loadCoupleProfile(client, userId) {
   }
 }
 
-/**
- * Проверяет, заполнена ли анкета (для показа статуса в кабинете).
- * Никогда не бросает исключение.
- */
 export async function hasCoupleProfile(client, userId) {
   try {
     const profile = await loadCoupleProfile(client, userId);
@@ -116,30 +103,76 @@ export async function hasCoupleProfile(client, userId) {
 }
 
 /* ============================================================
-   ЧЕК-ЛИСТ (checklists)
+   ТАРИФ (couple_profiles.selected_plan)
    ============================================================
+   Временное решение до появления полноценной таблицы subscriptions
+   и платёжного модуля. Хранит выбор пользователя ('free' | 'premium' | 'couple')
+   прямо в couple_profiles, без факта оплаты — это просто отметка намерения.
+   ============================================================ */
 
-   Структура таблицы (см. supabase-schema.sql):
-     user_id                     uuid, PK
-     items                       jsonb[]  -- [{ id, title, detail, tag, done }]
-     generation_status           text     -- 'placeholder' | 'ai_generated'
-     source_profile_updated_at   timestamptz  -- снапшот updated_at анкеты на момент генерации
-     raw_prompt_input            jsonb    -- то, что уходило "на вход" генерации (для отладки/аудита)
-     generated_at                timestamptz
-     updated_at                  timestamptz
+const VALID_PLANS = ["free", "premium", "couple"];
 
-   ВАЖНО ДЛЯ LLM-ИНТЕГРАЦИИ:
-   Функция generateChecklistPlaceholder() ниже — это ВРЕМЕННАЯ заглушка без ИИ.
-   Она напрямую раскладывает поля анкеты в читаемые пункты по шаблонам.
-   Когда будет готова реальная генерация через LLM, эту функцию нужно
-   заменить вызовом серверной функции (Supabase Edge Function или другой backend),
-   которая:
-     1) принимает profile (те же поля, что видно ниже в PLACEHOLDER_TEMPLATES),
-     2) отправляет их в LLM с промптом,
-     3) возвращает items в ТОМ ЖЕ формате: [{ id, title, detail, tag, done: false }],
-     4) сохраняет результат через saveChecklist() с generation_status: 'ai_generated'.
-   UI (checklist.html) менять не нужно — он рассчитан на этот формат items уже сейчас.
-   Подробности контракта — см. файл LLM-SPEC.md.
+/**
+ * Сохраняет выбранный пользователем тариф (без оплаты — это заглушка до
+ * подключения платёжного модуля). Если у пользователя ещё нет строки в
+ * couple_profiles (анкета не заполнена), создаёт минимальную запись.
+ */
+export async function setSelectedPlan(client, userId, plan) {
+  if (!VALID_PLANS.includes(plan)) throw new Error("Некорректный тариф: " + plan);
+
+  const { data, error } = await client
+    .from("couple_profiles")
+    .upsert(
+      { user_id: userId, selected_plan: plan, updated_at: new Date().toISOString() },
+      { onConflict: "user_id" }
+    )
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Возвращает текущий выбранный тариф пользователя, либо 'free' по умолчанию,
+ * если ничего не выбрано (в т.ч. если анкета ещё не заполнена).
+ */
+export async function getSelectedPlan(client, userId) {
+  try {
+    const { data, error } = await client
+      .from("couple_profiles")
+      .select("selected_plan")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error("getSelectedPlan error:", error);
+      return "free";
+    }
+    return (data && data.selected_plan) || "free";
+  } catch (err) {
+    console.error("getSelectedPlan exception:", err);
+    return "free";
+  }
+}
+
+/**
+ * Читает план, который пользователь выбрал НА ЛЕНДИНГЕ (до регистрации) —
+ * сохранён в localStorage скриптом assets/plan-select-snippet.js на странице входа.
+ * Используется, чтобы после первого входа в кабинет можно было предзаполнить
+ * selected_plan тем же значением, что человек выбрал на сайте.
+ */
+export function getLandingSelectedPlan() {
+  try {
+    const plan = localStorage.getItem("relationsync_selected_plan");
+    return VALID_PLANS.includes(plan) ? plan : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/* ============================================================
+   ЧЕК-ЛИСТ (checklists)
    ============================================================ */
 
 const STAGE_LABELS = {
@@ -274,11 +307,7 @@ function buildPlaceholderItems(profile) {
 }
 
 /**
- * ВРЕМЕННАЯ ЗАГЛУШКА (без ИИ). Собирает чек-лист напрямую из полей анкеты
- * по фиксированным шаблонам. См. комментарий выше блока — заменить на вызов
- * LLM-генерации, когда она будет готова (контракт формата items не меняется).
- *
- * @param {object} options.force - если true, пересобирает даже если чек-лист уже есть и не устарел
+ * ВРЕМЕННАЯ ЗАГЛУШКА (без ИИ). См. LLM-SPEC.md для контракта замены на реальную генерацию.
  */
 export async function generateChecklistPlaceholder(client, userId, profile, options = {}) {
   const items = buildPlaceholderItems(profile);
@@ -288,7 +317,7 @@ export async function generateChecklistPlaceholder(client, userId, profile, opti
     items,
     generation_status: "placeholder",
     source_profile_updated_at: profile.updated_at || new Date().toISOString(),
-    raw_prompt_input: profile, // снапшот входных данных — полезно для будущей отладки промптов
+    raw_prompt_input: profile,
     generated_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
@@ -303,9 +332,6 @@ export async function generateChecklistPlaceholder(client, userId, profile, opti
   return data;
 }
 
-/**
- * Загружает текущий чек-лист пользователя. Возвращает null, если ещё не сгенерирован.
- */
 export async function loadChecklist(client, userId) {
   try {
     const { data, error } = await client
@@ -325,10 +351,6 @@ export async function loadChecklist(client, userId) {
   }
 }
 
-/**
- * Отмечает/снимает отметку выполнения конкретного пункта чек-листа по индексу.
- * Читает текущий items, меняет нужный элемент, сохраняет обратно.
- */
 export async function toggleChecklistItem(client, userId, itemIndex, doneValue) {
   const { data: current, error: readError } = await client
     .from("checklists")
@@ -353,12 +375,6 @@ export async function toggleChecklistItem(client, userId, itemIndex, doneValue) 
   return data;
 }
 
-/**
- * Универсальная точка сохранения чек-листа — предназначена для будущей
- * LLM-генерации. Специалист по интеграции LLM вызывает эту функцию после
- * получения ответа от модели, передавая items в контрактном формате.
- * generationStatus должен быть 'ai_generated' для результатов реальной генерации.
- */
 export async function saveChecklist(client, userId, items, options = {}) {
   const payload = {
     user_id: userId,
