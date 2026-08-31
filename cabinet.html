@@ -21,24 +21,57 @@
 .cab-loading a{color:#fff; text-decoration:underline;}
 .cab-loading code{background:rgba(255,255,255,.08); padding:1px 6px; border-radius:5px; font-size:12.5px;}
 
-/* Тариф — компактный бейдж в хедере рядом с email, а не карточка в общей сетке */
+/* Тариф — компактный бейдж в хедере рядом с email, а не карточка в общей сетке.
+   Все дочерние элементы выровнены явным line-height/flex, без зависимости от
+   baseline текста внутри svg/span, что было причиной "неровного" вида. */
 .plan-pill{
-  display:inline-flex; align-items:center; gap:7px;
-  height:38px; padding:0 14px 0 6px; border-radius:999px;
-  border:1px solid var(--line); background:rgba(255,255,255,.03);
-  font-size:13px; font-weight:600; color:var(--ink);
-  text-decoration:none; cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  height:38px;
+  padding:0 14px 0 6px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+  text-decoration:none;
+  cursor:pointer;
   transition:background .18s ease, border-color .18s ease;
+  line-height:1;
 }
 .plan-pill:hover{background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.25);}
+
 .plan-pill .plan-dot{
-  width:7px; height:7px; border-radius:50%; background:var(--muted); flex:none;
+  display:block;
+  flex:none;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--muted);
 }
 .plan-pill.premium .plan-dot, .plan-pill.couple .plan-dot{background:#7ee0a8;}
-.plan-pill .plan-chevron{width:12px; height:12px; color:var(--muted); flex:none;}
+
+.plan-pill .plan-label{
+  display:block;
+  flex:none;
+  font-size:13px;
+  font-weight:600;
+  color:var(--ink);
+  line-height:1;
+  transform:translateY(0.5px); /* компенсация оптического центра шрифта Manrope */
+}
+
+.plan-pill .plan-chevron{
+  display:block;
+  flex:none;
+  width:12px;
+  height:12px;
+  color:var(--muted);
+}
 
 @media (max-width:560px){
-  .plan-pill{font-size:12px; padding:0 10px 0 6px; height:34px;}
+  .plan-pill{padding:0 10px 0 6px; height:34px;}
+  .plan-pill .plan-label{font-size:12px;}
 }
 </style>
 </head>
@@ -70,7 +103,7 @@
     <div class="cab-user">
       <a href="pricing.html" class="plan-pill" id="planPill">
         <span class="plan-dot"></span>
-        <span id="planPillLabel">Бесплатно</span>
+        <span class="plan-label" id="planPillLabel">Бесплатно</span>
         <svg class="plan-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <span class="cab-user-email" id="userEmail"></span>
