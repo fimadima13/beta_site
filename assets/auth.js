@@ -1,5 +1,5 @@
 // RelationSync.ai — общая логика авторизации и данных для login.html, cabinet.html,
-// questionnaire.html, checklist.html и pricing.html.
+// questionnaire.html, checklist.html, pricing.html и account.html.
 // Использует Supabase JS SDK (через ESM CDN, без сборки — подходит для GitHub Pages).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -23,6 +23,69 @@ export async function getSession(client) {
   const { data, error } = await client.auth.getSession();
   if (error) return null;
   return data.session;
+}
+
+/* ============================================================
+   ПРОФИЛЬ АККАУНТА (auth.users + user_metadata, couple_profiles.user_name)
+   ============================================================ */
+
+/**
+ * Обновляет отображаемое имя пользователя. Хранится в двух местах:
+ * - Supabase Auth user_metadata.display_name (источник истины для входа/сессии)
+ * - couple_profiles.user_name (уже используется в анкете и чек-листе)
+ * Обе записи обновляются, чтобы не разошлись данные между анкетой и профилем.
+ */
+export async function updateDisplayName(client, userId, name) {
+  const { error: authError } = await client.auth.updateUser({
+    data: { display_name: name },
+  });
+  if (authError) throw authError;
+
+  // Не критично, если у пользователя ещё нет строки в couple_profiles —
+  // тогда просто создаём минимальную запись с именем.
+  const { error: profileError } = await client
+    .from("couple_profiles")
+    .upsert(
+      { user_id: userId, user_name: name, updated_at: new Date().toISOString() },
+      { onConflict: "user_id" }
+    );
+  if (profileError) throw profileError;
+
+  return true;
+}
+
+/**
+ * Запрашивает смену email. Supabase отправляет письмо для подтверждения
+ * на НОВЫЙ адрес — смена вступит в силу только после подтверждения по ссылке
+ * из письма. До подтверждения текущий email продолжает действовать для входа.
+ */
+export async function requestEmailChange(client, newEmail) {
+  const { error } = await client.auth.updateUser({ email: newEmail });
+  if (error) throw error;
+  return true;
+}
+
+/**
+ * Меняет пароль текущего пользователя. Требует активной сессии — не запрашивает
+ * старый пароль повторно (пользователь уже прошёл auth через сессию).
+ */
+export async function updatePassword(client, newPassword) {
+  const { error } = await client.auth.updateUser({ password: newPassword });
+  if (error) throw error;
+  return true;
+}
+
+/**
+ * Возвращает удобный для отображения профиль: email, отображаемое имя
+ * (из user_metadata, либо часть email до @, если имя не задано).
+ */
+export function getDisplayProfile(session) {
+  if (!session) return null;
+  const meta = session.user.user_metadata || {};
+  return {
+    email: session.user.email,
+    displayName: meta.display_name || session.user.email.split("@")[0],
+  };
 }
 
 /* ============================================================
@@ -104,19 +167,10 @@ export async function hasCoupleProfile(client, userId) {
 
 /* ============================================================
    ТАРИФ (couple_profiles.selected_plan)
-   ============================================================
-   Временное решение до появления полноценной таблицы subscriptions
-   и платёжного модуля. Хранит выбор пользователя ('free' | 'premium' | 'couple')
-   прямо в couple_profiles, без факта оплаты — это просто отметка намерения.
    ============================================================ */
 
 const VALID_PLANS = ["free", "premium", "couple"];
 
-/**
- * Сохраняет выбранный пользователем тариф (без оплаты — это заглушка до
- * подключения платёжного модуля). Если у пользователя ещё нет строки в
- * couple_profiles (анкета не заполнена), создаёт минимальную запись.
- */
 export async function setSelectedPlan(client, userId, plan) {
   if (!VALID_PLANS.includes(plan)) throw new Error("Некорректный тариф: " + plan);
 
@@ -133,10 +187,6 @@ export async function setSelectedPlan(client, userId, plan) {
   return data;
 }
 
-/**
- * Возвращает текущий выбранный тариф пользователя, либо 'free' по умолчанию,
- * если ничего не выбрано (в т.ч. если анкета ещё не заполнена).
- */
 export async function getSelectedPlan(client, userId) {
   try {
     const { data, error } = await client
@@ -156,12 +206,6 @@ export async function getSelectedPlan(client, userId) {
   }
 }
 
-/**
- * Читает план, который пользователь выбрал НА ЛЕНДИНГЕ (до регистрации) —
- * сохранён в localStorage скриптом assets/plan-select-snippet.js на странице входа.
- * Используется, чтобы после первого входа в кабинет можно было предзаполнить
- * selected_plan тем же значением, что человек выбрал на сайте.
- */
 export function getLandingSelectedPlan() {
   try {
     const plan = localStorage.getItem("relationsync_selected_plan");
@@ -306,9 +350,6 @@ function buildPlaceholderItems(profile) {
   return items;
 }
 
-/**
- * ВРЕМЕННАЯ ЗАГЛУШКА (без ИИ). См. LLM-SPEC.md для контракта замены на реальную генерацию.
- */
 export async function generateChecklistPlaceholder(client, userId, profile, options = {}) {
   const items = buildPlaceholderItems(profile);
 
