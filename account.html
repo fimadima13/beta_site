@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>Аккаунт — RelationSync.ai</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/auth.css">
+<script src="assets/supabase-config.js"></script>
+<style>
+.ac-wrap{
+  flex:1; width:100%; max-width:560px; margin:0 auto; padding:20px 24px 80px;
+}
+.ac-head{margin-bottom:30px;}
+.ac-eyebrow{
+  display:inline-flex; align-items:center; gap:8px; margin-bottom:14px;
+  padding:6px 13px; border-radius:5px; border:1px solid var(--line);
+  background:rgba(255,255,255,.03); font-size:11.5px; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+}
+.ac-title{font-size:24px; font-weight:700; margin:0 0 8px; letter-spacing:-.01em;}
+.ac-sub{font-size:14px; color:var(--muted); margin:0; line-height:1.55;}
+
+.ac-section{
+  border:1px solid var(--line); background:var(--card); border-radius:16px;
+  padding:26px 24px; margin-bottom:20px;
+}
+.ac-section h3{font-size:15.5px; font-weight:700; margin:0 0 4px;}
+.ac-section .ac-section-desc{font-size:13px; color:var(--muted); margin:0 0 18px; line-height:1.5;}
+
+.ac-field{margin-bottom:14px;}
+.ac-field label{display:block; font-size:12.5px; color:var(--muted); margin-bottom:7px; font-weight:600;}
+.ac-field input{
+  width:100%; height:46px; border-radius:12px; border:1px solid var(--line);
+  background:rgba(255,255,255,.03); color:#fff; padding:0 15px; font-size:14.5px;
+  font-family:inherit; transition:border-color .2s ease;
+}
+.ac-field input::placeholder{color:var(--muted);}
+.ac-field input:focus{outline:none; border-color:rgba(255,255,255,.4);}
+.ac-field input:disabled{opacity:.5;}
+.ac-field .ac-hint{font-size:12px; color:var(--muted); margin:7px 0 0; line-height:1.5;}
+
+.ac-btn{
+  height:44px; padding:0 20px; border-radius:999px; font-size:14px; font-weight:600;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  font-family:inherit; cursor:pointer; border:1px solid var(--line);
+  background:var(--pill); color:var(--pill-ink); transition:opacity .15s ease, transform .15s ease;
+}
+.ac-btn:active{transform:scale(.98);}
+.ac-btn:disabled{opacity:.5; cursor:default;}
+
+.ac-msg{
+  margin-top:14px; padding:10px 13px; border-radius:10px; font-size:13px; line-height:1.45; display:none;
+}
+.ac-msg.show{display:block;}
+.ac-msg.error{background:rgba(255,107,107,.1); border:1px solid rgba(255,107,107,.25); color:var(--err);}
+.ac-msg.ok{background:rgba(126,224,168,.1); border:1px solid rgba(126,224,168,.25); color:var(--ok);}
+
+.ac-spinner{
+  width:14px; height:14px; border-radius:50%;
+  border:2px solid rgba(5,5,5,.25); border-top-color:var(--pill-ink);
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.ac-danger{border-color:rgba(255,107,107,.25);}
+.ac-danger .ac-btn{background:transparent; color:var(--err); border-color:rgba(255,107,107,.35);}
+
+.cab-loading{max-width:560px; margin:0 auto; text-align:center; line-height:1.6;}
+.cab-loading a{color:#fff; text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<div id="loadingState" class="cab-loading">
+  <span class="spinner"></span>
+</div>
+
+<div id="appRoot" style="display:none">
+
+  <header class="mini-header">
+    <a href="cabinet.html" class="brand" aria-label="RelationSync.ai">
+      <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
+        <defs>
+          <linearGradient id="bg1" x1="8" y1="10" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#9e9e9e"/><stop offset=".28" stop-color="#a6a6a6"/>
+            <stop offset=".34" stop-color="#a3a3a3"/><stop offset=".40" stop-color="#3a3a3a"/>
+            <stop offset=".55" stop-color="#414141"/><stop offset=".60" stop-color="#7a7a7a"/>
+            <stop offset=".68" stop-color="#8e8e8e"/><stop offset=".80" stop-color="#a9a9a9"/>
+            <stop offset=".95" stop-color="#c4c4c4"/><stop offset="1" stop-color="#cccccc"/>
+          </linearGradient>
+        </defs>
+        <path d="M21.5 0 L21.5 19.5 L31.5 19.5 L31.5 29 L10 48.5 L10 28.5 L0.5 28.5 L0.5 18.5 Z" fill="url(#bg1)"/>
+        <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/>
+        <rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
+      </svg>
+      <span class="word">RelationSync<span class="dim">.ai</span></span>
+    </a>
+    <a href="cabinet.html" class="back-link">← В кабинет</a>
+  </header>
+
+  <div class="ac-wrap">
+
+    <div class="ac-head">
+      <span class="ac-eyebrow">Аккаунт</span>
+      <h1 class="ac-title">Настройки аккаунта</h1>
+      <p class="ac-sub">Измените имя, email или пароль. Изменения email потребуют подтверждения по почте.</p>
+    </div>
+
+    <div class="ac-section">
+      <h3>Имя</h3>
+      <p class="ac-section-desc">Как к вам обращаться в кабинете и чек-листах.</p>
+      <form id="nameForm">
+        <div class="ac-field">
+          <label for="nameInput">Имя</label>
+          <input type="text" id="nameInput" placeholder="Например: Аня">
+        </div>
+        <button type="submit" class="ac-btn" id="nameBtn"><span>Сохранить имя</span></button>
+        <div class="ac-msg" id="nameMsg"></div>
+      </form>
+    </div>
+
+    <div class="ac-section">
+      <h3>Email</h3>
+      <p class="ac-section-desc">Текущий email используется для входа. При смене на новый адрес придёт письмо для подтверждения — до подтверждения вход остаётся по старому email.</p>
+      <form id="emailForm">
+        <div class="ac-field">
+          <label for="currentEmailInput">Текущий email</label>
+          <input type="email" id="currentEmailInput" disabled>
+        </div>
+        <div class="ac-field">
+          <label for="newEmailInput">Новый email</label>
+          <input type="email" id="newEmailInput" placeholder="new@example.com" required>
+          <p class="ac-hint">После сохранения проверьте почту нового адреса и подтвердите смену по ссылке из письма.</p>
+        </div>
+        <button type="submit" class="ac-btn" id="emailBtn"><span>Изменить email</span></button>
+        <div class="ac-msg" id="emailMsg"></div>
+      </form>
+    </div>
+
+    <div class="ac-section">
+      <h3>Пароль</h3>
+      <p class="ac-section-desc">Установите новый пароль для входа в аккаунт.</p>
+      <form id="passwordForm">
+        <div class="ac-field">
+          <label for="newPasswordInput">Новый пароль</label>
+          <input type="password" id="newPasswordInput" placeholder="Минимум 6 символов" required minlength="6" autocomplete="new-password">
+        </div>
+        <div class="ac-field">
+          <label for="confirmPasswordInput">Повторите новый пароль</label>
+          <input type="password" id="confirmPasswordInput" placeholder="Повторите пароль" required minlength="6" autocomplete="new-password">
+        </div>
+        <button type="submit" class="ac-btn" id="passwordBtn"><span>Изменить пароль</span></button>
+        <div class="ac-msg" id="passwordMsg"></div>
+      </form>
+    </div>
+
+    <div class="ac-section ac-danger">
+      <h3>Выйти из аккаунта</h3>
+      <p class="ac-section-desc">Завершить текущую сессию на этом устройстве.</p>
+      <button type="button" class="ac-btn" id="logoutBtn"><span>Выйти</span></button>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { getClient, isConfigured, getSession, updateDisplayName, requestEmailChange, updatePassword, getDisplayProfile } from "./assets/auth.js";
+
+const loadingState = document.getElementById("loadingState");
+const appRoot = document.getElementById("appRoot");
+
+let client = null;
+let session = null;
+
+function showFatal(html) {
+  loadingState.innerHTML = html;
+}
+
+function showMsg(elId, text, type) {
+  const el = document.getElementById(elId);
+  el.textContent = text;
+  el.className = "ac-msg show " + type;
+}
+function hideMsg(elId) {
+  document.getElementById(elId).className = "ac-msg";
+}
+
+function setBusy(btnId, busy, label) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = busy;
+  btn.innerHTML = busy ? '<span class="ac-spinner"></span>' : "<span>" + label + "</span>";
+}
+
+async function init() {
+  if (!isConfigured()) {
+    showFatal('<span>Supabase не настроен — заполните <code>assets/supabase-config.js</code>. <a href="login.html">Ко входу</a></span>');
+    return;
+  }
+
+  try {
+    client = getClient();
+    session = await getSession(client);
+  } catch (err) {
+    console.error("auth init failed:", err);
+    showFatal('<span>Не удалось проверить сессию. <a href="login.html">Ко входу</a></span>');
+    return;
+  }
+
+  if (!session) {
+    window.location.href = "login.html?next=account.html";
+    return;
+  }
+
+  const profile = getDisplayProfile(session);
+  document.getElementById("nameInput").value = profile.displayName || "";
+  document.getElementById("currentEmailInput").value = profile.email;
+
+  loadingState.style.display = "none";
+  appRoot.style.display = "block";
+}
+
+document.getElementById("nameForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  hideMsg("nameMsg");
+  const name = document.getElementById("nameInput").value.trim();
+  if (!name) {
+    showMsg("nameMsg", "Введите имя.", "error");
+    return;
+  }
+  setBusy("nameBtn", true);
+  try {
+    await updateDisplayName(client, session.user.id, name);
+    showMsg("nameMsg", "Имя сохранено.", "ok");
+  } catch (err) {
+    console.error("updateDisplayName failed:", err);
+    showMsg("nameMsg", "Не удалось сохранить имя: " + (err?.message || "неизвестная ошибка"), "error");
+  } finally {
+    setBusy("nameBtn", false, "Сохранить имя");
+  }
+});
+
+document.getElementById("emailForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  hideMsg("emailMsg");
+  const newEmail = document.getElementById("newEmailInput").value.trim();
+  if (!newEmail) {
+    showMsg("emailMsg", "Введите новый email.", "error");
+    return;
+  }
+  setBusy("emailBtn", true);
+  try {
+    await requestEmailChange(client, newEmail);
+    showMsg("emailMsg", "Письмо для подтверждения отправлено на " + newEmail + ". Проверьте почту.", "ok");
+    document.getElementById("newEmailInput").value = "";
+  } catch (err) {
+    console.error("requestEmailChange failed:", err);
+    showMsg("emailMsg", "Не удалось изменить email: " + (err?.message || "неизвестная ошибка"), "error");
+  } finally {
+    setBusy("emailBtn", false, "Изменить email");
+  }
+});
+
+document.getElementById("passwordForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  hideMsg("passwordMsg");
+  const newPassword = document.getElementById("newPasswordInput").value;
+  const confirmPassword = document.getElementById("confirmPasswordInput").value;
+
+  if (newPassword !== confirmPassword) {
+    showMsg("passwordMsg", "Пароли не совпадают.", "error");
+    return;
+  }
+  if (newPassword.length < 6) {
+    showMsg("passwordMsg", "Пароль должен быть не короче 6 символов.", "error");
+    return;
+  }
+
+  setBusy("passwordBtn", true);
+  try {
+    await updatePassword(client, newPassword);
+    showMsg("passwordMsg", "Пароль изменён.", "ok");
+    document.getElementById("newPasswordInput").value = "";
+    document.getElementById("confirmPasswordInput").value = "";
+  } catch (err) {
+    console.error("updatePassword failed:", err);
+    showMsg("passwordMsg", "Не удалось изменить пароль: " + (err?.message || "неизвестная ошибка"), "error");
+  } finally {
+    setBusy("passwordBtn", false, "Изменить пароль");
+  }
+});
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  await client.auth.signOut();
+  window.location.href = "login.html";
+});
+
+init();
+</script>
+</body>
+</html>
