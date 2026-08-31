@@ -1,5 +1,4 @@
-// RelationSync.ai — общая логика авторизации и данных для login.html, cabinet.html,
-// questionnaire.html, checklist.html, pricing.html и account.html.
+// RelationSync.ai — общая логика авторизации и данных для всех страниц кабинета.
 // Использует Supabase JS SDK (через ESM CDN, без сборки — подходит для GitHub Pages).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -26,59 +25,33 @@ export async function getSession(client) {
 }
 
 /* ============================================================
-   ПРОФИЛЬ АККАУНТА (auth.users + user_metadata, couple_profiles.user_name)
+   ПРОФИЛЬ АККАУНТА
    ============================================================ */
 
-/**
- * Обновляет отображаемое имя пользователя. Хранится в двух местах:
- * - Supabase Auth user_metadata.display_name (источник истины для входа/сессии)
- * - couple_profiles.user_name (уже используется в анкете и чек-листе)
- * Обе записи обновляются, чтобы не разошлись данные между анкетой и профилем.
- */
 export async function updateDisplayName(client, userId, name) {
-  const { error: authError } = await client.auth.updateUser({
-    data: { display_name: name },
-  });
+  const { error: authError } = await client.auth.updateUser({ data: { display_name: name } });
   if (authError) throw authError;
 
-  // Не критично, если у пользователя ещё нет строки в couple_profiles —
-  // тогда просто создаём минимальную запись с именем.
   const { error: profileError } = await client
     .from("couple_profiles")
-    .upsert(
-      { user_id: userId, user_name: name, updated_at: new Date().toISOString() },
-      { onConflict: "user_id" }
-    );
+    .upsert({ user_id: userId, user_name: name, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
   if (profileError) throw profileError;
 
   return true;
 }
 
-/**
- * Запрашивает смену email. Supabase отправляет письмо для подтверждения
- * на НОВЫЙ адрес — смена вступит в силу только после подтверждения по ссылке
- * из письма. До подтверждения текущий email продолжает действовать для входа.
- */
 export async function requestEmailChange(client, newEmail) {
   const { error } = await client.auth.updateUser({ email: newEmail });
   if (error) throw error;
   return true;
 }
 
-/**
- * Меняет пароль текущего пользователя. Требует активной сессии — не запрашивает
- * старый пароль повторно (пользователь уже прошёл auth через сессию).
- */
 export async function updatePassword(client, newPassword) {
   const { error } = await client.auth.updateUser({ password: newPassword });
   if (error) throw error;
   return true;
 }
 
-/**
- * Возвращает удобный для отображения профиль: email, отображаемое имя
- * (из user_metadata, либо часть email до @, если имя не задано).
- */
 export function getDisplayProfile(session) {
   if (!session) return null;
   const meta = session.user.user_metadata || {};
@@ -220,219 +193,209 @@ export function getLandingSelectedPlan() {
    ============================================================ */
 
 const STAGE_LABELS = {
-  dating_start: "Знакомство",
-  dating: "Свидания",
-  relationship: "Отношения",
-  crisis: "Кризис",
-  recovery: "Восстановление",
+  dating_start: "Знакомство", dating: "Свидания", relationship: "Отношения",
+  crisis: "Кризис", recovery: "Восстановление",
 };
-
 const ATTACHMENT_LABELS = {
-  secure: "надёжный",
-  anxious: "тревожный",
-  avoidant: "избегающий",
-  fearful: "тревожно-избегающий",
-  unsure: "не определён",
+  secure: "надёжный", anxious: "тревожный", avoidant: "избегающий",
+  fearful: "тревожно-избегающий", unsure: "не определён",
 };
-
 const CONFLICT_LABELS = {
-  discuss: "сразу обсуждать",
-  withdraw: "отойти и подумать",
-  appease: "сглаживать и уступать",
-  escalate: "повышать тон",
-  avoid: "избегать темы",
-  unsure: "неизвестно",
+  discuss: "сразу обсуждать", withdraw: "отойти и подумать", appease: "сглаживать и уступать",
+  escalate: "повышать тон", avoid: "избегать темы", unsure: "неизвестно",
 };
-
 const VALUE_LABELS = {
   honesty: "честность", support: "поддержка", independence: "личное пространство",
   passion: "страсть и близость", stability: "стабильность", growth: "совместный рост",
   humor: "юмор и лёгкость", loyalty: "верность", communication: "открытое общение",
   ambition: "общие цели и амбиции",
 };
-
 const GOAL_LABELS = {
-  understand_partner: "лучше понимать партнёра",
-  communication: "улучшить общение",
-  resolve_conflict: "разрешить текущий конфликт",
-  rebuild_trust: "восстановить доверие",
-  deepen_intimacy: "больше близости",
-  decide_future: "понять, куда движутся отношения",
+  understand_partner: "лучше понимать партнёра", communication: "улучшить общение",
+  resolve_conflict: "разрешить текущий конфликт", rebuild_trust: "восстановить доверие",
+  deepen_intimacy: "больше близости", decide_future: "понять, куда движутся отношения",
 };
 
 function buildPlaceholderItems(profile) {
   const items = [];
   let id = 1;
-
   const stageLabel = STAGE_LABELS[profile.relationship_stage] || "текущий этап";
-  items.push({
-    id: id++,
-    title: `Учитывайте, что вы сейчас на этапе «${stageLabel}»`,
-    detail: profile.stage_detail || profile.stage_note || "Уточните детали ситуации в анкете, чтобы советы были точнее.",
-    tag: "Стадия",
-    done: false,
-  });
-
-  if (profile.attachment_style) {
-    items.push({
-      id: id++,
-      title: `Ваш стиль привязанности — ${ATTACHMENT_LABELS[profile.attachment_style] || profile.attachment_style}`,
-      detail: "Это влияет на то, как вы реагируете на дистанцию и близость в паре — держите это в уме при следующем разговоре с партнёром.",
-      tag: "О вас",
-      done: false,
-    });
-  }
-
-  if (profile.partner_attachment_style && profile.partner_attachment_style !== "unsure") {
-    items.push({
-      id: id++,
-      title: `У партнёра предположительно ${ATTACHMENT_LABELS[profile.partner_attachment_style] || profile.partner_attachment_style} стиль привязанности`,
-      detail: "Сравните со своим стилем — часто именно разница в стилях привязанности объясняет повторяющиеся недопонимания.",
-      tag: "О партнёре",
-      done: false,
-    });
-  }
-
-  if (profile.conflict_style) {
-    items.push({
-      id: id++,
-      title: `В конфликте вам свойственно ${CONFLICT_LABELS[profile.conflict_style] || profile.conflict_style}`,
-      detail: profile.partner_conflict_style
-        ? `У партнёра противоположная/схожая тенденция: ${CONFLICT_LABELS[profile.partner_conflict_style] || profile.partner_conflict_style}. Обсудите это напрямую, не дожидаясь следующего спора.`
-        : "Обсудите с партнёром, как каждый из вас предпочитает решать разногласия.",
-      tag: "Коммуникация",
-      done: false,
-    });
-  }
-
-  if (profile.values && profile.values.length) {
-    const labels = profile.values.map(v => VALUE_LABELS[v] || v).join(", ");
-    items.push({
-      id: id++,
-      title: "Ваши ключевые ценности в отношениях",
-      detail: `Вы отметили: ${labels}. Проверьте, насколько партнёр в курсе, что это важно для вас.`,
-      tag: "Ценности",
-      done: false,
-    });
-  }
-
-  if (profile.triggers) {
-    items.push({
-      id: id++,
-      title: "Отметьте свои триггеры партнёру, если ещё не делали этого",
-      detail: profile.triggers,
-      tag: "Опыт",
-      done: false,
-    });
-  }
-
-  if (profile.goals && profile.goals.length) {
-    const labels = profile.goals.map(g => GOAL_LABELS[g] || g).join(", ");
-    items.push({
-      id: id++,
-      title: "Ваш текущий приоритет",
-      detail: `Вы отметили: ${labels}. Все следующие шаги стоит сверять с этим приоритетом.`,
-      tag: "Цель",
-      done: false,
-    });
-  }
-
-  if (items.length === 0) {
-    items.push({
-      id: id++,
-      title: "Заполните анкету подробнее",
-      detail: "Чем больше деталей о себе и партнёре, тем точнее будет чек-лист.",
-      tag: "Анкета",
-      done: false,
-    });
-  }
-
+  items.push({ id: id++, title: `Учитывайте, что вы сейчас на этапе «${stageLabel}»`, detail: profile.stage_detail || profile.stage_note || "Уточните детали ситуации в анкете, чтобы советы были точнее.", tag: "Стадия", done: false });
+  if (profile.attachment_style) items.push({ id: id++, title: `Ваш стиль привязанности — ${ATTACHMENT_LABELS[profile.attachment_style] || profile.attachment_style}`, detail: "Это влияет на то, как вы реагируете на дистанцию и близость в паре — держите это в уме при следующем разговоре с партнёром.", tag: "О вас", done: false });
+  if (profile.partner_attachment_style && profile.partner_attachment_style !== "unsure") items.push({ id: id++, title: `У партнёра предположительно ${ATTACHMENT_LABELS[profile.partner_attachment_style] || profile.partner_attachment_style} стиль привязанности`, detail: "Сравните со своим стилем — часто именно разница в стилях привязанности объясняет повторяющиеся недопонимания.", tag: "О партнёре", done: false });
+  if (profile.conflict_style) items.push({ id: id++, title: `В конфликте вам свойственно ${CONFLICT_LABELS[profile.conflict_style] || profile.conflict_style}`, detail: profile.partner_conflict_style ? `У партнёра противоположная/схожая тенденция: ${CONFLICT_LABELS[profile.partner_conflict_style] || profile.partner_conflict_style}. Обсудите это напрямую, не дожидаясь следующего спора.` : "Обсудите с партнёром, как каждый из вас предпочитает решать разногласия.", tag: "Коммуникация", done: false });
+  if (profile.values && profile.values.length) items.push({ id: id++, title: "Ваши ключевые ценности в отношениях", detail: `Вы отметили: ${profile.values.map(v => VALUE_LABELS[v] || v).join(", ")}. Проверьте, насколько партнёр в курсе, что это важно для вас.`, tag: "Ценности", done: false });
+  if (profile.triggers) items.push({ id: id++, title: "Отметьте свои триггеры партнёру, если ещё не делали этого", detail: profile.triggers, tag: "Опыт", done: false });
+  if (profile.goals && profile.goals.length) items.push({ id: id++, title: "Ваш текущий приоритет", detail: `Вы отметили: ${profile.goals.map(g => GOAL_LABELS[g] || g).join(", ")}. Все следующие шаги стоит сверять с этим приоритетом.`, tag: "Цель", done: false });
+  if (items.length === 0) items.push({ id: id++, title: "Заполните анкету подробнее", detail: "Чем больше деталей о себе и партнёре, тем точнее будет чек-лист.", tag: "Анкета", done: false });
   return items;
 }
 
 export async function generateChecklistPlaceholder(client, userId, profile, options = {}) {
   const items = buildPlaceholderItems(profile);
-
   const payload = {
-    user_id: userId,
-    items,
-    generation_status: "placeholder",
+    user_id: userId, items, generation_status: "placeholder",
     source_profile_updated_at: profile.updated_at || new Date().toISOString(),
-    raw_prompt_input: profile,
-    generated_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    raw_prompt_input: profile, generated_at: new Date().toISOString(), updated_at: new Date().toISOString(),
   };
-
-  const { data, error } = await client
-    .from("checklists")
-    .upsert(payload, { onConflict: "user_id" })
-    .select()
-    .single();
-
+  const { data, error } = await client.from("checklists").upsert(payload, { onConflict: "user_id" }).select().single();
   if (error) throw error;
   return data;
 }
 
 export async function loadChecklist(client, userId) {
   try {
-    const { data, error } = await client
-      .from("checklists")
-      .select("*")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    if (error) {
-      console.error("loadChecklist error:", error);
-      return null;
-    }
+    const { data, error } = await client.from("checklists").select("*").eq("user_id", userId).maybeSingle();
+    if (error) { console.error("loadChecklist error:", error); return null; }
     return data;
-  } catch (err) {
-    console.error("loadChecklist exception:", err);
-    return null;
-  }
+  } catch (err) { console.error("loadChecklist exception:", err); return null; }
 }
 
 export async function toggleChecklistItem(client, userId, itemIndex, doneValue) {
-  const { data: current, error: readError } = await client
-    .from("checklists")
-    .select("items")
-    .eq("user_id", userId)
-    .single();
-
+  const { data: current, error: readError } = await client.from("checklists").select("items").eq("user_id", userId).single();
   if (readError) throw readError;
-
   const items = current.items || [];
   if (!items[itemIndex]) throw new Error("Пункт чек-листа не найден");
   items[itemIndex].done = doneValue;
-
-  const { data, error } = await client
-    .from("checklists")
-    .update({ items, updated_at: new Date().toISOString() })
-    .eq("user_id", userId)
-    .select()
-    .single();
-
+  const { data, error } = await client.from("checklists").update({ items, updated_at: new Date().toISOString() }).eq("user_id", userId).select().single();
   if (error) throw error;
   return data;
 }
 
 export async function saveChecklist(client, userId, items, options = {}) {
   const payload = {
-    user_id: userId,
-    items,
-    generation_status: options.generationStatus || "ai_generated",
+    user_id: userId, items, generation_status: options.generationStatus || "ai_generated",
     source_profile_updated_at: options.sourceProfileUpdatedAt || new Date().toISOString(),
     raw_prompt_input: options.rawPromptInput || null,
-    generated_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    generated_at: new Date().toISOString(), updated_at: new Date().toISOString(),
   };
-
-  const { data, error } = await client
-    .from("checklists")
-    .upsert(payload, { onConflict: "user_id" })
-    .select()
-    .single();
-
+  const { data, error } = await client.from("checklists").upsert(payload, { onConflict: "user_id" }).select().single();
   if (error) throw error;
   return data;
+}
+
+/* ============================================================
+   ДНЕВНИК: настроение (mood_entries)
+   ============================================================ */
+
+/**
+ * Сохраняет отметку настроения на сегодня (одна запись в день на пользователя —
+ * повторная отметка в тот же день обновляет существующую запись).
+ * @param {number} moodValue - 1..5 (1 = очень плохо, 5 = очень хорошо)
+ */
+export async function saveMoodEntry(client, userId, moodValue, note = "") {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const { data, error } = await client
+    .from("mood_entries")
+    .upsert(
+      { user_id: userId, entry_date: today, mood_value: moodValue, note: note || "" },
+      { onConflict: "user_id,entry_date" }
+    )
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Загружает последние N отметок настроения, по возрастанию даты (для графика).
+ */
+export async function loadMoodHistory(client, userId, days = 14) {
+  try {
+    const { data, error } = await client
+      .from("mood_entries")
+      .select("*")
+      .eq("user_id", userId)
+      .order("entry_date", { ascending: false })
+      .limit(days);
+    if (error) { console.error("loadMoodHistory error:", error); return []; }
+    return (data || []).reverse();
+  } catch (err) {
+    console.error("loadMoodHistory exception:", err);
+    return [];
+  }
+}
+
+/* ============================================================
+   ДНЕВНИК: записи (diary_entries)
+   ============================================================ */
+
+export async function saveDiaryEntry(client, userId, text, prompt = "") {
+  const payload = { user_id: userId, entry_text: text, prompt_used: prompt || "" };
+  const { data, error } = await client.from("diary_entries").insert(payload).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function loadDiaryEntries(client, userId, limit = 30) {
+  try {
+    const { data, error } = await client
+      .from("diary_entries")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (error) { console.error("loadDiaryEntries error:", error); return []; }
+    return data || [];
+  } catch (err) {
+    console.error("loadDiaryEntries exception:", err);
+    return [];
+  }
+}
+
+export async function deleteDiaryEntry(client, userId, entryId) {
+  const { error } = await client.from("diary_entries").delete().eq("id", entryId).eq("user_id", userId);
+  if (error) throw error;
+  return true;
+}
+
+/* ============================================================
+   ВАЖНЫЕ ДАТЫ ПАРЫ (important_dates)
+   ============================================================ */
+
+export async function saveImportantDate(client, userId, title, dateValue, isRecurringYearly = true) {
+  const payload = { user_id: userId, title, date_value: dateValue, is_recurring_yearly: isRecurringYearly };
+  const { data, error } = await client.from("important_dates").insert(payload).select().single();
+  if (error) throw error;
+  return data;
+}
+
+export async function loadImportantDates(client, userId) {
+  try {
+    const { data, error } = await client
+      .from("important_dates")
+      .select("*")
+      .eq("user_id", userId)
+      .order("date_value", { ascending: true });
+    if (error) { console.error("loadImportantDates error:", error); return []; }
+    return data || [];
+  } catch (err) {
+    console.error("loadImportantDates exception:", err);
+    return [];
+  }
+}
+
+export async function deleteImportantDate(client, userId, dateId) {
+  const { error } = await client.from("important_dates").delete().eq("id", dateId).eq("user_id", userId);
+  if (error) throw error;
+  return true;
+}
+
+/**
+ * Вычисляет для важной даты: сколько дней до следующего наступления
+ * (с учётом is_recurring_yearly — переносит на следующий год, если дата уже прошла).
+ */
+export function daysUntilNext(dateValue, isRecurringYearly) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  let target = new Date(dateValue);
+  target.setHours(0, 0, 0, 0);
+
+  if (isRecurringYearly) {
+    target.setFullYear(today.getFullYear());
+    if (target < today) target.setFullYear(today.getFullYear() + 1);
+  }
+
+  const diffMs = target - today;
+  return Math.round(diffMs / (1000 * 60 * 60 * 24));
 }
