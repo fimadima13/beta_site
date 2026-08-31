@@ -17,6 +17,9 @@
 .cab-card.is-link{cursor:pointer; text-decoration:none; color:inherit; display:block;}
 .cab-badge.done{color:var(--ok); border-color:rgba(126,224,168,.3); background:rgba(126,224,168,.08);}
 .cab-badge.todo{color:#ffc16b; border-color:rgba(255,193,107,.3); background:rgba(255,193,107,.08);}
+.cab-loading{max-width:560px; margin:0 auto; text-align:center; line-height:1.6;}
+.cab-loading a{color:#fff; text-decoration:underline;}
+.cab-loading code{background:rgba(255,255,255,.08); padding:1px 6px; border-radius:5px; font-size:12.5px;}
 </style>
 </head>
 <body>
@@ -52,7 +55,7 @@
 
   <main class="cab-main">
     <h1 class="cab-hello">Привет, <span class="dim" id="helloName"></span></h1>
-    <p class="cab-sub">Это личный кабинет RelationSync.ai. Заполните анкету, чтобы начать получать персональные рекомендации.</p>
+    <p class="cab-sub">Это личный кабинет RelationSync.ai. Заполните анкету, чтобы получить персональный чек-лист.</p>
 
     <div class="cab-grid">
 
@@ -64,19 +67,19 @@
           </svg>
         </div>
         <h3>Анкета о паре</h3>
-        <p id="questionnaireDesc">Ценности, стиль привязанности, ожидания от отношений и стадия — займёт 5 минут.</p>
+        <p id="questionnaireDesc">Ценности, стиль привязанности, о партнёре и стадия — займёт 5–7 минут.</p>
       </a>
 
-      <div class="cab-card">
-        <span class="cab-badge">Скоро</span>
+      <a href="checklist.html" class="cab-card is-link" id="checklistCard">
+        <span class="cab-badge todo" id="checklistBadge">Заполните анкету</span>
         <div class="cab-card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 11l2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="2"/>
           </svg>
         </div>
         <h3>Персональный чек-лист</h3>
-        <p>План на основе анкеты — с общим или приватным режимом для двоих, синхронизация прогресса.</p>
-      </div>
+        <p id="checklistDesc">План на основе анкеты — сейчас в черновой версии, ИИ-персонализация появится следующим шагом.</p>
+      </a>
 
       <div class="cab-card">
         <span class="cab-badge">Скоро</span>
@@ -94,41 +97,80 @@
 </div>
 
 <script type="module">
-import { getClient, isConfigured, getSession, hasCoupleProfile } from "./assets/auth.js";
+import { getClient, isConfigured, getSession, hasCoupleProfile, loadChecklist } from "./assets/auth.js";
 
 const loadingState = document.getElementById("loadingState");
 const cabinetApp = document.getElementById("cabinetApp");
 
-if (!isConfigured()) {
-  loadingState.innerHTML = '<span>Supabase не настроен — заполните <code>assets/supabase-config.js</code>. <a href="login.html" style="color:#fff;text-decoration:underline">Ко входу</a></span>';
-} else {
-  const client = getClient();
-  getSession(client).then(async (session) => {
-    if (!session) {
-      window.location.href = "login.html";
-      return;
-    }
-    document.getElementById("userEmail").textContent = session.user.email;
-    document.getElementById("helloName").textContent = ", " + session.user.email.split("@")[0];
+function showFatal(html) {
+  loadingState.innerHTML = html;
+}
 
+(async () => {
+  if (!isConfigured()) {
+    showFatal('<span>Supabase не настроен — заполните <code>assets/supabase-config.js</code>. <a href="login.html">Ко входу</a></span>');
+    return;
+  }
+
+  let client;
+  try {
+    client = getClient();
+  } catch (err) {
+    console.error("getClient failed:", err);
+    showFatal('<span>Ошибка инициализации Supabase. Проверьте консоль браузера (F12). <a href="login.html">Ко входу</a></span>');
+    return;
+  }
+
+  let session;
+  try {
+    session = await getSession(client);
+  } catch (err) {
+    console.error("getSession failed:", err);
+    showFatal('<span>Не удалось проверить сессию. Проверьте консоль браузера (F12). <a href="login.html">Ко входу</a></span>');
+    return;
+  }
+
+  if (!session) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  document.getElementById("userEmail").textContent = session.user.email;
+  document.getElementById("helloName").textContent = ", " + session.user.email.split("@")[0];
+
+  try {
     const filled = await hasCoupleProfile(client, session.user.id);
     if (filled) {
-      const badge = document.getElementById("questionnaireBadge");
-      badge.textContent = "Заполнено";
-      badge.classList.remove("todo");
-      badge.classList.add("done");
+      const qBadge = document.getElementById("questionnaireBadge");
+      qBadge.textContent = "Заполнено";
+      qBadge.classList.remove("todo");
+      qBadge.classList.add("done");
       document.getElementById("questionnaireDesc").textContent = "Анкета сохранена. Откройте её, чтобы дополнить или изменить ответы.";
-    }
 
-    loadingState.style.display = "none";
-    cabinetApp.style.display = "block";
-  });
+      const clBadge = document.getElementById("checklistBadge");
+      const checklist = await loadChecklist(client, session.user.id);
+      if (checklist) {
+        clBadge.textContent = checklist.generation_status === "ai_generated" ? "Готов" : "Черновик готов";
+        clBadge.classList.remove("todo");
+        clBadge.classList.add("done");
+        document.getElementById("checklistDesc").textContent = "Откройте чек-лист, чтобы отметить прогресс по пунктам.";
+      } else {
+        clBadge.textContent = "Открыть";
+        clBadge.classList.remove("todo");
+      }
+    }
+  } catch (err) {
+    console.error("status check failed (non-fatal):", err);
+  }
+
+  loadingState.style.display = "none";
+  cabinetApp.style.display = "block";
 
   document.getElementById("logoutBtn").addEventListener("click", async () => {
     await client.auth.signOut();
     window.location.href = "login.html";
   });
-}
+})();
 </script>
 </body>
 </html>
