@@ -65,15 +65,19 @@
 
 .q-field{margin-bottom:18px;}
 .q-field label{display:block; font-size:12.5px; color:var(--muted); margin-bottom:8px; font-weight:600;}
+.q-field .q-field-note{font-size:12px; color:var(--muted); margin:6px 0 0; line-height:1.5;}
 
-.q-field textarea, .q-field input[type="text"]{
+.q-field textarea, .q-field input[type="text"], .q-field input[type="number"]{
   width:100%; border-radius:12px; border:1px solid var(--line);
   background:rgba(255,255,255,.03); color:#fff; padding:13px 16px; font-size:14.5px;
   font-family:inherit; line-height:1.5; transition:border-color .2s ease; resize:vertical;
 }
-.q-field textarea{min-height:92px;}
+.q-field textarea{min-height:88px;}
 .q-field textarea::placeholder, .q-field input::placeholder{color:var(--muted);}
 .q-field textarea:focus, .q-field input:focus{outline:none; border-color:rgba(255,255,255,.4);}
+
+.q-row2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media (max-width:560px){.q-row2{grid-template-columns:1fr;}}
 
 /* chip / choice grid */
 .q-choices{display:flex; flex-wrap:wrap; gap:9px;}
@@ -86,7 +90,7 @@
 .q-choice:hover{border-color:rgba(255,255,255,.3);}
 .q-choice.selected{background:var(--pill); color:var(--pill-ink); border-color:transparent; font-weight:600;}
 
-/* single-select card list (attachment style / stage) */
+/* single-select card list (attachment style / stage / etc) */
 .q-option-list{display:flex; flex-direction:column; gap:10px;}
 .q-option{
   display:flex; align-items:flex-start; gap:12px;
@@ -106,6 +110,12 @@
 }
 .q-option-text strong{display:block; font-size:14.5px; font-weight:600; margin-bottom:3px; color:var(--ink);}
 .q-option-text span{font-size:13px; color:var(--muted); line-height:1.5;}
+
+/* conditional sub-question block (appears after selecting a stage etc) */
+.q-subblock{
+  margin-top:14px; padding-top:14px; border-top:1px solid var(--line);
+  animation:qFade .3s ease both;
+}
 
 .q-nav{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:8px;}
 .q-btn-back{
@@ -137,6 +147,10 @@
   animation:spin .7s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg);}}
+
+.cab-loading{max-width:560px; margin:0 auto; text-align:center; line-height:1.6;}
+.cab-loading a{color:#fff; text-decoration:underline;}
+.cab-loading code{background:rgba(255,255,255,.08); padding:1px 6px; border-radius:5px; font-size:12.5px;}
 
 /* done screen */
 .q-done{text-align:center; padding:20px 6px;}
@@ -190,18 +204,57 @@
     <div id="progressBlock">
       <div class="q-progress-track"><div class="q-progress-fill" id="progressFill"></div></div>
       <div class="q-progress-label">
-        <span>Шаг <b id="stepCurrent">1</b> из <b id="stepTotal">4</b></span>
+        <span>Шаг <b id="stepCurrent">1</b> из <b id="stepTotal">7</b></span>
         <span id="stepHint">О вас</span>
       </div>
     </div>
 
     <form id="qForm">
 
-      <!-- STEP 1 — о пользователе: ценности -->
+      <!-- STEP 1 — о пользователе: база -->
       <section class="q-card q-step" data-step="1">
         <span class="q-eyebrow">О вас</span>
+        <h2 class="q-title">Немного о вас</h2>
+        <p class="q-sub">Базовые данные помогают точнее подбирать формулировки советов. Всё, что не готовы указывать — можно оставить пустым.</p>
+
+        <div class="q-row2">
+          <div class="q-field">
+            <label for="userAgeInput">Возраст</label>
+            <input type="number" id="userAgeInput" min="16" max="100" placeholder="Например: 29">
+          </div>
+          <div class="q-field">
+            <label for="userNameInput">Имя (как к вам обращаться)</label>
+            <input type="text" id="userNameInput" placeholder="Например: Аня">
+          </div>
+        </div>
+
+        <div class="q-field">
+          <label>Пол</label>
+          <div class="q-choices" id="userGenderChoices" data-multi="false">
+            <span class="q-choice" data-value="female">Женский</span>
+            <span class="q-choice" data-value="male">Мужской</span>
+            <span class="q-choice" data-value="other">Другое</span>
+            <span class="q-choice" data-value="skip">Не указывать</span>
+          </div>
+        </div>
+
+        <div class="q-field">
+          <label>Ориентация отношений</label>
+          <div class="q-choices" id="relationshipOrientationChoices" data-multi="false">
+            <span class="q-choice" data-value="hetero">Гетеро</span>
+            <span class="q-choice" data-value="same_sex">Гомо</span>
+            <span class="q-choice" data-value="bi">Би</span>
+            <span class="q-choice" data-value="other">Другое</span>
+            <span class="q-choice" data-value="skip">Не указывать</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 2 — о пользователе: ценности -->
+      <section class="q-card q-step" data-step="2" style="display:none">
+        <span class="q-eyebrow">О вас</span>
         <h2 class="q-title">Что для вас важно в отношениях?</h2>
-        <p class="q-sub">Выберите всё, что откликается — это поможет собрать рекомендации под ваши ценности. Можно выбрать несколько.</p>
+        <p class="q-sub">Выберите всё, что откликается — можно выбрать несколько.</p>
 
         <div class="q-field">
           <div class="q-choices" id="valuesChoices" data-multi="true">
@@ -224,56 +277,136 @@
         </div>
       </section>
 
-      <!-- STEP 2 — стиль привязанности -->
-      <section class="q-card q-step" data-step="2" style="display:none">
+      <!-- STEP 3 — о пользователе: стиль привязанности + язык любви -->
+      <section class="q-card q-step" data-step="3" style="display:none">
         <span class="q-eyebrow">О вас</span>
-        <h2 class="q-title">Какой стиль привязанности вам ближе?</h2>
-        <p class="q-sub">Нет правильного ответа — выберите вариант, который чаще всего похож на вас в близких отношениях.</p>
+        <h2 class="q-title">Стиль привязанности и язык любви</h2>
+        <p class="q-sub">Нет правильного ответа — выберите варианты, которые чаще всего похожи на вас.</p>
 
-        <div class="q-option-list" id="attachmentChoices" data-multi="false">
-          <label class="q-option" data-value="secure">
-            <span class="q-option-dot"></span>
-            <span class="q-option-text">
-              <strong>Надёжный</strong>
-              <span>Легко доверяю, комфортно и с близостью, и с самостоятельностью партнёра.</span>
-            </span>
-          </label>
-          <label class="q-option" data-value="anxious">
-            <span class="q-option-dot"></span>
-            <span class="q-option-text">
-              <strong>Тревожный</strong>
-              <span>Часто ищу подтверждения чувств партнёра, переживаю из-за дистанции.</span>
-            </span>
-          </label>
-          <label class="q-option" data-value="avoidant">
-            <span class="q-option-dot"></span>
-            <span class="q-option-text">
-              <strong>Избегающий</strong>
-              <span>Ценю независимость, некомфортно от слишком тесной близости или обязательств.</span>
-            </span>
-          </label>
-          <label class="q-option" data-value="fearful">
-            <span class="q-option-dot"></span>
-            <span class="q-option-text">
-              <strong>Тревожно-избегающий</strong>
-              <span>Хочется близости, но она же и пугает — колебания между «ближе» и «дальше».</span>
-            </span>
-          </label>
-          <label class="q-option" data-value="unsure">
-            <span class="q-option-dot"></span>
-            <span class="q-option-text">
-              <strong>Пока не уверен(а)</strong>
-              <span>Сложно определить — ИИ поможет прояснить это по ходу общения.</span>
-            </span>
-          </label>
+        <div class="q-field">
+          <label>Стиль привязанности</label>
+          <div class="q-option-list" id="attachmentChoices" data-multi="false">
+            <label class="q-option" data-value="secure">
+              <span class="q-option-dot"></span>
+              <span class="q-option-text">
+                <strong>Надёжный</strong>
+                <span>Легко доверяю, комфортно и с близостью, и с самостоятельностью партнёра.</span>
+              </span>
+            </label>
+            <label class="q-option" data-value="anxious">
+              <span class="q-option-dot"></span>
+              <span class="q-option-text">
+                <strong>Тревожный</strong>
+                <span>Часто ищу подтверждения чувств партнёра, переживаю из-за дистанции.</span>
+              </span>
+            </label>
+            <label class="q-option" data-value="avoidant">
+              <span class="q-option-dot"></span>
+              <span class="q-option-text">
+                <strong>Избегающий</strong>
+                <span>Ценю независимость, некомфортно от слишком тесной близости или обязательств.</span>
+              </span>
+            </label>
+            <label class="q-option" data-value="fearful">
+              <span class="q-option-dot"></span>
+              <span class="q-option-text">
+                <strong>Тревожно-избегающий</strong>
+                <span>Хочется близости, но она же и пугает — колебания между «ближе» и «дальше».</span>
+              </span>
+            </label>
+            <label class="q-option" data-value="unsure">
+              <span class="q-option-dot"></span>
+              <span class="q-option-text">
+                <strong>Пока не уверен(а)</strong>
+                <span>Сложно определить — ИИ поможет прояснить это по ходу общения.</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="q-field">
+          <label>Как вам важнее всего получать любовь и заботу?</label>
+          <div class="q-choices" id="loveLanguageChoices" data-multi="false">
+            <span class="q-choice" data-value="words">Слова поддержки</span>
+            <span class="q-choice" data-value="time">Время вместе</span>
+            <span class="q-choice" data-value="gifts">Подарки и знаки внимания</span>
+            <span class="q-choice" data-value="acts">Забота через действия</span>
+            <span class="q-choice" data-value="touch">Физический контакт</span>
+          </div>
         </div>
       </section>
 
-      <!-- STEP 3 — о партнёре -->
-      <section class="q-card q-step" data-step="3" style="display:none">
+      <!-- STEP 4 — о пользователе: конфликты и опыт -->
+      <section class="q-card q-step" data-step="4" style="display:none">
+        <span class="q-eyebrow">О вас</span>
+        <h2 class="q-title">Как вы ведёте себя в конфликтах</h2>
+        <p class="q-sub">Это помогает ИИ давать советы, которые реально подходят вашей реакции, а не общие фразы.</p>
+
+        <div class="q-field">
+          <label>Ваша типичная реакция в конфликте</label>
+          <div class="q-choices" id="conflictStyleChoices" data-multi="false">
+            <span class="q-choice" data-value="discuss">Хочу сразу обсудить</span>
+            <span class="q-choice" data-value="withdraw">Нужно отойти и подумать</span>
+            <span class="q-choice" data-value="appease">Стараюсь сгладить и уступить</span>
+            <span class="q-choice" data-value="escalate">Легко завожусь, повышаю тон</span>
+            <span class="q-choice" data-value="avoid">Предпочитаю избегать темы</span>
+          </div>
+        </div>
+
+        <div class="q-field">
+          <label for="triggersInput">Что чаще всего задевает или триггерит вас в отношениях?</label>
+          <textarea id="triggersInput" placeholder="Например: когда меня игнорируют после сообщения, чувство, что решения принимают без меня…"></textarea>
+        </div>
+
+        <div class="q-field">
+          <label for="pastExperienceInput">Есть что-то из прошлого опыта, что важно учитывать? (необязательно)</label>
+          <textarea id="pastExperienceInput" placeholder="Например: был опыт измены в прошлых отношениях, тяжело даётся доверие в начале…"></textarea>
+        </div>
+      </section>
+
+      <!-- STEP 5 — о партнёре: база -->
+      <section class="q-card q-step" data-step="5" style="display:none">
         <span class="q-eyebrow">О партнёре</span>
-        <h2 class="q-title">Расскажите о партнёре</h2>
-        <p class="q-sub">Даже если знаете немного — этого достаточно для старта. Можно уточнить и дополнить позже.</p>
+        <h2 class="q-title">Немного о партнёре</h2>
+        <p class="q-sub">Даже если знаете немного — этого достаточно для старта.</p>
+
+        <div class="q-row2">
+          <div class="q-field">
+            <label for="partnerAgeInput">Возраст партнёра (если знаете)</label>
+            <input type="number" id="partnerAgeInput" min="16" max="100" placeholder="Например: 31">
+          </div>
+          <div class="q-field">
+            <label>Пол партнёра</label>
+            <div class="q-choices" id="partnerGenderChoices" data-multi="false">
+              <span class="q-choice" data-value="female">Женский</span>
+              <span class="q-choice" data-value="male">Мужской</span>
+              <span class="q-choice" data-value="other">Другое</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="q-field">
+          <label>Как долго вы знаете друг друга?</label>
+          <div class="q-choices" id="knownDurationChoices" data-multi="false">
+            <span class="q-choice" data-value="less_month">Меньше месяца</span>
+            <span class="q-choice" data-value="1_6_months">1–6 месяцев</span>
+            <span class="q-choice" data-value="6_12_months">6–12 месяцев</span>
+            <span class="q-choice" data-value="1_3_years">1–3 года</span>
+            <span class="q-choice" data-value="3plus_years">Больше 3 лет</span>
+          </div>
+        </div>
+
+        <div class="q-field">
+          <label for="howMetInput">Как вы познакомились? (необязательно)</label>
+          <textarea id="howMetInput" placeholder="Например: через общих друзей, в приложении для знакомств, на работе…"></textarea>
+        </div>
+      </section>
+
+      <!-- STEP 6 — о партнёре: характер -->
+      <section class="q-card q-step" data-step="6" style="display:none">
+        <span class="q-eyebrow">О партнёре</span>
+        <h2 class="q-title">Характер и особенности партнёра</h2>
+        <p class="q-sub">Опишите своими словами и, если можете предположить, отметьте стиль привязанности и реакции.</p>
 
         <div class="q-field">
           <label for="partnerInfoInput">Характер, привычки, то, что важно знать о партнёре</label>
@@ -290,10 +423,27 @@
             <span class="q-choice" data-value="unsure">Не знаю</span>
           </div>
         </div>
+
+        <div class="q-field">
+          <label>Как партнёр обычно реагирует в конфликте?</label>
+          <div class="q-choices" id="partnerConflictStyleChoices" data-multi="false">
+            <span class="q-choice" data-value="discuss">Хочет сразу обсудить</span>
+            <span class="q-choice" data-value="withdraw">Замыкается, нужно время</span>
+            <span class="q-choice" data-value="appease">Сглаживает, уступает</span>
+            <span class="q-choice" data-value="escalate">Легко заводится</span>
+            <span class="q-choice" data-value="avoid">Избегает темы</span>
+            <span class="q-choice" data-value="unsure">Не знаю</span>
+          </div>
+        </div>
+
+        <div class="q-field">
+          <label>Что цените друг в друге больше всего? (необязательно)</label>
+          <textarea id="appreciationInput" placeholder="Например: он умеет меня успокоить, она всегда честна со мной…"></textarea>
+        </div>
       </section>
 
-      <!-- STEP 4 — стадия отношений -->
-      <section class="q-card q-step" data-step="4" style="display:none">
+      <!-- STEP 7 — стадия отношений + цели -->
+      <section class="q-card q-step" data-step="7" style="display:none">
         <span class="q-eyebrow">Ваша пара</span>
         <h2 class="q-title">На каком этапе вы сейчас?</h2>
         <p class="q-sub">Это определит, какие чек-листы и советы будут для вас приоритетны.</p>
@@ -336,9 +486,29 @@
           </label>
         </div>
 
-        <div class="q-field" style="margin-top:18px">
+        <!-- conditional sub-question per stage -->
+        <div class="q-subblock" id="stageSubblock" style="display:none">
+          <div class="q-field" id="stageSubField">
+            <label id="stageSubLabel"></label>
+            <textarea id="stageSubInput"></textarea>
+          </div>
+        </div>
+
+        <div class="q-field" style="margin-top:6px">
           <label for="stageNoteInput">Что-то ещё, что стоит знать о вашей ситуации? (необязательно)</label>
           <textarea id="stageNoteInput" placeholder="Любой контекст, который поможет точнее собрать план…"></textarea>
+        </div>
+
+        <div class="q-field">
+          <label>Что для вас сейчас в приоритете от RelationSync.AI?</label>
+          <div class="q-choices" id="goalChoices" data-multi="true">
+            <span class="q-choice" data-value="understand_partner">Лучше понимать партнёра</span>
+            <span class="q-choice" data-value="communication">Улучшить общение</span>
+            <span class="q-choice" data-value="resolve_conflict">Разрешить текущий конфликт</span>
+            <span class="q-choice" data-value="rebuild_trust">Восстановить доверие</span>
+            <span class="q-choice" data-value="deepen_intimacy">Больше близости</span>
+            <span class="q-choice" data-value="decide_future">Понять, куда движутся отношения</span>
+          </div>
         </div>
       </section>
 
@@ -374,20 +544,48 @@ const loadingState = document.getElementById("loadingState");
 const appRoot = document.getElementById("appRoot");
 const qError = document.getElementById("qError");
 
+function showFatal(html) {
+  loadingState.innerHTML = html;
+}
+
 let client = null;
 let session = null;
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 7;
 let currentStep = 1;
 
+const STAGE_SUB_CONFIG = {
+  dating_start: { label: "Что вы уже успели узнать друг о друге?", placeholder: "Например: общаемся неделю, было два свидания, всё нравится, но пока непонятно, куда идёт…" },
+  dating: { label: "Что для вас сейчас главный вопрос на этом этапе?", placeholder: "Например: не знаю, готовы ли мы оба к серьёзным отношениям…" },
+  relationship: { label: "Как в целом сейчас ощущается динамика пары?", placeholder: "Например: стабильно, но иногда не хватает внимания друг к другу…" },
+  crisis: { label: "В чём суть текущего конфликта или разногласия?", placeholder: "Например: разные взгляды на переезд, повторяющийся спор об одном и том же…" },
+  recovery: { label: "Что произошло и что вы уже начали восстанавливать?", placeholder: "Например: был серьёзный кризис доверия, сейчас снова учимся разговаривать открыто…" },
+};
+
 const state = {
+  user_age: "",
+  user_name: "",
+  user_gender: "",
+  relationship_orientation: "",
   values: [],
   expectations: "",
   attachment_style: "",
+  love_language: "",
+  conflict_style: "",
+  triggers: "",
+  past_experience: "",
+  partner_age: "",
+  partner_gender: "",
+  known_duration: "",
+  how_met: "",
   partner_info: "",
   partner_attachment_style: "",
+  partner_conflict_style: "",
+  appreciation: "",
   relationship_stage: "",
+  stage_detail: "",
   stage_note: "",
+  goals: [],
 };
 
 function showError(msg){
@@ -401,28 +599,34 @@ function clearError(){
 
 async function init(){
   if (!isConfigured()){
-    loadingState.innerHTML = '<span>Supabase не настроен — заполните <code>assets/supabase-config.js</code>. <a href="login.html" style="color:#fff;text-decoration:underline">Ко входу</a></span>';
+    showFatal('<span>Supabase не настроен — заполните <code>assets/supabase-config.js</code>. <a href="login.html">Ко входу</a></span>');
     return;
   }
-  client = getClient();
-  session = await getSession(client);
+
+  try {
+    client = getClient();
+    session = await getSession(client);
+  } catch (err) {
+    console.error("auth init failed:", err);
+    showFatal('<span>Не удалось проверить сессию. Проверьте консоль браузера (F12). <a href="login.html">Ко входу</a></span>');
+    return;
+  }
+
   if (!session){
     window.location.href = "login.html?next=questionnaire.html";
     return;
   }
 
-  const existing = await loadCoupleProfile(client, session.user.id);
-  if (existing){
-    Object.assign(state, {
-      values: existing.values || [],
-      expectations: existing.expectations || "",
-      attachment_style: existing.attachment_style || "",
-      partner_info: existing.partner_info || "",
-      partner_attachment_style: existing.partner_attachment_style || "",
-      relationship_stage: existing.relationship_stage || "",
-      stage_note: existing.stage_note || "",
-    });
-    hydrateFormFromState();
+  try {
+    const existing = await loadCoupleProfile(client, session.user.id);
+    if (existing){
+      Object.keys(state).forEach(key => {
+        if (existing[key] !== undefined && existing[key] !== null) state[key] = existing[key];
+      });
+      hydrateFormFromState();
+    }
+  } catch (err) {
+    console.error("loadCoupleProfile failed (non-fatal):", err);
   }
 
   loadingState.style.display = "none";
@@ -430,29 +634,51 @@ async function init(){
   renderStep();
 }
 
+function setChipSelection(containerId, key, isMulti){
+  document.querySelectorAll('#' + containerId + ' .q-choice, #' + containerId + ' .q-option').forEach(el=>{
+    if (isMulti){
+      el.classList.toggle("selected", (state[key] || []).includes(el.dataset.value));
+    } else {
+      el.classList.toggle("selected", el.dataset.value === state[key]);
+    }
+  });
+}
+
 function hydrateFormFromState(){
-  document.querySelectorAll('#valuesChoices .q-choice').forEach(el=>{
-    if (state.values.includes(el.dataset.value)) el.classList.add("selected");
-  });
-  document.getElementById("expectationsInput").value = state.expectations;
+  document.getElementById("userAgeInput").value = state.user_age || "";
+  document.getElementById("userNameInput").value = state.user_name || "";
+  setChipSelection("userGenderChoices", "user_gender", false);
+  setChipSelection("relationshipOrientationChoices", "relationship_orientation", false);
 
-  document.querySelectorAll('#attachmentChoices .q-option').forEach(el=>{
-    el.classList.toggle("selected", el.dataset.value === state.attachment_style);
-  });
+  setChipSelection("valuesChoices", "values", true);
+  document.getElementById("expectationsInput").value = state.expectations || "";
 
-  document.getElementById("partnerInfoInput").value = state.partner_info;
-  document.querySelectorAll('#partnerAttachmentChoices .q-choice').forEach(el=>{
-    el.classList.toggle("selected", el.dataset.value === state.partner_attachment_style);
-  });
+  setChipSelection("attachmentChoices", "attachment_style", false);
+  setChipSelection("loveLanguageChoices", "love_language", false);
 
-  document.querySelectorAll('#stageChoices .q-option').forEach(el=>{
-    el.classList.toggle("selected", el.dataset.value === state.relationship_stage);
-  });
-  document.getElementById("stageNoteInput").value = state.stage_note;
+  setChipSelection("conflictStyleChoices", "conflict_style", false);
+  document.getElementById("triggersInput").value = state.triggers || "";
+  document.getElementById("pastExperienceInput").value = state.past_experience || "";
+
+  document.getElementById("partnerAgeInput").value = state.partner_age || "";
+  setChipSelection("partnerGenderChoices", "partner_gender", false);
+  setChipSelection("knownDurationChoices", "known_duration", false);
+  document.getElementById("howMetInput").value = state.how_met || "";
+
+  document.getElementById("partnerInfoInput").value = state.partner_info || "";
+  setChipSelection("partnerAttachmentChoices", "partner_attachment_style", false);
+  setChipSelection("partnerConflictStyleChoices", "partner_conflict_style", false);
+  document.getElementById("appreciationInput").value = state.appreciation || "";
+
+  setChipSelection("stageChoices", "relationship_stage", false);
+  if (state.relationship_stage) updateStageSubblock(state.relationship_stage);
+  document.getElementById("stageSubInput").value = state.stage_detail || "";
+  document.getElementById("stageNoteInput").value = state.stage_note || "";
+  setChipSelection("goalChoices", "goals", true);
 }
 
 /* ---------- choice interactions ---------- */
-function wireChoiceGroup(containerId, targetArrayOrKey, multi){
+function wireChoiceGroup(containerId, targetKey, multi){
   const container = document.getElementById(containerId);
   container.addEventListener("click", (e) => {
     const el = e.target.closest(".q-choice, .q-option");
@@ -461,26 +687,62 @@ function wireChoiceGroup(containerId, targetArrayOrKey, multi){
 
     if (multi){
       el.classList.toggle("selected");
-      const arr = state[targetArrayOrKey];
+      const arr = state[targetKey];
       const idx = arr.indexOf(value);
       if (idx >= 0) arr.splice(idx, 1); else arr.push(value);
     } else {
       container.querySelectorAll(".q-choice, .q-option").forEach(o => o.classList.remove("selected"));
       el.classList.add("selected");
-      state[targetArrayOrKey] = value;
+      state[targetKey] = value;
+      if (containerId === "stageChoices") updateStageSubblock(value);
     }
     clearError();
   });
 }
 
+function updateStageSubblock(stageValue){
+  const cfg = STAGE_SUB_CONFIG[stageValue];
+  const block = document.getElementById("stageSubblock");
+  const label = document.getElementById("stageSubLabel");
+  const input = document.getElementById("stageSubInput");
+  if (!cfg){
+    block.style.display = "none";
+    return;
+  }
+  block.style.display = "block";
+  label.textContent = cfg.label;
+  input.placeholder = cfg.placeholder;
+}
+
+wireChoiceGroup("userGenderChoices", "user_gender", false);
+wireChoiceGroup("relationshipOrientationChoices", "relationship_orientation", false);
 wireChoiceGroup("valuesChoices", "values", true);
 wireChoiceGroup("attachmentChoices", "attachment_style", false);
+wireChoiceGroup("loveLanguageChoices", "love_language", false);
+wireChoiceGroup("conflictStyleChoices", "conflict_style", false);
+wireChoiceGroup("partnerGenderChoices", "partner_gender", false);
+wireChoiceGroup("knownDurationChoices", "known_duration", false);
 wireChoiceGroup("partnerAttachmentChoices", "partner_attachment_style", false);
+wireChoiceGroup("partnerConflictStyleChoices", "partner_conflict_style", false);
 wireChoiceGroup("stageChoices", "relationship_stage", false);
+wireChoiceGroup("goalChoices", "goals", true);
 
-document.getElementById("expectationsInput").addEventListener("input", (e)=> state.expectations = e.target.value);
-document.getElementById("partnerInfoInput").addEventListener("input", (e)=> state.partner_info = e.target.value);
-document.getElementById("stageNoteInput").addEventListener("input", (e)=> state.stage_note = e.target.value);
+const textBindings = [
+  ["userAgeInput", "user_age"],
+  ["userNameInput", "user_name"],
+  ["expectationsInput", "expectations"],
+  ["triggersInput", "triggers"],
+  ["pastExperienceInput", "past_experience"],
+  ["partnerAgeInput", "partner_age"],
+  ["howMetInput", "how_met"],
+  ["partnerInfoInput", "partner_info"],
+  ["appreciationInput", "appreciation"],
+  ["stageSubInput", "stage_detail"],
+  ["stageNoteInput", "stage_note"],
+];
+textBindings.forEach(([id, key]) => {
+  document.getElementById(id).addEventListener("input", (e) => state[key] = e.target.value);
+});
 
 /* ---------- step navigation ---------- */
 const stepEls = document.querySelectorAll(".q-step");
@@ -491,9 +753,8 @@ const progressBlock = document.getElementById("progressBlock");
 const navBlock = document.getElementById("navBlock");
 const btnBack = document.getElementById("btnBack");
 const btnNext = document.getElementById("btnNext");
-const btnNextLabel = document.getElementById("btnNextLabel");
 
-const HINTS = {1:"О вас", 2:"О вас", 3:"О партнёре", 4:"Ваша пара"};
+const HINTS = {1:"О вас", 2:"О вас", 3:"О вас", 4:"О вас", 5:"О партнёре", 6:"О партнёре", 7:"Ваша пара"};
 
 function renderStep(){
   stepEls.forEach(el => {
@@ -510,30 +771,31 @@ function renderStep(){
   stepCurrentEl.textContent = currentStep;
   stepHintEl.textContent = HINTS[currentStep];
   btnBack.disabled = currentStep === 1;
-  btnNextLabel.textContent = currentStep === TOTAL_STEPS ? "Сохранить анкету" : "Продолжить";
+  btnNext.disabled = false;
+  btnNext.innerHTML = '<span>' + (currentStep === TOTAL_STEPS ? "Сохранить анкету" : "Продолжить") + '</span>';
   clearError();
 }
 
 function validateStep(){
-  if (currentStep === 1){
+  if (currentStep === 2){
     if (state.values.length === 0){
       showError("Выберите хотя бы одну ценность, чтобы продолжить.");
       return false;
     }
   }
-  if (currentStep === 2){
+  if (currentStep === 3){
     if (!state.attachment_style){
-      showError("Выберите вариант, наиболее похожий на вас.");
+      showError("Выберите стиль привязанности, наиболее похожий на вас.");
       return false;
     }
   }
-  if (currentStep === 3){
+  if (currentStep === 6){
     if (!state.partner_info || state.partner_info.trim().length < 3){
       showError("Расскажите хотя бы немного о партнёре.");
       return false;
     }
   }
-  if (currentStep === 4){
+  if (currentStep === 7){
     if (!state.relationship_stage){
       showError("Выберите этап, на котором вы сейчас находитесь.");
       return false;
@@ -570,10 +832,10 @@ btnNext.addEventListener("click", async () => {
     renderStep();
     window.scrollTo({top:0, behavior:"smooth"});
   } catch (err){
-    showError("Не удалось сохранить анкету: " + (err?.message || "неизвестная ошибка") + ". Попробуйте ещё раз.");
+    console.error("saveCoupleProfile failed:", err);
+    showError("Не удалось сохранить анкету: " + (err?.message || "неизвестная ошибка") + ". Проверьте, что таблица couple_profiles и RLS-политики созданы в Supabase (см. supabase-schema.sql), и попробуйте ещё раз.");
     btnNext.disabled = false;
-    btnNextLabel.textContent = "Сохранить анкету";
-    btnNext.innerHTML = '<span id="btnNextLabel">Сохранить анкету</span>';
+    btnNext.innerHTML = '<span>Сохранить анкету</span>';
   }
 });
 
