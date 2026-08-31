@@ -1,26 +1,30 @@
 /**
  * RelationSync.ai — патч лендинга (index.html) для интеграции с личным кабинетом.
  *
+ * ВЕРСИЯ 2 — исправляет проблему с "двумя кнопками" (старая pill-кнопка + отдельно
+ * добавленная ссылка "Войти"/"Кабинет" рядом). Теперь патч НЕ создаёт новых элементов
+ * в хедере — он просто переписывает текст и href уже существующей pill-кнопки.
+ *
  * Подключается ОДНОЙ строкой перед закрывающим </body> в index.html:
  *   <script src="assets/supabase-config.js"></script>
  *   <script type="module" src="assets/landing-cabinet-patch.js"></script>
  *
- * Делает четыре вещи, ничего не трогая в остальной вёрстке лендинга:
+ * Если у вас уже подключена ПРЕДЫДУЩАЯ версия этого файла — просто замените
+ * содержимое assets/landing-cabinet-patch.js на это, менять подключение в index.html
+ * не нужно.
  *
- * 1) Проверяет, залогинен ли пользователь (через Supabase), и если да —
- *    добавляет в хедер (десктоп pill-nav + мобильное меню) кнопку "Кабинет",
- *    ведущую на cabinet.html. Если не залогинен — кнопка ведёт на login.html.
+ * Делает три вещи:
+ *
+ * 1) Проверяет, залогинен ли пользователь (через Supabase). Переписывает ТЕКСТ и HREF
+ *    основной pill-кнопки в хедере (десктоп .pill-nav) и её аналога в мобильном меню
+ *    (.menu-foot .pill) на "Войти" → login.html, либо "Кабинет" → cabinet.html.
+ *    Никаких новых элементов не создаётся — только правка существующих.
  *
  * 2) Заменяет содержимое финального блока "раннего доступа" (форма сбора email,
- *    <section id="start">) на прямой призыв зарегистрироваться — без лишнего
- *    шага "мы напишем вам позже", раз регистрация уже работает.
+ *    <section id="start">) на прямой призыв зарегистрироваться.
  *
- * 3) Переписывает href всех кнопок с классом .price-cta (тарифы) так, чтобы
- *    они ведут на login.html?mode=register&plan=<free|premium|couple>
- *    вместо старого якоря #start.
- *
- * 4) Переписывает href основной pill-кнопки в хедере (.pill-nav, .pill-cta)
- *    на login.html?mode=register&plan=free, если пользователь не залогинен.
+ * 3) Переписывает href всех кнопок .price-cta (тарифы) на
+ *    login.html?mode=register&plan=<free|premium|couple>.
  */
 
 import { getClient, isConfigured, getSession } from "./auth.js";
@@ -31,62 +35,55 @@ async function detectSession() {
   if (!isConfigured()) return null;
   try {
     const client = getClient();
-    const session = await getSession(client);
-    return session;
+    return await getSession(client);
   } catch (err) {
     console.error("landing-cabinet-patch: session check failed", err);
     return null;
   }
 }
 
-function buildCabinetLink(isLoggedIn, extraStyle) {
-  const a = document.createElement("a");
-  a.href = isLoggedIn ? "cabinet.html" : "login.html";
-  a.textContent = isLoggedIn ? "Кабинет" : "Войти";
-  if (extraStyle) a.style.cssText = extraStyle;
-  return a;
+/**
+ * Убирает любые элементы, оставшиеся от предыдущей (кривой) версии патча —
+ * на случай, если старый скрипт уже успел вставить их в DOM ранее.
+ */
+function removeLegacyInjectedLinks() {
+  const legacyIds = ["rs-cabinet-link-desktop", "rs-cabinet-link-mobile"];
+  legacyIds.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+  });
 }
 
-function patchHeaderCabinetLink(isLoggedIn) {
-  // Десктоп: вставляем ссылку прямо перед основной pill-кнопкой навигации
-  const pillNav = document.querySelector(".pill-nav");
-  if (pillNav && pillNav.parentElement) {
-    const existing = document.getElementById("rs-cabinet-link-desktop");
-    if (!existing) {
-      const link = buildCabinetLink(
-        isLoggedIn,
-        "position:absolute; right:calc(175px + var(--u, 1px) * 75.4 + 14px); top:calc(27 * var(--u, 1px)); " +
-          "height:calc(49 * var(--u, 1px)); display:flex; align-items:center; font-size:calc(19px); " +
-          "color:#fff; font-weight:500; white-space:nowrap;"
-      );
-      link.id = "rs-cabinet-link-desktop";
-      // Простая и надёжная альтернатива инлайн-позиционированию: ставим рядом в потоке.
-      link.removeAttribute("style");
-      link.style.cssText = "margin-right:14px; color:#fff; font-weight:500; font-size:15px; text-decoration:none; opacity:.9; transition:opacity .2s ease;";
-      link.addEventListener("mouseenter", () => (link.style.opacity = "1"));
-      link.addEventListener("mouseleave", () => (link.style.opacity = ".9"));
-      pillNav.insertAdjacentElement("beforebegin", link);
-    }
-  }
+function patchHeaderPillButton(isLoggedIn) {
+  const targetHref = isLoggedIn ? "cabinet.html" : "login.html";
+  const targetLabel = isLoggedIn ? "Кабинет" : "Войти";
 
-  // Мобильное меню: добавляем пункт в конец списка .menu-list, если такого пункта ещё нет
-  const menuList = document.querySelector(".menu-list");
-  if (menuList && !document.getElementById("rs-cabinet-link-mobile")) {
-    const li = document.createElement("li");
-    const a = buildCabinetLink(isLoggedIn);
-    a.id = "rs-cabinet-link-mobile";
-    li.appendChild(a);
-    menuList.appendChild(li);
-  }
+  // Десктоп: основная pill-кнопка в хедере, ведущая раньше на "#start"
+  document.querySelectorAll('a.pill-nav[href="#start"], a.pill-nav').forEach((el) => {
+    el.setAttribute("href", targetHref);
+    const span = el.querySelector("span");
+    if (span) span.textContent = targetLabel;
+    else el.textContent = targetLabel;
+  });
 
-  // Основной pill-cta в hero (если не залогинен — направляем на регистрацию с free-планом)
-  if (!isLoggedIn) {
-    document.querySelectorAll('a.pill-cta[href="#start"], a.pill-nav[href="#start"]').forEach((el) => {
-      el.setAttribute("href", "login.html?mode=register&plan=free");
-    });
-  } else {
-    document.querySelectorAll('a.pill-cta[href="#start"], a.pill-nav[href="#start"]').forEach((el) => {
+  // Hero pill-cta (крупная кнопка в самом хиро-блоке) — если она вела на "#start",
+  // тоже переключаем на вход/кабинет, чтобы не было противоречия в CTA.
+  document.querySelectorAll('a.pill-cta[href="#start"]').forEach((el) => {
+    el.setAttribute("href", isLoggedIn ? "cabinet.html" : "login.html?mode=register&plan=free");
+  });
+
+  // Мобильное меню: кнопка в .menu-foot .pill
+  document.querySelectorAll('.menu-foot a.pill').forEach((el) => {
+    el.setAttribute("href", targetHref);
+    el.textContent = targetLabel;
+  });
+
+  // Ghost-ссылка в мобильном меню, которая уже вела на login.html — при логине
+  // логичнее вести на выход из кабинета не нужно, просто оставляем как переход в кабинет.
+  if (isLoggedIn) {
+    document.querySelectorAll('.menu-foot a.ghost[href="login.html"]').forEach((el) => {
       el.setAttribute("href", "cabinet.html");
+      el.textContent = "Кабинет";
     });
   }
 }
@@ -119,10 +116,12 @@ function patchEarlyAccessSection() {
 }
 
 async function run() {
+  removeLegacyInjectedLinks();
+
   const session = await detectSession();
   const isLoggedIn = !!session;
 
-  patchHeaderCabinetLink(isLoggedIn);
+  patchHeaderPillButton(isLoggedIn);
   patchPricingButtons();
   patchEarlyAccessSection();
 }
