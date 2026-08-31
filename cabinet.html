@@ -21,9 +21,19 @@
 .cab-loading a{color:#fff; text-decoration:underline;}
 .cab-loading code{background:rgba(255,255,255,.08); padding:1px 6px; border-radius:5px; font-size:12.5px;}
 
-/* Тариф — бейдж в хедере. Использует grid вместо flex+baseline, чтобы
-   точка/текст/шеврон гарантированно оказались на одной горизонтальной оси
-   независимо от line-height шрифта или отрисовки svg в конкретном браузере. */
+/* Плавающий стек в левом нижнем углу: сверху — тариф, снизу — аккаунт.
+   Виден на всех страницах кабинета, оба элемента visually сгруппированы как "про меня". */
+.fab-stack{
+  position:fixed;
+  left:20px;
+  bottom:20px;
+  z-index:40;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:10px;
+}
+
 .plan-pill{
   display:inline-grid;
   grid-auto-flow:column;
@@ -33,12 +43,14 @@
   padding:0 14px 0 6px;
   border-radius:999px;
   border:1px solid var(--line);
-  background:rgba(255,255,255,.03);
+  background:rgba(20,20,20,.9);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   text-decoration:none;
   cursor:pointer;
   transition:background .18s ease, border-color .18s ease;
 }
-.plan-pill:hover{background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.25);}
+.plan-pill:hover{background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.3);}
 
 .plan-pill .plan-dot{
   width:7px; height:7px; border-radius:50%; background:var(--muted);
@@ -56,16 +68,7 @@
   align-self:center;
 }
 
-@media (max-width:560px){
-  .plan-pill{padding:0 10px 0 6px; height:34px;}
-  .plan-pill .plan-label{font-size:12px;}
-}
-
-/* Плавающая кнопка аккаунта — левый нижний угол, видна на всех страницах кабинета */
 .account-fab{
-  position:fixed;
-  left:20px;
-  bottom:20px;
   width:48px;
   height:48px;
   border-radius:50%;
@@ -77,7 +80,6 @@
   place-items:center;
   cursor:pointer;
   text-decoration:none;
-  z-index:40;
   transition:background .18s ease, border-color .18s ease, transform .15s ease;
 }
 .account-fab:hover{background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.3);}
@@ -85,7 +87,10 @@
 .account-fab svg{width:20px; height:20px; color:var(--ink);}
 
 @media (max-width:560px){
-  .account-fab{left:14px; bottom:14px; width:44px; height:44px;}
+  .fab-stack{left:14px; bottom:14px; gap:8px;}
+  .plan-pill{padding:0 10px 0 6px; height:34px;}
+  .plan-pill .plan-label{font-size:12px;}
+  .account-fab{width:44px; height:44px;}
   .account-fab svg{width:18px; height:18px;}
 }
 </style>
@@ -116,11 +121,6 @@
       <span class="word">RelationSync<span class="dim">.ai</span></span>
     </a>
     <div class="cab-user">
-      <a href="pricing.html" class="plan-pill" id="planPill">
-        <span class="plan-dot"></span>
-        <span class="plan-label" id="planPillLabel">Бесплатно</span>
-        <svg class="plan-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
       <span class="cab-user-email" id="userEmail"></span>
       <button class="logout-btn" id="logoutBtn">Выйти</button>
     </div>
@@ -169,11 +169,18 @@
   </main>
 </div>
 
-<a href="account.html" class="account-fab" aria-label="Настройки аккаунта" title="Настройки аккаунта">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/>
-  </svg>
-</a>
+<div class="fab-stack">
+  <a href="pricing.html" class="plan-pill" id="planPill">
+    <span class="plan-dot"></span>
+    <span class="plan-label" id="planPillLabel">Бесплатно</span>
+    <svg class="plan-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+  <a href="account.html" class="account-fab" aria-label="Настройки аккаунта" title="Настройки аккаунта">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/>
+    </svg>
+  </a>
+</div>
 
 <script type="module">
 import { getClient, isConfigured, getSession, hasCoupleProfile, loadChecklist, getSelectedPlan, setSelectedPlan, getLandingSelectedPlan } from "./assets/auth.js";
