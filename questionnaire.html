@@ -23,6 +23,14 @@
   padding:20px 24px 80px;
 }
 
+.q-help-banner{
+  display:flex; gap:12px; align-items:flex-start; border:1px solid var(--line);
+  background:var(--card); border-radius:14px; padding:15px 17px; margin-bottom:22px;
+  font-size:13px; line-height:1.55; color:var(--muted);
+}
+.q-help-banner svg{flex:none; width:17px; height:17px; margin-top:1px; color:var(--muted);}
+.q-help-banner a{color:var(--ink); font-weight:600; text-decoration:underline;}
+
 .q-progress-track{
   width:100%;
   height:4px;
@@ -201,6 +209,11 @@
 
   <div class="q-wrap">
 
+    <div class="q-help-banner" id="helpBanner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 9v4M12 16.5h.01" stroke-linecap="round"/><circle cx="12" cy="12" r="9"/></svg>
+      <span>Затрудняетесь ответить на вопросы о себе? Пройдите короткие <a href="tests.html">тесты на понимание себя</a> — они помогут точнее заполнить анкету.</span>
+    </div>
+
     <div id="progressBlock">
       <div class="q-progress-track"><div class="q-progress-fill" id="progressFill"></div></div>
       <div class="q-progress-label">
@@ -281,7 +294,7 @@
       <section class="q-card q-step" data-step="3" style="display:none">
         <span class="q-eyebrow">О вас</span>
         <h2 class="q-title">Стиль привязанности и язык любви</h2>
-        <p class="q-sub">Нет правильного ответа — выберите варианты, которые чаще всего похожи на вас.</p>
+        <p class="q-sub">Нет правильного ответа — выберите варианты, которые чаще всего похожи на вас. Если сложно определить — пройдите <a href="tests.html" style="color:var(--ink); text-decoration:underline;">тест на понимание себя</a>, он подскажет.</p>
 
         <div class="q-field">
           <label>Стиль привязанности</label>
@@ -340,7 +353,7 @@
       <section class="q-card q-step" data-step="4" style="display:none">
         <span class="q-eyebrow">О вас</span>
         <h2 class="q-title">Как вы ведёте себя в конфликтах</h2>
-        <p class="q-sub">Это помогает ИИ давать советы, которые реально подходят вашей реакции, а не общие фразы.</p>
+        <p class="q-sub">Это помогает ИИ давать советы, которые реально подходят вашей реакции, а не общие фразы. Не уверены? Пройдите <a href="tests.html" style="color:var(--ink); text-decoration:underline;">тест на стиль в конфликте</a>.</p>
 
         <div class="q-field">
           <label>Ваша типичная реакция в конфликте</label>
@@ -753,6 +766,7 @@ const progressBlock = document.getElementById("progressBlock");
 const navBlock = document.getElementById("navBlock");
 const btnBack = document.getElementById("btnBack");
 const btnNext = document.getElementById("btnNext");
+const helpBanner = document.getElementById("helpBanner");
 
 const HINTS = {1:"О вас", 2:"О вас", 3:"О вас", 4:"О вас", 5:"О партнёре", 6:"О партнёре", 7:"Ваша пара"};
 
@@ -763,10 +777,12 @@ function renderStep(){
   if (currentStep === "done"){
     progressBlock.style.display = "none";
     navBlock.style.display = "none";
+    helpBanner.style.display = "none";
     return;
   }
   progressBlock.style.display = "block";
   navBlock.style.display = "flex";
+  helpBanner.style.display = "flex";
   progressFill.style.width = ((currentStep - 1) / TOTAL_STEPS * 100) + "%";
   stepCurrentEl.textContent = currentStep;
   stepHintEl.textContent = HINTS[currentStep];
