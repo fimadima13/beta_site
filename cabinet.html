@@ -20,12 +20,25 @@
 .cab-loading{max-width:560px; margin:0 auto; text-align:center; line-height:1.6;}
 .cab-loading a{color:#fff; text-decoration:underline;}
 .cab-loading code{background:rgba(255,255,255,.08); padding:1px 6px; border-radius:5px; font-size:12.5px;}
-/* делаем сетку резиновой на 4 карточки без изменения auth.css */
-@media (min-width:901px){
-  .cab-grid.cab-grid-4{grid-template-columns:repeat(4,1fr);}
+
+/* Тариф — компактный бейдж в хедере рядом с email, а не карточка в общей сетке */
+.plan-pill{
+  display:inline-flex; align-items:center; gap:7px;
+  height:38px; padding:0 14px 0 6px; border-radius:999px;
+  border:1px solid var(--line); background:rgba(255,255,255,.03);
+  font-size:13px; font-weight:600; color:var(--ink);
+  text-decoration:none; cursor:pointer;
+  transition:background .18s ease, border-color .18s ease;
 }
-@media (max-width:900px) and (min-width:561px){
-  .cab-grid.cab-grid-4{grid-template-columns:repeat(2,1fr);}
+.plan-pill:hover{background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.25);}
+.plan-pill .plan-dot{
+  width:7px; height:7px; border-radius:50%; background:var(--muted); flex:none;
+}
+.plan-pill.premium .plan-dot, .plan-pill.couple .plan-dot{background:#7ee0a8;}
+.plan-pill .plan-chevron{width:12px; height:12px; color:var(--muted); flex:none;}
+
+@media (max-width:560px){
+  .plan-pill{font-size:12px; padding:0 10px 0 6px; height:34px;}
 }
 </style>
 </head>
@@ -55,6 +68,11 @@
       <span class="word">RelationSync<span class="dim">.ai</span></span>
     </a>
     <div class="cab-user">
+      <a href="pricing.html" class="plan-pill" id="planPill">
+        <span class="plan-dot"></span>
+        <span id="planPillLabel">Бесплатно</span>
+        <svg class="plan-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
       <span class="cab-user-email" id="userEmail"></span>
       <button class="logout-btn" id="logoutBtn">Выйти</button>
     </div>
@@ -64,7 +82,7 @@
     <h1 class="cab-hello">Привет, <span class="dim" id="helloName"></span></h1>
     <p class="cab-sub">Это личный кабинет RelationSync.ai. Заполните анкету, чтобы получить персональный чек-лист.</p>
 
-    <div class="cab-grid cab-grid-4">
+    <div class="cab-grid">
 
       <a href="questionnaire.html" class="cab-card is-link" id="questionnaireCard">
         <span class="cab-badge todo" id="questionnaireBadge">Начать</span>
@@ -86,17 +104,6 @@
         </div>
         <h3>Персональный чек-лист</h3>
         <p id="checklistDesc">План на основе анкеты — сейчас в черновой версии, ИИ-персонализация появится следующим шагом.</p>
-      </a>
-
-      <a href="pricing.html" class="cab-card is-link" id="pricingCard">
-        <span class="cab-badge" id="pricingBadge">Бесплатно</span>
-        <div class="cab-card-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-          </svg>
-        </div>
-        <h3>Тарифы</h3>
-        <p id="pricingDesc">Бесплатно, Премиум или тариф для пары — управляйте планом здесь.</p>
       </a>
 
       <div class="cab-card">
@@ -183,20 +190,18 @@ function showFatal(html) {
   }
 
   try {
-    // Если пользователь выбрал тариф ещё на лендинге (до регистрации) —
-    // подхватываем это значение один раз при первом визите в кабинет.
     let plan = await getSelectedPlan(client, session.user.id);
     const landingPlan = getLandingSelectedPlan();
     if (landingPlan && landingPlan !== plan) {
       await setSelectedPlan(client, session.user.id, landingPlan);
       plan = landingPlan;
     }
-    const pricingBadge = document.getElementById("pricingBadge");
-    pricingBadge.textContent = PLAN_LABELS[plan] || "Бесплатно";
-    if (plan !== "free") {
-      pricingBadge.classList.add("done");
-      document.getElementById("pricingDesc").textContent = "Оплата будет подключена следующим шагом — пока план активен без списаний.";
-    }
+    const planPill = document.getElementById("planPill");
+    const planPillLabel = document.getElementById("planPillLabel");
+    planPillLabel.textContent = PLAN_LABELS[plan] || "Бесплатно";
+    planPill.classList.remove("premium", "couple");
+    if (plan === "premium") planPill.classList.add("premium");
+    if (plan === "couple") planPill.classList.add("couple");
   } catch (err) {
     console.error("plan sync failed (non-fatal):", err);
   }
