@@ -63,6 +63,135 @@ export function getDisplayProfile(session) {
   };
 }
 
+export function getFunctionsUrl() {
+  const c = window.SUPABASE_CONFIG || {};
+  if (c.functionsUrl) return String(c.functionsUrl).replace(/\/$/, "");
+  if (c.url) return String(c.url).replace(/\/$/, "") + "/functions/v1";
+  return null;
+}
+
+export async function deleteAccount(client) {
+  const functionsUrl = getFunctionsUrl();
+  if (!functionsUrl) throw new Error("URL Edge Functions не настроен");
+
+  const { data: sessionData, error: sessionError } = await client.auth.getSession();
+  if (sessionError || !sessionData?.session?.access_token) {
+    throw new Error("Сессия недействительна");
+  }
+
+  const res = await fetch(functionsUrl + "/delete-account", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + sessionData.session.access_token,
+      "Content-Type": "application/json",
+    },
+  });
+
+  let body = {};
+  try {
+    body = await res.json();
+  } catch (_) {
+    body = {};
+  }
+
+  if (!res.ok) {
+    throw new Error(body.error || "Не удалось удалить аккаунт (код " + res.status + ")");
+  }
+
+  await client.auth.signOut();
+  return true;
+}
+
+/* ============================================================
+   TELEGRAM-УВЕДОМЛЕНИЯ
+   ============================================================ */
+
+const TELEGRAM_TOKEN_PREFIX = "rs_";
+const TELEGRAM_TOKEN_TTL_MINUTES = 15;
+
+function getTelegramBotUsername() {
+  const username = window.TELEGRAM_CONFIG?.botUsername;
+  if (!username || username === "YOUR_BOT_USERNAME") return null;
+  return String(username).replace(/^@/, "");
+}
+
+export function getTelegramDeepLink(token) {
+  const botUsername = getTelegramBotUsername();
+  if (!botUsername) return null;
+  return "https://t.me/" + botUsername + "?start=" + encodeURIComponent(token);
+}
+
+export async function loadTelegramLink(client, userId) {
+  try {
+    const { data, error } = await client
+      .from("telegram_links")
+      .select("*")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error) {
+      console.error("loadTelegramLink error:", error);
+      return null;
+    }
+    return data;
+  } catch (err) {
+    console.error("loadTelegramLink exception:", err);
+    return null;
+  }
+}
+
+export async function createTelegramLinkToken(client, userId) {
+  const token = TELEGRAM_TOKEN_PREFIX + crypto.randomUUID().replace(/-/g, "").slice(0, 24);
+  const expiresAt = new Date(Date.now() + TELEGRAM_TOKEN_TTL_MINUTES * 60 * 1000).toISOString();
+
+  await client
+    .from("telegram_link_tokens")
+    .delete()
+    .eq("user_id", userId)
+    .is("used_at", null);
+
+  const { error } = await client.from("telegram_link_tokens").insert({
+    user_id: userId,
+    token,
+    expires_at: expiresAt,
+  });
+
+  if (error) throw error;
+
+  return {
+    token,
+    expiresAt,
+    deepLink: getTelegramDeepLink(token),
+  };
+}
+
+export async function updateTelegramNotificationPrefs(client, userId, prefs) {
+  const payload = { updated_at: new Date().toISOString() };
+  if (typeof prefs.notifyMoodReminder === "boolean") payload.notify_mood_reminder = prefs.notifyMoodReminder;
+  if (typeof prefs.notifyImportantDates === "boolean") payload.notify_important_dates = prefs.notifyImportantDates;
+  if (typeof prefs.notifyChecklist === "boolean") payload.notify_checklist = prefs.notifyChecklist;
+
+  const { data, error } = await client
+    .from("telegram_links")
+    .update(payload)
+    .eq("user_id", userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function disconnectTelegram(client, userId) {
+  const { error } = await client.from("telegram_links").delete().eq("user_id", userId);
+  if (error) throw error;
+  return true;
+}
+
+export function isTelegramConfigured() {
+  return !!getTelegramBotUsername();
+}
+
 /* ============================================================
    АНКЕТА О ПАРЕ (couple_profiles)
    ============================================================ */
@@ -528,3 +657,4 @@ export function formatOverallProfileForShare(overallProfile) {
   lines.push("", SITE_URL);
   return lines.join("\n");
 }
+
