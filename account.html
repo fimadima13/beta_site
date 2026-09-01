@@ -13,6 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/auth.css">
 <script src="assets/supabase-config.js"></script>
+<script src="assets/telegram-config.js"></script>
 <style>
 .ac-wrap{
   flex:1; width:100%; max-width:560px; margin:0 auto; padding:20px 24px 80px;
@@ -71,6 +72,63 @@
 
 .ac-danger{border-color:rgba(255,107,107,.25);}
 .ac-danger .ac-btn{background:transparent; color:var(--err); border-color:rgba(255,107,107,.35);}
+.ac-danger .ac-btn.ac-btn-solid{background:rgba(255,107,107,.12); color:var(--err); border-color:rgba(255,107,107,.45);}
+.ac-danger .ac-btn.ac-btn-solid:disabled{opacity:.45;}
+
+.ac-tg-status{
+  display:flex; align-items:flex-start; gap:12px;
+  border:1px solid var(--line); border-radius:12px; padding:14px 16px;
+  margin-bottom:18px; background:rgba(255,255,255,.02);
+}
+.ac-tg-status.connected{border-color:rgba(126,224,168,.28); background:rgba(126,224,168,.06);}
+.ac-tg-status-icon{flex:none; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.06);}
+.ac-tg-status.connected .ac-tg-status-icon{background:rgba(126,224,168,.12); color:var(--ok);}
+.ac-tg-status-icon svg{width:18px; height:18px;}
+.ac-tg-status-text{font-size:13.5px; line-height:1.55; color:var(--muted);}
+.ac-tg-status-text strong{display:block; color:var(--ink); font-size:14px; margin-bottom:2px;}
+.ac-tg-status.connected .ac-tg-status-text strong{color:var(--ok);}
+
+.ac-toggles{display:flex; flex-direction:column; gap:12px; margin:18px 0;}
+.ac-toggle{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:rgba(255,255,255,.02);
+}
+.ac-toggle-label{font-size:13.5px; color:var(--ink); line-height:1.45;}
+.ac-toggle-label span{display:block; font-size:12px; color:var(--muted); margin-top:2px;}
+.ac-switch{
+  position:relative; width:44px; height:26px; flex:none; border:0; padding:0; cursor:pointer;
+  background:rgba(255,255,255,.08); border-radius:999px; transition:background .2s ease;
+}
+.ac-switch::after{
+  content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%;
+  background:#fff; transition:transform .2s ease;
+}
+.ac-switch.on{background:rgba(126,224,168,.35);}
+.ac-switch.on::after{transform:translateX(18px);}
+.ac-switch:disabled{opacity:.45; cursor:default;}
+
+.ac-link-box{
+  display:flex; align-items:center; gap:10px; margin-top:14px;
+  border:1px dashed rgba(255,255,255,.18); border-radius:12px; padding:12px 14px;
+  font-size:12.5px; color:var(--muted); line-height:1.5;
+}
+.ac-link-box code{
+  font-size:11.5px; color:var(--ink); word-break:break-all;
+  background:rgba(255,255,255,.05); padding:2px 6px; border-radius:6px;
+}
+
+.ac-delete-confirm{margin-top:14px;}
+.ac-delete-confirm label{display:block; font-size:12.5px; color:var(--muted); margin-bottom:7px; font-weight:600;}
+.ac-delete-confirm input{
+  width:100%; height:46px; border-radius:12px; border:1px solid rgba(255,107,107,.25);
+  background:rgba(255,107,107,.05); color:#fff; padding:0 15px; font-size:14.5px; font-family:inherit;
+}
+.ac-delete-confirm input:focus{outline:none; border-color:rgba(255,107,107,.45);}
+.ac-check{
+  display:flex; align-items:flex-start; gap:10px; margin:14px 0 18px;
+  font-size:13px; color:var(--muted); line-height:1.5;
+}
+.ac-check input{margin-top:3px; accent-color:#ff6b6b;}
 
 .cab-loading{max-width:560px; margin:0 auto; text-align:center; line-height:1.6;}
 .cab-loading a{color:#fff; text-decoration:underline;}
@@ -161,23 +219,147 @@
       </form>
     </div>
 
+    <div class="ac-section">
+      <h3>Telegram-уведомления</h3>
+      <p class="ac-section-desc">Подключите бота, чтобы получать напоминания о настроении, важных датах и обновлениях чек-листа.</p>
+
+      <div class="ac-tg-status" id="tgStatusBox">
+        <div class="ac-tg-status-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3 18.7 20c-.2.9-.9 1.1-1.7.7l-4.7-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9L18 6.8c.4-.3-.1-.5-.6-.2L6.5 13.3 1.9 11.9c-1-.3-1-1 .2-1.5l19.1-7.3c.8-.3 1.5.2 1.2 1.2z"/></svg>
+        </div>
+        <div class="ac-tg-status-text" id="tgStatusText">
+          <strong>Не подключено</strong>
+          Нажмите кнопку ниже — откроется бот, привязка произойдёт автоматически.
+        </div>
+      </div>
+
+      <div id="tgPrefsBlock" style="display:none">
+        <div class="ac-toggles">
+          <div class="ac-toggle">
+            <div class="ac-toggle-label">Напоминание о настроении<span>Если давно не отмечали настроение в дневнике</span></div>
+            <button type="button" class="ac-switch" id="tgPrefMood" aria-label="Напоминание о настроении"></button>
+          </div>
+          <div class="ac-toggle">
+            <div class="ac-toggle-label">Важные даты<span>За несколько дней до события из дневника</span></div>
+            <button type="button" class="ac-switch" id="tgPrefDates" aria-label="Важные даты"></button>
+          </div>
+          <div class="ac-toggle">
+            <div class="ac-toggle-label">Чек-лист<span>Когда появится или обновится персональный чек-лист</span></div>
+            <button type="button" class="ac-switch" id="tgPrefChecklist" aria-label="Чек-лист"></button>
+          </div>
+        </div>
+        <button type="button" class="ac-btn" id="tgDisconnectBtn"><span>Отключить Telegram</span></button>
+      </div>
+
+      <div id="tgConnectBlock">
+        <button type="button" class="ac-btn" id="tgConnectBtn"><span>Подключить Telegram</span></button>
+        <div class="ac-link-box" id="tgLinkBox" style="display:none">
+          Откройте бота по ссылке. Код действует 15 минут:
+          <code id="tgLinkCode"></code>
+        </div>
+      </div>
+      <div class="ac-msg" id="tgMsg"></div>
+    </div>
+
     <div class="ac-section ac-danger">
       <h3>Выйти из аккаунта</h3>
       <p class="ac-section-desc">Завершить текущую сессию на этом устройстве.</p>
       <button type="button" class="ac-btn" id="logoutBtn"><span>Выйти</span></button>
     </div>
 
+    <div class="ac-section ac-danger">
+      <h3>Удалить аккаунт</h3>
+      <p class="ac-section-desc">Безвозвратно удалит аккаунт, анкету, чек-лист, дневник, тесты и привязку Telegram. Это действие нельзя отменить.</p>
+      <div class="ac-delete-confirm">
+        <label for="deleteConfirmInput">Введите <strong>УДАЛИТЬ</strong> для подтверждения</label>
+        <input type="text" id="deleteConfirmInput" autocomplete="off" spellcheck="false" placeholder="УДАЛИТЬ">
+      </div>
+      <label class="ac-check">
+        <input type="checkbox" id="deleteAckCheckbox">
+        <span>Я понимаю, что все мои данные будут удалены без возможности восстановления.</span>
+      </label>
+      <button type="button" class="ac-btn ac-btn-solid" id="deleteAccountBtn" disabled><span>Удалить аккаунт навсегда</span></button>
+      <div class="ac-msg" id="deleteMsg"></div>
+    </div>
+
   </div>
 </div>
 
 <script type="module">
-import { getClient, isConfigured, getSession, updateDisplayName, requestEmailChange, updatePassword, getDisplayProfile } from "./assets/auth.js";
+import {
+  getClient, isConfigured, getSession,
+  updateDisplayName, requestEmailChange, updatePassword, getDisplayProfile,
+  deleteAccount, loadTelegramLink, createTelegramLinkToken,
+  updateTelegramNotificationPrefs, disconnectTelegram, isTelegramConfigured,
+} from "./assets/auth.js";
 
 const loadingState = document.getElementById("loadingState");
 const appRoot = document.getElementById("appRoot");
 
 let client = null;
 let session = null;
+let telegramPollTimer = null;
+let telegramLink = null;
+
+function setSwitch(el, on) {
+  el.classList.toggle("on", on);
+  el.setAttribute("aria-pressed", on ? "true" : "false");
+}
+
+function renderTelegramState() {
+  const statusBox = document.getElementById("tgStatusBox");
+  const statusText = document.getElementById("tgStatusText");
+  const prefsBlock = document.getElementById("tgPrefsBlock");
+  const connectBlock = document.getElementById("tgConnectBlock");
+  const linkBox = document.getElementById("tgLinkBox");
+
+  if (telegramLink?.telegram_chat_id) {
+    statusBox.classList.add("connected");
+    const handle = telegramLink.telegram_username ? "@" + telegramLink.telegram_username : "чат подключён";
+    statusText.innerHTML = "<strong>Telegram подключён</strong>" + handle + ". Уведомления можно настроить ниже.";
+    prefsBlock.style.display = "block";
+    connectBlock.style.display = "none";
+    linkBox.style.display = "none";
+    setSwitch(document.getElementById("tgPrefMood"), !!telegramLink.notify_mood_reminder);
+    setSwitch(document.getElementById("tgPrefDates"), !!telegramLink.notify_important_dates);
+    setSwitch(document.getElementById("tgPrefChecklist"), !!telegramLink.notify_checklist);
+    stopTelegramPolling();
+    return;
+  }
+
+  statusBox.classList.remove("connected");
+  statusText.innerHTML = "<strong>Не подключено</strong>Нажмите кнопку ниже — откроется бот, привязка произойдёт автоматически.";
+  prefsBlock.style.display = "none";
+  connectBlock.style.display = "block";
+}
+
+function stopTelegramPolling() {
+  if (telegramPollTimer) {
+    clearInterval(telegramPollTimer);
+    telegramPollTimer = null;
+  }
+}
+
+function startTelegramPolling() {
+  stopTelegramPolling();
+  telegramPollTimer = setInterval(async () => {
+    try {
+      telegramLink = await loadTelegramLink(client, session.user.id);
+      if (telegramLink?.telegram_chat_id) {
+        renderTelegramState();
+        showMsg("tgMsg", "Telegram успешно подключён.", "ok");
+      }
+    } catch (err) {
+      console.error("telegram poll failed:", err);
+    }
+  }, 2500);
+}
+
+function updateDeleteButtonState() {
+  const confirmed = document.getElementById("deleteConfirmInput").value.trim() === "УДАЛИТЬ";
+  const acked = document.getElementById("deleteAckCheckbox").checked;
+  document.getElementById("deleteAccountBtn").disabled = !(confirmed && acked);
+}
 
 function showFatal(html) {
   loadingState.innerHTML = html;
@@ -221,6 +403,18 @@ async function init() {
   const profile = getDisplayProfile(session);
   document.getElementById("nameInput").value = profile.displayName || "";
   document.getElementById("currentEmailInput").value = profile.email;
+
+  try {
+    telegramLink = await loadTelegramLink(client, session.user.id);
+  } catch (err) {
+    console.error("loadTelegramLink failed:", err);
+  }
+  renderTelegramState();
+
+  if (!isTelegramConfigured()) {
+    document.getElementById("tgConnectBtn").disabled = true;
+    showMsg("tgMsg", "Укажите имя бота в assets/telegram-config.js (botUsername).", "error");
+  }
 
   loadingState.style.display = "none";
   appRoot.style.display = "block";
@@ -297,11 +491,113 @@ document.getElementById("passwordForm").addEventListener("submit", async (e) => 
 });
 
 document.getElementById("logoutBtn").addEventListener("click", async () => {
+  stopTelegramPolling();
   await client.auth.signOut();
   window.location.href = "login.html";
 });
+
+document.getElementById("tgConnectBtn").addEventListener("click", async () => {
+  hideMsg("tgMsg");
+  if (!isTelegramConfigured()) {
+    showMsg("tgMsg", "Сначала укажите botUsername в assets/telegram-config.js.", "error");
+    return;
+  }
+  setBusy("tgConnectBtn", true, "Создаём ссылку…");
+  try {
+    const linkData = await createTelegramLinkToken(client, session.user.id);
+    if (!linkData.deepLink) throw new Error("Не удалось сформировать ссылку на бота");
+    document.getElementById("tgLinkBox").style.display = "flex";
+    document.getElementById("tgLinkCode").textContent = linkData.deepLink;
+    window.open(linkData.deepLink, "_blank", "noopener");
+    showMsg("tgMsg", "Откройте бота в Telegram и нажмите Start. Страница обновится автоматически после привязки.", "ok");
+    startTelegramPolling();
+  } catch (err) {
+    console.error("createTelegramLinkToken failed:", err);
+    showMsg("tgMsg", "Не удалось создать код привязки: " + (err?.message || "неизвестная ошибка"), "error");
+  } finally {
+    setBusy("tgConnectBtn", false, "Подключить Telegram");
+  }
+});
+
+async function saveTelegramPref(key, value, switchEl) {
+  hideMsg("tgMsg");
+  switchEl.disabled = true;
+  try {
+    telegramLink = await updateTelegramNotificationPrefs(client, session.user.id, { [key]: value });
+    setSwitch(switchEl, value);
+    showMsg("tgMsg", "Настройки уведомлений сохранены.", "ok");
+  } catch (err) {
+    console.error("updateTelegramNotificationPrefs failed:", err);
+    setSwitch(switchEl, !value);
+    showMsg("tgMsg", "Не удалось сохранить настройку: " + (err?.message || "неизвестная ошибка"), "error");
+  } finally {
+    switchEl.disabled = false;
+  }
+}
+
+document.getElementById("tgPrefMood").addEventListener("click", async function () {
+  const next = !this.classList.contains("on");
+  await saveTelegramPref("notifyMoodReminder", next, this);
+});
+document.getElementById("tgPrefDates").addEventListener("click", async function () {
+  const next = !this.classList.contains("on");
+  await saveTelegramPref("notifyImportantDates", next, this);
+});
+document.getElementById("tgPrefChecklist").addEventListener("click", async function () {
+  const next = !this.classList.contains("on");
+  await saveTelegramPref("notifyChecklist", next, this);
+});
+
+document.getElementById("tgDisconnectBtn").addEventListener("click", async () => {
+  hideMsg("tgMsg");
+  if (!confirm("Отключить Telegram-уведомления для этого аккаунта?")) return;
+  setBusy("tgDisconnectBtn", true, "Отключаем…");
+  try {
+    await disconnectTelegram(client, session.user.id);
+    telegramLink = null;
+    renderTelegramState();
+    showMsg("tgMsg", "Telegram отключён.", "ok");
+  } catch (err) {
+    console.error("disconnectTelegram failed:", err);
+    showMsg("tgMsg", "Не удалось отключить: " + (err?.message || "неизвестная ошибка"), "error");
+  } finally {
+    setBusy("tgDisconnectBtn", false, "Отключить Telegram");
+  }
+});
+
+document.getElementById("deleteConfirmInput").addEventListener("input", updateDeleteButtonState);
+document.getElementById("deleteAckCheckbox").addEventListener("change", updateDeleteButtonState);
+
+document.getElementById("deleteAccountBtn").addEventListener("click", async () => {
+  hideMsg("deleteMsg");
+  if (document.getElementById("deleteConfirmInput").value.trim() !== "УДАЛИТЬ") {
+    showMsg("deleteMsg", "Введите УДАЛИТЬ для подтверждения.", "error");
+    return;
+  }
+  if (!document.getElementById("deleteAckCheckbox").checked) {
+    showMsg("deleteMsg", "Подтвердите, что понимаете последствия.", "error");
+    return;
+  }
+  if (!confirm("Последнее предупреждение: удалить аккаунт и все данные безвозвратно?")) return;
+
+  stopTelegramPolling();
+  setBusy("deleteAccountBtn", true, "Удаляем…");
+  try {
+    await deleteAccount(client);
+    window.location.href = "index.html?deleted=1";
+  } catch (err) {
+    console.error("deleteAccount failed:", err);
+    showMsg("deleteMsg", (err?.message || "Не удалось удалить аккаунт") + ". Убедитесь, что выполнена SQL-миграция и задеплоена Edge Function delete-account.", "error");
+  } finally {
+    setBusy("deleteAccountBtn", false, "Удалить аккаунт навсегда");
+    updateDeleteButtonState();
+  }
+});
+
+window.addEventListener("beforeunload", stopTelegramPolling);
 
 init();
 </script>
 </body>
 </html>
+
