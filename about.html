@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050505">
-<title>О сервисе и документы — RelationSync.ai</title>
+<title>RelationSync.ai</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -14,193 +14,235 @@
 <link rel="stylesheet" href="assets/auth.css">
 <script src="assets/supabase-config.js"></script>
 <style>
-.ab-wrap{flex:1; width:100%; max-width:760px; margin:0 auto; padding:20px 24px 80px;}
-.ab-head{margin-bottom:30px;}
-.ab-eyebrow{display:inline-flex; align-items:center; gap:8px; margin-bottom:14px; padding:6px 13px; border-radius:5px; border:1px solid var(--line); background:rgba(255,255,255,.03); font-size:11.5px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);}
-.ab-title{font-size:25px; font-weight:700; margin:0 0 10px; letter-spacing:-.01em;}
-.ab-sub{font-size:14.5px; color:var(--muted); margin:0; line-height:1.6; max-width:560px;}
+*{box-sizing:border-box;}
 
-.ab-section-label{font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:34px 0 14px;}
-.ab-section-label:first-of-type{margin-top:0;}
+.ab-hero{position:relative; overflow:hidden; padding:90px 24px 70px; text-align:center; border-bottom:1px solid var(--line);}
+.ab-hero::before{content:""; position:absolute; inset:-40% -10% auto -10%; height:420px; background:radial-gradient(ellipse 60% 100% at 50% 0%, rgba(255,255,255,.09), transparent 70%); pointer-events:none; animation:abGlow 8s ease-in-out infinite alternate;}
+@keyframes abGlow{from{opacity:.6; transform:translateY(0);} to{opacity:1; transform:translateY(14px);}}
+.ab-logo{position:relative; z-index:1; width:58px; height:89px; margin:0 auto 28px; animation:abFloat 5s ease-in-out infinite;}
+@keyframes abFloat{0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);}}
+.ab-logo svg{width:100%; height:100%; display:block;}
+.ab-eyebrow{position:relative; z-index:1; display:inline-flex; align-items:center; gap:8px; margin-bottom:18px; padding:6px 14px; border-radius:5px; border:1px solid var(--line); background:rgba(255,255,255,.03); font-size:11.5px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);}
+.ab-title{position:relative; z-index:1; font-size:clamp(28px,4.4vw,44px); font-weight:700; letter-spacing:-.01em; margin:0 0 18px; line-height:1.15; color:var(--ink);}
+.ab-lead{position:relative; z-index:1; font-size:clamp(15px,1.8vw,17.5px); color:var(--muted); line-height:1.65; max-width:640px; margin:0 auto;}
 
-.about-card{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:22px 22px; margin-bottom:16px; line-height:1.65;}
-.about-card p{font-size:13.5px; color:var(--muted); margin:0 0 10px;}
-.about-card p:last-child{margin-bottom:0;}
-.about-card strong{color:var(--ink);}
+.ab-section{max-width:760px; margin:0 auto; padding:64px 24px;}
+.ab-section + .ab-section{border-top:1px solid var(--line);}
+.ab-section-eyebrow{display:inline-flex; align-items:center; gap:8px; margin-bottom:16px; padding:6px 13px; border-radius:5px; border:1px solid var(--line); background:rgba(255,255,255,.03); font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);}
+.ab-section h2{font-size:clamp(22px,2.8vw,28px); font-weight:700; margin:0 0 18px; color:var(--ink); letter-spacing:-.01em;}
+.ab-section p{font-size:15px; line-height:1.75; color:var(--muted); margin:0 0 16px;}
+.ab-section p strong{color:var(--ink); font-weight:600;}
 
-.doc-list{display:flex; flex-direction:column; gap:10px;}
-.doc-row{display:flex; align-items:center; gap:14px; border:1px solid var(--line); background:var(--card); border-radius:14px; padding:16px 18px; text-decoration:none; transition:background .15s ease, border-color .15s ease;}
-.doc-row.is-active{cursor:pointer;}
-.doc-row.is-active:hover{background:var(--card-hover); border-color:rgba(255,255,255,.18);}
-.doc-row.is-pending{opacity:.55; cursor:default;}
-.doc-icon{flex:none; width:40px; height:40px; border-radius:11px; background:rgba(255,255,255,.05); display:flex; align-items:center; justify-content:center;}
-.doc-icon svg{width:19px; height:19px; color:var(--ink);}
-.doc-body{flex:1; min-width:0;}
-.doc-title{font-size:14.5px; font-weight:600; color:var(--ink); margin:0 0 3px;}
-.doc-desc{font-size:12.5px; color:var(--muted); margin:0; line-height:1.5;}
-.doc-status{flex:none; font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:5px 11px; border-radius:999px; border:1px solid var(--line); color:var(--muted); white-space:nowrap;}
-.doc-status.pending{color:#ffc16b; border-color:rgba(255,193,107,.3); background:rgba(255,193,107,.08);}
-.doc-chevron{flex:none; width:16px; height:16px; color:var(--muted);}
+.ab-methods-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:24px;}
+.ab-method-card{border:1px solid var(--line); background:var(--card); border-radius:14px; padding:22px 20px;}
+.ab-method-card .ab-method-tag{display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); border:1px solid var(--line); padding:3px 9px; border-radius:999px; margin-bottom:12px;}
+.ab-method-card h4{font-size:15px; font-weight:700; margin:0 0 8px; color:var(--ink);}
+.ab-method-card p{font-size:13.5px; line-height:1.6; color:var(--muted); margin:0;}
 
-.company-card{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:22px; margin-bottom:16px;}
-.company-row{display:flex; justify-content:space-between; gap:16px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px;}
-.company-row:last-child{border-bottom:0;}
-.company-row span:first-child{color:var(--muted);}
-.company-row span:last-child{color:var(--ink); font-weight:500; text-align:right;}
-.company-pending{font-size:12.5px; color:var(--muted); text-align:center; padding:6px 0 2px; font-style:italic;}
+.ab-stats-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:28px;}
+.ab-stat-card{border:1px solid var(--line); background:var(--card); border-radius:14px; padding:24px 20px; text-align:center;}
+.ab-stat-value{font-size:clamp(26px,3.4vw,34px); font-weight:700; color:var(--ink); margin:0 0 8px; line-height:1;}
+.ab-stat-label{font-size:12.5px; color:var(--muted); line-height:1.5; margin:0;}
+.ab-stat-source{font-size:10.5px; color:var(--muted); opacity:.7; margin-top:8px; display:block;}
 
-.contact-row{display:flex; align-items:center; gap:12px; font-size:13.5px; color:var(--muted); margin-bottom:10px;}
-.contact-row:last-child{margin-bottom:0;}
-.contact-row svg{flex:none; width:16px; height:16px;}
-.contact-row a{color:var(--ink); text-decoration:none;}
-.contact-row a:hover{text-decoration:underline;}
+/* ---------- Документы (новый блок) ---------- */
+.ab-doc-list{display:flex; flex-direction:column; gap:10px; margin-top:24px;}
+.ab-doc-row{display:flex; align-items:center; gap:14px; border:1px solid var(--line); background:var(--card); border-radius:14px; padding:16px 18px;}
+.ab-doc-icon{flex:none; width:40px; height:40px; border-radius:11px; background:rgba(255,255,255,.05); display:flex; align-items:center; justify-content:center;}
+.ab-doc-icon svg{width:19px; height:19px; color:var(--ink);}
+.ab-doc-body{flex:1; min-width:0;}
+.ab-doc-title{font-size:14.5px; font-weight:600; color:var(--ink); margin:0 0 3px;}
+.ab-doc-desc{font-size:12.5px; color:var(--muted); margin:0; line-height:1.5;}
+.ab-doc-status{flex:none; font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:5px 11px; border-radius:999px; border:1px solid var(--line); color:var(--muted); white-space:nowrap;}
+.ab-doc-status.pending{color:#ffc16b; border-color:rgba(255,193,107,.3); background:rgba(255,193,107,.08);}
+.ab-company-card{border:1px solid var(--line); background:var(--card); border-radius:14px; padding:20px 22px; margin-top:14px;}
+.ab-company-row{display:flex; justify-content:space-between; gap:16px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;}
+.ab-company-row:last-child{border-bottom:0;}
+.ab-company-row span:first-child{color:var(--muted);}
+.ab-company-row span:last-child{color:var(--ink); font-weight:500; text-align:right;}
+.ab-company-note{font-size:12px; color:var(--muted); text-align:center; padding:10px 0 0; font-style:italic;}
 
-.cab-loading{max-width:560px; margin:0 auto; text-align:center; line-height:1.6;}
-.cab-loading a{color:#fff; text-decoration:underline;}
+.ab-quote-block{max-width:680px; margin:0 auto; padding:70px 24px 90px; text-align:center;}
+.ab-quote-mark{font-size:52px; line-height:1; color:var(--line); margin-bottom:6px; font-family:Georgia,serif;}
+.ab-quote-text{font-size:clamp(19px,2.6vw,25px); font-weight:500; line-height:1.5; color:var(--ink); margin:0 0 20px; letter-spacing:-.01em;}
+.ab-quote-author{font-size:13.5px; color:var(--muted); font-weight:600;}
+.ab-quote-author span{color:var(--muted); font-weight:400;}
+.ab-cta-band{border-top:1px solid var(--line); text-align:center; padding:60px 24px 80px;}
+.ab-cta-band a{display:inline-flex; align-items:center; justify-content:center; height:50px; padding:0 30px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:15px; font-weight:600; text-decoration:none;}
+.ab-cta-band p{font-size:13.5px; color:var(--muted); margin:16px 0 0;}
+
+@media (max-width:640px){
+  .ab-methods-grid{grid-template-columns:1fr;}
+  .ab-stats-grid{grid-template-columns:1fr;}
+  .ab-hero{padding:64px 20px 48px;}
+  .ab-section{padding:48px 20px;}
+}
 </style>
 </head>
 <body>
 
-<div id="loadingState" class="cab-loading"><span class="spinner"></span></div>
+<header class="mini-header">
+  <a href="cabinet.html" class="brand" aria-label="RelationSync.ai">
+    <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
+      <defs><linearGradient id="bg1" x1="8" y1="10" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#9e9e9e"/><stop offset=".28" stop-color="#a6a6a6"/><stop offset=".34" stop-color="#a3a3a3"/><stop offset=".40" stop-color="#3a3a3a"/><stop offset=".55" stop-color="#414141"/><stop offset=".60" stop-color="#7a7a7a"/><stop offset=".68" stop-color="#8e8e8e"/><stop offset=".80" stop-color="#a9a9a9"/><stop offset=".95" stop-color="#c4c4c4"/><stop offset="1" stop-color="#cccccc"/>
+      </linearGradient></defs>
+      <path d="M21.5 0 L21.5 19.5 L31.5 19.5 L31.5 29 L10 48.5 L10 28.5 L0.5 28.5 L0.5 18.5 Z" fill="url(#bg1)"/>
+      <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/><rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
+    </svg>
+    <span class="word">RelationSync<span class="dim">.ai</span></span>
+  </a>
+  <a href="cabinet.html" class="back-link">← В кабинет</a>
+</header>
 
-<div id="appRoot" style="display:none">
+<main>
 
-  <header class="mini-header">
-    <a href="cabinet.html" class="brand" aria-label="RelationSync.ai">
+  <section class="ab-hero">
+    <div class="ab-logo">
       <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
-        <defs><linearGradient id="bg1" x1="8" y1="10" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#9e9e9e"/><stop offset=".28" stop-color="#a6a6a6"/><stop offset=".34" stop-color="#a3a3a3"/><stop offset=".40" stop-color="#3a3a3a"/><stop offset=".55" stop-color="#414141"/><stop offset=".60" stop-color="#7a7a7a"/><stop offset=".68" stop-color="#8e8e8e"/><stop offset=".80" stop-color="#a9a9a9"/><stop offset=".95" stop-color="#c4c4c4"/><stop offset="1" stop-color="#cccccc"/>
+        <defs><linearGradient id="bgHero" x1="8" y1="10" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#c4c4c4"/><stop offset=".4" stop-color="#8e8e8e"/><stop offset=".7" stop-color="#4a4a4a"/><stop offset="1" stop-color="#e8e8e8"/>
         </linearGradient></defs>
-        <path d="M21.5 0 L21.5 19.5 L31.5 19.5 L31.5 29 L10 48.5 L10 28.5 L0.5 28.5 L0.5 18.5 Z" fill="url(#bg1)"/>
+        <path d="M21.5 0 L21.5 19.5 L31.5 19.5 L31.5 29 L10 48.5 L10 28.5 L0.5 28.5 L0.5 18.5 Z" fill="url(#bgHero)"/>
         <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/><rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
       </svg>
-      <span class="word">RelationSync<span class="dim">.ai</span></span>
-    </a>
-    <a href="cabinet.html" class="back-link">← В кабинет</a>
-  </header>
-
-  <div class="ab-wrap">
-
-    <div class="ab-head">
-      <span class="ab-eyebrow">О сервисе</span>
-      <h1 class="ab-title">Кто мы и на каких условиях работаем</h1>
-      <p class="ab-sub">Реквизиты компании и документы, регулирующие использование сервиса. Часть документов сейчас готовится к публикации — статус указан у каждого.</p>
     </div>
+    <span class="ab-eyebrow">О сервисе</span>
+    <h1 class="ab-title">Зачем мы создаём<br>RelationSync.AI</h1>
+    <p class="ab-lead">Мы верим, что здоровые отношения — это не удача, а навык, который можно поддерживать системно. Наша цель — сделать научно обоснованную поддержку для пар такой же доступной, как ежедневное приложение, а не редкую роскошь визита к специалисту.</p>
+  </section>
 
-    <div class="about-card">
-      <p><strong>RelationSync.ai</strong> — сервис для пар, который помогает лучше понимать себя и партнёра: анкета о паре, персональный чек-лист, тесты на самоанализ, дневник настроения и в перспективе — чат с ИИ на основе методологий КПТ, ЭФТ, MBT и метода Готтмана.</p>
-      <p>Мы не являемся заменой психотерапии или медицинской помощи. Сервис создан как инструмент саморефлексии и поддержки, а не как диагностика или лечение.</p>
-    </div>
+  <section class="ab-section">
+    <span class="ab-section-eyebrow">Философия</span>
+    <h2>Психологическое здоровье пары — это инфраструктура, а не разовое усилие</h2>
+    <p>Большинство пар обращаются за помощью только в момент кризиса — когда накопилось слишком много непроговорённого. RelationSync.AI существует, чтобы это изменить: дать людям <strong>ежедневную, доступную и приватную</strong> поддержку, основанную на реальной методологии психотерапии, а не на общих советах из интернета.</p>
+    <p>Мы не заменяем терапию — мы создаём пространство между сессиями и для тех, кто пока не готов или не может пойти к специалисту, но хочет разбираться в себе и партнёре осознанно. Наша задача — привить культуру заботы об отношениях так же, как забота о физическом здоровье стала нормой за последние годы.</p>
+  </section>
 
-    <p class="ab-section-label">Реквизиты оператора</p>
-    <div class="company-card">
-      <div class="company-row"><span>Юридическое лицо</span><span>Готовится к регистрации (РФ)</span></div>
-      <div class="company-row"><span>ИНН / ОГРН</span><span>Будет указано после регистрации</span></div>
-      <div class="company-row"><span>Юридический адрес</span><span>Будет указан после регистрации</span></div>
-      <div class="company-row"><span>Контактный email</span><span>Будет указан позднее</span></div>
-      <p class="company-pending">Реквизиты появятся здесь сразу после оформления юридического лица.</p>
-    </div>
-
-    <p class="ab-section-label">Документы</p>
-    <div class="doc-list">
-
-      <div class="doc-row is-pending">
-        <div class="doc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M9 16h6M9 8h6"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg>
-        </div>
-        <div class="doc-body">
-          <p class="doc-title">Публичная оферта</p>
-          <p class="doc-desc">Условия предоставления доступа к платным тарифам: предмет договора, стоимость, порядок оплаты и автопродления.</p>
-        </div>
-        <span class="doc-status pending">Готовится</span>
+  <section class="ab-section">
+    <span class="ab-section-eyebrow">Методология</span>
+    <h2>Мы опираемся на подходы с доказанной эффективностью</h2>
+    <p>Каждая рекомендация в RelationSync.AI строится на признанных психотерапевтических моделях — а не только на общих знаниях языковой модели. Это то, что отличает нас от обычного чат-бота.</p>
+    <div class="ab-methods-grid">
+      <div class="ab-method-card">
+        <span class="ab-method-tag">КПТ</span>
+        <h4>Когнитивно-поведенческая терапия</h4>
+        <p>Помогает распознать автоматические мысли и паттерны реакций, которые усиливают конфликт, и заменить их более конструктивными.</p>
       </div>
-
-      <div class="doc-row is-pending">
-        <div class="doc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-        </div>
-        <div class="doc-body">
-          <p class="doc-title">Пользовательское соглашение</p>
-          <p class="doc-desc">Правила использования личного кабинета: регистрация, доступ, ограничения, права на контент.</p>
-        </div>
-        <span class="doc-status pending">Готовится</span>
+      <div class="ab-method-card">
+        <span class="ab-method-tag">ЭФТ</span>
+        <h4>Эмоционально-фокусированная терапия</h4>
+        <p>Работает с эмоциональной привязанностью партнёров, помогая распознать уязвимость за конфликтом и восстановить чувство безопасности.</p>
       </div>
-
-      <div class="doc-row is-pending">
-        <div class="doc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4.5-3.2 7.7-7 9-3.8-1.3-7-4.5-7-9V7l7-4z"/><path d="M9 12l2 2 4-4"/></svg>
-        </div>
-        <div class="doc-body">
-          <p class="doc-title">Политика конфиденциальности</p>
-          <p class="doc-desc">Какие данные собираем, зачем, как храним и защищаем — согласно 152-ФЗ «О персональных данных».</p>
-        </div>
-        <span class="doc-status pending">Готовится</span>
+      <div class="ab-method-card">
+        <span class="ab-method-tag">MBT</span>
+        <h4>Терапия, основанная на ментализации</h4>
+        <p>Развивает способность понимать собственные и чужие мысли и чувства — основу эмпатии и снижения недопонимания в паре.</p>
       </div>
-
-      <div class="doc-row is-pending">
-        <div class="doc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        </div>
-        <div class="doc-body">
-          <p class="doc-title">Условия оплаты и возврата средств</p>
-          <p class="doc-desc">Порядок оплаты тарифов, автопродление подписки и правила возврата в соответствии с законом «О защите прав потребителей».</p>
-        </div>
-        <span class="doc-status pending">Готовится</span>
-      </div>
-
-      <div class="doc-row is-pending">
-        <div class="doc-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 9h6v6H9z"/></svg>
-        </div>
-        <div class="doc-body">
-          <p class="doc-title">Политика использования cookie</p>
-          <p class="doc-desc">Какие файлы cookie и аналитические сервисы использует сайт, согласно требованиям ФЗ-156.</p>
-        </div>
-        <span class="doc-status pending">Готовится</span>
-      </div>
-
-    </div>
-
-    <p class="ab-section-label">Контакты</p>
-    <div class="about-card">
-      <div class="contact-row">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 4l8 8 8-8"/></svg>
-        <span>По вопросам поддержки: контактный email появится после регистрации юрлица.</span>
-      </div>
-      <div class="contact-row">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 9v4M12 16.5h.01" stroke-linecap="round"/><circle cx="12" cy="12" r="9"/></svg>
-        <span>Все документы будут опубликованы на этой странице до открытия платных тарифов для пользователей.</span>
+      <div class="ab-method-card">
+        <span class="ab-method-tag">Метод Готтмана</span>
+        <h4>Gottman Method</h4>
+        <p>Основан на десятилетиях наблюдений за реальными парами — определяет конкретные паттерны, которые предсказывают благополучие или распад отношений.</p>
       </div>
     </div>
+  </section>
 
-  </div>
-</div>
+  <section class="ab-section">
+    <span class="ab-section-eyebrow">Контекст</span>
+    <h2>Глобальная тенденция последних десятилетий</h2>
+    <p>Забота о психологическом здоровье и качестве отношений становится всё более насущной задачей — данные Всемирной организации здравоохранения и Института показателей здоровья (IHME) показывают устойчивый рост распространённости психических расстройств в мире.</p>
+    <div class="ab-stats-grid">
+      <div class="ab-stat-card">
+        <div class="ab-stat-value">+95,5%</div>
+        <p class="ab-stat-label">Рост числа людей с психическим расстройством в мире с 1990 по 2023 год</p>
+        <span class="ab-stat-source">IHME, Global Burden of Disease, 2023</span>
+      </div>
+      <div class="ab-stat-card">
+        <div class="ab-stat-value">1,17 млрд</div>
+        <p class="ab-stat-label">Человек живут с психическим расстройством в мире по данным на 2023 год</p>
+        <span class="ab-stat-source">IHME / WHO, 2023</span>
+      </div>
+      <div class="ab-stat-card">
+        <div class="ab-stat-value">№1</div>
+        <p class="ab-stat-label">Доля психических расстройств в общей структуре инвалидизации в мире — ведущая причина</p>
+        <span class="ab-stat-source">IHME, Global Burden of Disease, 2023</span>
+      </div>
+    </div>
+    <p style="margin-top:24px">Одновременно растёт и доказательная база в пользу структурированных методов поддержки пар: например, метод Готтмана показывает восстановление доверия в <strong>73% случаев</strong> даже после серьёзного кризиса, включая измену, а эмоционально-фокусированная терапия — устойчивое улучшение у <strong>70–73% пар</strong>. Мы строим RelationSync.AI на этой доказательной базе, а не на общих утверждениях.</p>
+  </section>
 
-<script type="module">
-import { getClient, isConfigured, getSession } from "./assets/auth.js";
+  <section class="ab-section" id="documents">
+    <span class="ab-section-eyebrow">Документы</span>
+    <h2>Правовая информация о сервисе</h2>
+    <p>Реквизиты оператора и документы, регулирующие использование сервиса. Часть документов сейчас готовится к публикации — статус указан у каждого.</p>
 
-const loadingState = document.getElementById("loadingState");
-const appRoot = document.getElementById("appRoot");
+    <div class="ab-company-card">
+      <div class="ab-company-row"><span>Юридическое лицо</span><span>Готовится к регистрации (РФ)</span></div>
+      <div class="ab-company-row"><span>ИНН / ОГРН</span><span>Будет указано после регистрации</span></div>
+      <div class="ab-company-row"><span>Юридический адрес</span><span>Будет указан после регистрации</span></div>
+      <div class="ab-company-row"><span>Контактный email</span><span>Будет указан позднее</span></div>
+      <p class="ab-company-note">Реквизиты появятся здесь сразу после оформления юридического лица.</p>
+    </div>
 
-function showFatal(html) { loadingState.innerHTML = html; }
+    <div class="ab-doc-list">
+      <div class="ab-doc-row">
+        <div class="ab-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M9 16h6M9 8h6"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg></div>
+        <div class="ab-doc-body">
+          <p class="ab-doc-title">Публичная оферта</p>
+          <p class="ab-doc-desc">Условия предоставления доступа к платным тарифам: предмет договора, стоимость, порядок оплаты и автопродления.</p>
+        </div>
+        <span class="ab-doc-status pending">Готовится</span>
+      </div>
 
-async function init() {
-  if (!isConfigured()) { showFatal('<span>Supabase не настроен. <a href="login.html">Ко входу</a></span>'); return; }
-  try {
-    const client = getClient();
-    const session = await getSession(client);
-    if (!session) { window.location.href = "login.html?next=about.html"; return; }
-  } catch (err) {
-    console.error(err);
-    showFatal('<span>Не удалось проверить сессию. <a href="login.html">Ко входу</a></span>');
-    return;
-  }
+      <div class="ab-doc-row">
+        <div class="ab-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <div class="ab-doc-body">
+          <p class="ab-doc-title">Пользовательское соглашение</p>
+          <p class="ab-doc-desc">Правила использования личного кабинета: регистрация, доступ, ограничения, права на контент.</p>
+        </div>
+        <span class="ab-doc-status pending">Готовится</span>
+      </div>
 
-  loadingState.style.display = "none";
-  appRoot.style.display = "block";
-}
+      <div class="ab-doc-row">
+        <div class="ab-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4.5-3.2 7.7-7 9-3.8-1.3-7-4.5-7-9V7l7-4z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <div class="ab-doc-body">
+          <p class="ab-doc-title">Политика конфиденциальности</p>
+          <p class="ab-doc-desc">Какие данные собираем, зачем, как храним и защищаем — согласно 152-ФЗ «О персональных данных».</p>
+        </div>
+        <span class="ab-doc-status pending">Готовится</span>
+      </div>
 
-init();
-</script>
+      <div class="ab-doc-row">
+        <div class="ab-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <div class="ab-doc-body">
+          <p class="ab-doc-title">Условия оплаты и возврата средств</p>
+          <p class="ab-doc-desc">Порядок оплаты тарифов, автопродление подписки и правила возврата в соответствии с законом «О защите прав потребителей».</p>
+        </div>
+        <span class="ab-doc-status pending">Готовится</span>
+      </div>
+
+      <div class="ab-doc-row">
+        <div class="ab-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 9h6v6H9z"/></svg></div>
+        <div class="ab-doc-body">
+          <p class="ab-doc-title">Политика использования cookie</p>
+          <p class="ab-doc-desc">Какие файлы cookie и аналитические сервисы использует сайт, согласно требованиям ФЗ-156.</p>
+        </div>
+        <span class="ab-doc-status pending">Готовится</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="ab-quote-block">
+    <div class="ab-quote-mark">"</div>
+    <p class="ab-quote-text">Больше всего на свете психологическое здоровье определяется способностью чувствовать себя в безопасности с другими людьми.</p>
+    <div class="ab-quote-author">Джон Готтман, <span>исследователь отношений</span></div>
+  </section>
+
+  <section class="ab-cta-band">
+    <a href="cabinet.html">Заполнить анкету</a>
+    <p>Заполните анкету, чтобы получить первый персональный чек-лист.</p>
+  </section>
+
+</main>
 </body>
 </html>
