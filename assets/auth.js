@@ -3,6 +3,8 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+const SITE_URL = "https://www.relationsync.ai";
+
 export function isConfigured() {
   const c = window.SUPABASE_CONFIG || {};
   return (
@@ -368,10 +370,6 @@ export async function loadTestResultHistory(client, userId, testKey, limit = 10)
   }
 }
 
-/**
- * Удаляет ВСЮ историю результатов конкретного теста для пользователя
- * (не только последний результат) — карточка теста возвращается в статус "Не пройден".
- */
 export async function deleteTestResultsByKey(client, userId, testKey) {
   const { error } = await client
     .from("test_results")
@@ -382,10 +380,6 @@ export async function deleteTestResultsByKey(client, userId, testKey) {
   return true;
 }
 
-/**
- * Удаляет результаты ВСЕХ тестов пользователя — используется кнопкой
- * "Сбросить все результаты" в общем профиле.
- */
 export async function deleteAllTestResults(client, userId) {
   const { error } = await client
     .from("test_results")
@@ -464,44 +458,73 @@ export function buildOverallProfile(latestResults) {
   };
 }
 
-export function formatTestResultForShare(testKey, resultRow) {
-  const meta = TEST_META[testKey];
+/* ============================================================
+   ФОРМАТИРОВАНИЕ ДЛЯ "ОТПРАВИТЬ РЕЗУЛЬТАТ"
+   ============================================================
+   Специально короткий формат: только суть результата + ссылка на сайт.
+   Никаких заголовков сервиса, дисклеймеров и списков рекомендаций —
+   это не отчёт для чтения, а сообщение, которым делятся с другим человеком.
+   ============================================================ */
+
+/**
+ * Возвращает короткую "суть" результата теста одной строкой —
+ * например "Тип: Тревожный" или "Основной стиль: Сотрудничество".
+ * Используется и в шеринге, и может переиспользоваться в UI.
+ */
+function extractCoreResult(testKey, resultRow) {
+  const scores = resultRow?.scores || {};
   const summary = resultRow?.result_summary || {};
-  const lines = [
-    "RelationSync.AI — результат теста",
-    "",
-    meta?.title || testKey,
-    summary.scoreLine || "",
-    "",
-    summary.description || "",
-  ];
-  if (summary.recommendations && summary.recommendations.length) {
-    lines.push("", "Рекомендации:");
-    summary.recommendations.forEach((r) => lines.push("• " + r));
+
+  switch (testKey) {
+    case TEST_KEYS.ATTACHMENT:
+      return scores.attachmentType ? `Стиль привязанности: ${scores.attachmentType}` : summary.title;
+    case TEST_KEYS.LOVE_LANGUAGE: {
+      // топ-язык — это тот, что первым в scoreLine, но надёжнее взять напрямую из scores
+      const entries = Object.entries(scores).filter(([k]) => k !== "topStyle");
+      if (!entries.length) return summary.title;
+      const top = entries.sort((a, b) => b[1] - a[1])[0][0];
+      const LOVE_LABELS = { words: "Слова поддержки", time: "Время вместе", gifts: "Подарки", acts: "Забота через действия", touch: "Физический контакт" };
+      return `Язык любви: ${LOVE_LABELS[top] || top}`;
+    }
+    case TEST_KEYS.CONFLICT_STYLE: {
+      const STYLE_LABELS = { competing: "Соперничество", collaborating: "Сотрудничество", compromising: "Компромисс", avoiding: "Избегание", accommodating: "Приспособление" };
+      return scores.topStyle ? `Стиль в конфликте: ${STYLE_LABELS[scores.topStyle] || scores.topStyle}` : summary.title;
+    }
+    case TEST_KEYS.COMMUNICATION:
+      return summary.title ? summary.title : "Паттерны общения";
+    case TEST_KEYS.EMOTIONAL_AWARENESS:
+      return typeof scores.total === "number" ? `Эмоциональная осознанность: ${scores.total.toFixed(1)}/5` : summary.title;
+    default:
+      return summary.title || TEST_META[testKey]?.title || "Результат теста";
   }
-  lines.push("", "Это образовательный результат самооценки, не диагноз.");
-  return lines.filter((l) => l !== undefined).join("\n");
 }
 
+/**
+ * Короткий текст для отправки результата ОДНОГО теста.
+ * Формат: название теста + суть результата + ссылка на сайт. Ничего лишнего.
+ */
+export function formatTestResultForShare(testKey, resultRow) {
+  const meta = TEST_META[testKey];
+  const core = extractCoreResult(testKey, resultRow);
+  return [
+    `Мой результат теста «${meta?.title || testKey}» в RelationSync.AI:`,
+    core,
+    "",
+    SITE_URL,
+  ].join("\n");
+}
+
+/**
+ * Короткий текст для отправки ОБЩЕГО профиля.
+ * Формат: 1-2 главные строки профиля + ссылка на сайт. Без развёрнутых списков.
+ */
 export function formatOverallProfileForShare(overallProfile) {
   if (!overallProfile) return "";
-  const lines = [
-    "RelationSync.AI — профиль взаимодействия в отношениях",
-    "",
-    `Пройдено тестов: ${overallProfile.completedCount} из ${overallProfile.totalCount}`,
-    "",
-  ];
-  if (overallProfile.resources.length) {
-    lines.push("Сильные ресурсы:");
-    overallProfile.resources.forEach((r) => lines.push("• " + r));
-    lines.push("");
-  }
-  if (overallProfile.attentionAreas.length) {
-    lines.push("Зоны внимания:");
-    overallProfile.attentionAreas.forEach((a) => lines.push("• " + a));
-    lines.push("");
-  }
-  lines.push("Фокус на ближайшее время:", overallProfile.nextFocus);
-  lines.push("", "Это образовательная самооценка, не диагноз и не замена консультации психолога.");
+  const lines = ["Мой профиль взаимодействия в отношениях (RelationSync.AI):"];
+
+  if (overallProfile.resources[0]) lines.push("Ресурс: " + overallProfile.resources[0]);
+  if (overallProfile.attentionAreas[0]) lines.push("Зона внимания: " + overallProfile.attentionAreas[0]);
+
+  lines.push("", SITE_URL);
   return lines.join("\n");
 }
