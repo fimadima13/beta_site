@@ -45,23 +45,6 @@
 .ab-stat-label{font-size:12.5px; color:var(--muted); line-height:1.5; margin:0;}
 .ab-stat-source{font-size:10.5px; color:var(--muted); opacity:.7; margin-top:8px; display:block;}
 
-/* ---------- Документы (новый блок) ---------- */
-.ab-doc-list{display:flex; flex-direction:column; gap:10px; margin-top:24px;}
-.ab-doc-row{display:flex; align-items:center; gap:14px; border:1px solid var(--line); background:var(--card); border-radius:14px; padding:16px 18px;}
-.ab-doc-icon{flex:none; width:40px; height:40px; border-radius:11px; background:rgba(255,255,255,.05); display:flex; align-items:center; justify-content:center;}
-.ab-doc-icon svg{width:19px; height:19px; color:var(--ink);}
-.ab-doc-body{flex:1; min-width:0;}
-.ab-doc-title{font-size:14.5px; font-weight:600; color:var(--ink); margin:0 0 3px;}
-.ab-doc-desc{font-size:12.5px; color:var(--muted); margin:0; line-height:1.5;}
-.ab-doc-status{flex:none; font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:5px 11px; border-radius:999px; border:1px solid var(--line); color:var(--muted); white-space:nowrap;}
-.ab-doc-status.pending{color:#ffc16b; border-color:rgba(255,193,107,.3); background:rgba(255,193,107,.08);}
-.ab-company-card{border:1px solid var(--line); background:var(--card); border-radius:14px; padding:20px 22px; margin-top:14px;}
-.ab-company-row{display:flex; justify-content:space-between; gap:16px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px;}
-.ab-company-row:last-child{border-bottom:0;}
-.ab-company-row span:first-child{color:var(--muted);}
-.ab-company-row span:last-child{color:var(--ink); font-weight:500; text-align:right;}
-.ab-company-note{font-size:12px; color:var(--muted); text-align:center; padding:10px 0 0; font-style:italic;}
-
 .ab-quote-block{max-width:680px; margin:0 auto; padding:70px 24px 90px; text-align:center;}
 .ab-quote-mark{font-size:52px; line-height:1; color:var(--line); margin-bottom:6px; font-family:Georgia,serif;}
 .ab-quote-text{font-size:clamp(19px,2.6vw,25px); font-weight:500; line-height:1.5; color:var(--ink); margin:0 0 20px; letter-spacing:-.01em;}
@@ -169,67 +152,6 @@
       </div>
     </div>
     <p style="margin-top:24px">Одновременно растёт и доказательная база в пользу структурированных методов поддержки пар: например, метод Готтмана показывает восстановление доверия в <strong>73% случаев</strong> даже после серьёзного кризиса, включая измену, а эмоционально-фокусированная терапия — устойчивое улучшение у <strong>70–73% пар</strong>. Мы строим RelationSync.AI на этой доказательной базе, а не на общих утверждениях.</p>
-  </section>
-
-  <section class="ab-section" id="documents">
-    <span class="ab-section-eyebrow">Документы</span>
-    <h2>Правовая информация о сервисе</h2>
-    <p>Реквизиты оператора и документы, регулирующие использование сервиса. Часть документов сейчас готовится к публикации — статус указан у каждого.</p>
-
-    <div class="ab-company-card">
-      <div class="ab-company-row"><span>Юридическое лицо</span><span>Готовится к регистрации (РФ)</span></div>
-      <div class="ab-company-row"><span>ИНН / ОГРН</span><span>Будет указано после регистрации</span></div>
-      <div class="ab-company-row"><span>Юридический адрес</span><span>Будет указан после регистрации</span></div>
-      <div class="ab-company-row"><span>Контактный email</span><span>Будет указан позднее</span></div>
-      <p class="ab-company-note">Реквизиты появятся здесь сразу после оформления юридического лица.</p>
-    </div>
-
-    <div class="ab-doc-list">
-      <div class="ab-doc-row">
-        <div class="ab-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M9 16h6M9 8h6"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg></div>
-        <div class="ab-doc-body">
-          <p class="ab-doc-title">Публичная оферта</p>
-          <p class="ab-doc-desc">Условия предоставления доступа к платным тарифам: предмет договора, стоимость, порядок оплаты и автопродления.</p>
-        </div>
-        <span class="ab-doc-status pending">Готовится</span>
-      </div>
-
-      <div class="ab-doc-row">
-        <div class="ab-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-        <div class="ab-doc-body">
-          <p class="ab-doc-title">Пользовательское соглашение</p>
-          <p class="ab-doc-desc">Правила использования личного кабинета: регистрация, доступ, ограничения, права на контент.</p>
-        </div>
-        <span class="ab-doc-status pending">Готовится</span>
-      </div>
-
-      <div class="ab-doc-row">
-        <div class="ab-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4.5-3.2 7.7-7 9-3.8-1.3-7-4.5-7-9V7l7-4z"/><path d="M9 12l2 2 4-4"/></svg></div>
-        <div class="ab-doc-body">
-          <p class="ab-doc-title">Политика конфиденциальности</p>
-          <p class="ab-doc-desc">Какие данные собираем, зачем, как храним и защищаем — согласно 152-ФЗ «О персональных данных».</p>
-        </div>
-        <span class="ab-doc-status pending">Готовится</span>
-      </div>
-
-      <div class="ab-doc-row">
-        <div class="ab-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-        <div class="ab-doc-body">
-          <p class="ab-doc-title">Условия оплаты и возврата средств</p>
-          <p class="ab-doc-desc">Порядок оплаты тарифов, автопродление подписки и правила возврата в соответствии с законом «О защите прав потребителей».</p>
-        </div>
-        <span class="ab-doc-status pending">Готовится</span>
-      </div>
-
-      <div class="ab-doc-row">
-        <div class="ab-doc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 9h6v6H9z"/></svg></div>
-        <div class="ab-doc-body">
-          <p class="ab-doc-title">Политика использования cookie</p>
-          <p class="ab-doc-desc">Какие файлы cookie и аналитические сервисы использует сайт, согласно требованиям ФЗ-156.</p>
-        </div>
-        <span class="ab-doc-status pending">Готовится</span>
-      </div>
-    </div>
   </section>
 
   <section class="ab-quote-block">
