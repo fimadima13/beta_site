@@ -281,6 +281,43 @@
   .menu-foot .pill{display:inline-flex; align-items:center; justify-content:center; height:52px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:17px; font-weight:500;}
   .menu-foot .ghost{font-size:16px; font-weight:500; color:#fff; text-align:center;}
 
+  @media (max-aspect-ratio: 11/10){
+    nav.menu{
+      align-items:flex-start;
+      justify-content:flex-start;
+      padding:
+        calc(88px + env(safe-area-inset-top, 0px))
+        0
+        calc(28px + env(safe-area-inset-bottom, 0px));
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    .menu-inner{
+      width:100%;
+      max-width:none;
+      padding:0 28px;
+      min-height:min(100%, calc(100dvh - 88px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+      display:flex;
+      flex-direction:column;
+    }
+    .menu-eyebrow{margin:0 0 18px;}
+    .menu-list{gap:14px;}
+    .menu-list a{font-size:clamp(24px,6.4vw,30px); padding:8px 0;}
+    .menu-foot{margin-top:auto; padding-top:28px;}
+
+    html.is-open .brand{
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+    }
+    html.is-open header.topbar::before{
+      background:rgba(5,5,5,.985);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-bottom-color:var(--line);
+    }
+  }
+
   /* ================= BELOW-FOLD PAGE ================= */
   .page{position:relative; z-index:1; background:#050505;}
   .section{padding:clamp(76px,10vw,128px) 0; position:relative; scroll-margin-top:110px;}
@@ -474,9 +511,20 @@
     }
 
     .links, .pill-nav{display:none;}
-    .burger{display:flex;}
+    .burger{
+      display:flex;
+      top:calc(20px + env(safe-area-inset-top, 0px));
+      right:calc(24px + env(safe-area-inset-right, 0px));
+    }
 
-    .brand{left:24px; top:20px; height:40px; width:auto; gap:9px;}
+    .brand{
+      left:calc(24px + env(safe-area-inset-left, 0px));
+      top:calc(20px + env(safe-area-inset-top, 0px));
+      height:40px;
+      width:auto;
+      gap:9px;
+      transition:opacity .25s ease, visibility .25s ease;
+    }
     .brand svg{width:26px; height:40px;}
     .brand .word{font-size:16.5px;}
 
