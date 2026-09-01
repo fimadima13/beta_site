@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>Тест на паттерны общения — RelationSync.ai</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/auth.css">
+<script src="assets/supabase-config.js"></script>
+<style>
+.t-wrap{flex:1; width:100%; max-width:680px; margin:0 auto; padding:20px 24px 80px;}
+.t-progress-track{width:100%; height:4px; border-radius:999px; background:rgba(255,255,255,.08); overflow:hidden; margin-bottom:10px;}
+.t-progress-fill{height:100%; border-radius:999px; background:var(--pill); width:0%; transition:width .35s cubic-bezier(.22,1,.36,1);}
+.t-progress-label{display:flex; align-items:center; justify-content:space-between; font-size:12.5px; color:var(--muted); margin-bottom:26px;}
+.t-progress-label b{color:var(--ink); font-weight:600;}
+.t-card{border:1px solid var(--line); background:var(--card); border-radius:20px; padding:32px 28px; animation:tFade .4s cubic-bezier(.22,1,.36,1) both;}
+@keyframes tFade{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+.t-eyebrow{display:inline-flex; align-items:center; gap:8px; margin-bottom:14px; padding:6px 13px; border-radius:5px; border:1px solid var(--line); background:rgba(255,255,255,.03); font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);}
+.t-intro-title{font-size:23px; font-weight:700; margin:0 0 12px;}
+.t-intro-text{font-size:14.5px; color:var(--muted); line-height:1.65; margin:0 0 16px;}
+.t-disclaimer{font-size:12.5px; color:var(--muted); border-top:1px solid var(--line); padding-top:16px; margin-top:20px; line-height:1.55;}
+.t-question{font-size:16px; font-weight:600; color:var(--ink); margin:0 0 22px; line-height:1.4;}
+.t-scale{display:flex; flex-direction:column; gap:8px;}
+.t-opt{display:flex; align-items:center; gap:12px; border:1px solid var(--line); background:rgba(255,255,255,.02); border-radius:12px; padding:13px 16px; cursor:pointer; transition:background .15s ease, border-color .15s ease;}
+.t-opt:hover{background:rgba(255,255,255,.05);}
+.t-opt.selected{border-color:rgba(255,255,255,.4); background:rgba(255,255,255,.07);}
+.t-opt-dot{flex:none; width:17px; height:17px; border-radius:50%; border:1.5px solid var(--line); position:relative;}
+.t-opt.selected .t-opt-dot{border-color:#fff;}
+.t-opt.selected .t-opt-dot::after{content:""; position:absolute; inset:3px; border-radius:50%; background:#fff;}
+.t-opt-text{font-size:14px; color:var(--ink);}
+.t-nav{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:26px;}
+.t-btn-back{font-size:14px; font-weight:600; color:var(--nav); padding:12px 6px; background:none; border:0; cursor:pointer;}
+.t-btn-back:disabled{opacity:0; pointer-events:none;}
+.t-btn-next{height:48px; padding:0 26px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:14.5px; font-weight:600; border:0; cursor:pointer; font-family:inherit;}
+.t-btn-next:disabled{opacity:.4; cursor:default;}
+.t-results h2{font-size:22px; font-weight:700; margin:0 0 6px;}
+.t-results .t-results-sub{font-size:13.5px; color:var(--muted); margin:0 0 26px;}
+.t-result-label{display:flex; align-items:center; justify-content:space-between; font-size:13.5px; margin-bottom:12px;}
+.t-result-label strong{color:var(--ink); font-weight:700;}
+.t-bar-track{width:100%; height:8px; border-radius:999px; background:rgba(255,255,255,.06); overflow:hidden; margin-bottom:10px;}
+.t-bar-fill{height:100%; border-radius:999px; background:var(--pill);}
+.t-result-desc{font-size:13.5px; color:var(--muted); line-height:1.6; margin:0;}
+.t-cta{display:flex; gap:12px; margin-top:24px; flex-wrap:wrap;}
+.t-btn-primary{height:48px; padding:0 24px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:14.5px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; border:0; cursor:pointer; font-family:inherit;}
+.t-btn-ghost{height:48px; padding:0 20px; border-radius:999px; border:1px solid var(--line); color:#fff; font-size:14.5px; font-weight:500; text-decoration:none; display:inline-flex; align-items:center;}
+.t-saved-note{font-size:12.5px; color:var(--ok); margin-top:14px;}
+.cab-loading{max-width:560px; margin:0 auto; text-align:center; line-height:1.6;}
+.cab-loading a{color:#fff; text-decoration:underline;}
+@media (max-width:560px){
+  .t-wrap{padding:14px 18px 60px;}
+  .t-card{padding:24px 20px; border-radius:16px;}
+  .t-question{font-size:15.5px;}
+}
+</style>
+</head>
+<body>
+
+<div id="loadingState" class="cab-loading"><span class="spinner"></span></div>
+
+<div id="appRoot" style="display:none">
+
+  <header class="mini-header">
+    <a href="tests.html" class="brand" aria-label="RelationSync.ai">
+      <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
+        <defs><linearGradient id="bg1" x1="8" y1="10" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#9e9e9e"/><stop offset=".28" stop-color="#a6a6a6"/><stop offset=".34" stop-color="#a3a3a3"/><stop offset=".40" stop-color="#3a3a3a"/><stop offset=".55" stop-color="#414141"/><stop offset=".60" stop-color="#7a7a7a"/><stop offset=".68" stop-color="#8e8e8e"/><stop offset=".80" stop-color="#a9a9a9"/><stop offset=".95" stop-color="#c4c4c4"/><stop offset="1" stop-color="#cccccc"/>
+        </linearGradient></defs>
+        <path d="M21.5 0 L21.5 19.5 L31.5 19.5 L31.5 29 L10 48.5 L10 28.5 L0.5 28.5 L0.5 18.5 Z" fill="url(#bg1)"/>
+        <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/><rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
+      </svg>
+      <span class="word">RelationSync<span class="dim">.ai</span></span>
+    </a>
+    <a href="tests.html" class="back-link">← Все тесты</a>
+  </header>
+
+  <div class="t-wrap">
+
+    <div id="progressBlock" style="display:none">
+      <div class="t-progress-track"><div class="t-progress-fill" id="progressFill"></div></div>
+      <div class="t-progress-label"><span>Вопрос <b id="qCurrent">1</b> из <b id="qTotal">11</b></span><span>Паттерны общения</span></div>
+    </div>
+
+    <div class="t-card" id="introScreen">
+      <span class="t-eyebrow">Тест на паттерны общения</span>
+      <h2 class="t-intro-title">Как вы с партнёром обычно обсуждаете проблемы</h2>
+      <p class="t-intro-text">Адаптация опросника Communication Patterns Questionnaire (Christensen). Показывает, насколько ваше общение в паре конструктивно и есть ли повторяющийся цикл «один настаивает — другой отдаляется».</p>
+      <button type="button" class="t-btn-next" id="startBtn">Начать тест</button>
+      <p class="t-disclaimer">Адаптированная сокращённая версия для образовательных целей. Результат сохраняется в вашем профиле — не диагноз и не замена консультации психолога.</p>
+    </div>
+
+    <div class="t-card" id="questionScreen" style="display:none">
+      <p class="t-question" id="questionText"></p>
+      <div class="t-scale" id="scaleOptions"></div>
+      <div class="t-nav">
+        <button type="button" class="t-btn-back" id="backBtn">← Назад</button>
+        <button type="button" class="t-btn-next" id="nextBtn" disabled>Далее</button>
+      </div>
+    </div>
+
+    <div class="t-card t-results" id="resultsScreen" style="display:none">
+      <span class="t-eyebrow">Результат</span>
+      <h2>Ваши паттерны общения в паре</h2>
+      <p class="t-results-sub" id="resultsSub"></p>
+
+      <div class="t-result-label"><span>Конструктивное обсуждение</span><strong id="constructiveLabel">—</strong></div>
+      <div class="t-bar-track"><div class="t-bar-fill" id="constructiveBar" style="width:0%"></div></div>
+
+      <div class="t-result-label" style="margin-top:14px"><span>Цикл «требование — отстранение»</span><strong id="demandLabel">—</strong></div>
+      <div class="t-bar-track"><div class="t-bar-fill" id="demandBar" style="width:0%"></div></div>
+
+      <div class="t-result-label" style="margin-top:14px"><span>Взаимное избегание темы</span><strong id="avoidLabel">—</strong></div>
+      <div class="t-bar-track"><div class="t-bar-fill" id="avoidBar" style="width:0%"></div></div>
+
+      <p class="t-result-desc" id="resultDesc" style="margin-top:18px"></p>
+
+      <div class="t-cta">
+        <a href="tests.html?tab=results" class="t-btn-primary">Смотреть итоги тестирования</a>
+        <a href="tests.html" class="t-btn-ghost">К другим тестам</a>
+      </div>
+      <p class="t-saved-note" id="savedNote"></p>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { getClient, isConfigured, getSession, saveTestResult, TEST_KEYS } from "./assets/auth.js";
+
+const loadingState = document.getElementById("loadingState");
+const appRoot = document.getElementById("appRoot");
+let client = null;
+let session = null;
+
+function showFatal(html) { loadingState.innerHTML = html; }
+
+async function init() {
+  if (!isConfigured()) { showFatal('<span>Supabase не настроен. <a href="login.html">Ко входу</a></span>'); return; }
+  try {
+    client = getClient();
+    session = await getSession(client);
+    if (!session) { window.location.href = "login.html?next=communication-patterns-test.html"; return; }
+  } catch (err) {
+    console.error(err);
+    showFatal('<span>Не удалось проверить сессию. <a href="login.html">Ко входу</a></span>');
+    return;
+  }
+  loadingState.style.display = "none";
+  appRoot.style.display = "block";
+}
+
+/* Адаптация CPQ-SF: 11 пунктов, шкала 1-9 (1 = очень маловероятно, 9 = очень вероятно).
+   dim: constructive (конструктивное обсуждение) | demand (требование-отстранение) | avoid (взаимное избегание)
+   reverse: true если высокий балл по пункту означает НИЗКИЙ уровень измеряемого паттерна */
+const SCALE_9 = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+const SCALE_LABELS = { 1: "Очень маловероятно", 9: "Очень вероятно" };
+
+const ITEMS = [
+  { text: "Когда возникает проблема, мы оба стараемся обсудить, что каждый из нас думает и чувствует.", dim: "constructive", reverse: false },
+  { text: "Во время обсуждения проблемы один из нас настаивает, требуя решения, а другой уходит от разговора или замолкает.", dim: "demand", reverse: false },
+  { text: "Мы оба стараемся избегать обсуждения проблемы вообще.", dim: "avoid", reverse: false },
+  { text: "Мы оба выражаем свои чувства друг другу по поводу проблемы.", dim: "constructive", reverse: false },
+  { text: "Я настаиваю на обсуждении, пока партнёр отдаляется или замыкается.", dim: "demand", reverse: false },
+  { text: "Партнёр настаивает на обсуждении, пока я отдаляюсь или замыкаюсь.", dim: "demand", reverse: false },
+  { text: "После обсуждения проблемы мы оба чувствуем, что поняли позицию друг друга.", dim: "constructive", reverse: false },
+  { text: "Мы оба предлагаем возможные решения и компромиссы.", dim: "constructive", reverse: false },
+  { text: "Один из нас обвиняет и критикует, другой защищается или тоже переходит в атаку.", dim: "demand", reverse: false },
+  { text: "Мы избегаем поднимать тему снова, даже если проблема не решена.", dim: "avoid", reverse: false },
+  { text: "После сложного разговора мы оба чувствуем облегчение, а не отдаление друг от друга.", dim: "constructive", reverse: false },
+];
+
+let answers = new Array(ITEMS.length).fill(null);
+let currentIndex = 0;
+
+const introScreen = document.getElementById("introScreen");
+const questionScreen = document.getElementById("questionScreen");
+const resultsScreen = document.getElementById("resultsScreen");
+const progressBlock = document.getElementById("progressBlock");
+const progressFill = document.getElementById("progressFill");
+const qCurrent = document.getElementById("qCurrent");
+const qTotal = document.getElementById("qTotal");
+const questionText = document.getElementById("questionText");
+const scaleOptions = document.getElementById("scaleOptions");
+const backBtn = document.getElementById("backBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+qTotal.textContent = ITEMS.length;
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  introScreen.style.display = "none";
+  progressBlock.style.display = "block";
+  questionScreen.style.display = "block";
+  renderQuestion();
+});
+
+function renderQuestion() {
+  const item = ITEMS[currentIndex];
+  qCurrent.textContent = currentIndex + 1;
+  progressFill.style.width = (currentIndex / ITEMS.length * 100) + "%";
+  questionText.textContent = item.text;
+
+  const selected = answers[currentIndex];
+  scaleOptions.innerHTML = "";
+  SCALE_9.forEach((label, i) => {
+    const value = i + 1;
+    const opt = document.createElement("div");
+    opt.className = "t-opt" + (selected === value ? " selected" : "");
+    const extra = SCALE_LABELS[value] ? " — " + SCALE_LABELS[value] : "";
+    opt.innerHTML = '<span class="t-opt-dot"></span><span class="t-opt-text">' + value + extra + "</span>";
+    opt.addEventListener("click", () => { answers[currentIndex] = value; renderQuestion(); });
+    scaleOptions.appendChild(opt);
+  });
+
+  backBtn.disabled = currentIndex === 0;
+  nextBtn.disabled = selected === null;
+  nextBtn.textContent = currentIndex === ITEMS.length - 1 ? "Показать результат" : "Далее";
+}
+
+backBtn.addEventListener("click", () => { if (currentIndex > 0) { currentIndex -= 1; renderQuestion(); } });
+nextBtn.addEventListener("click", () => {
+  if (currentIndex < ITEMS.length - 1) { currentIndex += 1; renderQuestion(); }
+  else showResults();
+});
+
+function scoreByDim(dim) {
+  const vals = [];
+  ITEMS.forEach((item, i) => { if (item.dim === dim) vals.push(item.reverse ? 10 - answers[i] : answers[i]); });
+  if (!vals.length) return 0;
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
+
+function levelLabel(score, max) {
+  const pct = score / max;
+  if (pct >= 0.66) return "Высокий";
+  if (pct >= 0.4) return "Средний";
+  return "Низкий";
+}
+
+async function showResults() {
+  questionScreen.style.display = "none";
+  progressBlock.style.display = "none";
+  resultsScreen.style.display = "block";
+
+  const constructive = scoreByDim("constructive");
+  const demand = scoreByDim("demand");
+  const avoid = scoreByDim("avoid");
+
+  document.getElementById("constructiveLabel").textContent = constructive.toFixed(1) + " / 9 · " + levelLabel(constructive, 9);
+  document.getElementById("constructiveBar").style.width = (constructive / 9 * 100) + "%";
+  document.getElementById("demandLabel").textContent = demand.toFixed(1) + " / 9 · " + levelLabel(demand, 9);
+  document.getElementById("demandBar").style.width = (demand / 9 * 100) + "%";
+  document.getElementById("avoidLabel").textContent = avoid.toFixed(1) + " / 9 · " + levelLabel(avoid, 9);
+  document.getElementById("avoidBar").style.width = (avoid / 9 * 100) + "%";
+
+  let desc = "";
+  if (constructive >= 6) desc += "У вас выражена способность конструктивно обсуждать проблемы — это сильный ресурс пары. ";
+  if (demand >= 6) desc += "Часто повторяется цикл, где один настаивает на разговоре, а другой отдаляется — это выматывает обоих и редко приводит к решению. ";
+  if (avoid >= 6) desc += "Вы с партнёром склонны избегать сложных тем целиком, что может копить нерешённые вопросы. ";
+  if (!desc) desc = "У вас смешанный профиль общения без ярко выраженного паттерна — многое зависит от конкретной ситуации.";
+  document.getElementById("resultDesc").textContent = desc.trim();
+
+  const resultSummary = {
+    title: "Паттерны общения в паре",
+    scoreLine: `Конструктив: ${constructive.toFixed(1)}/9 · Требование-отстранение: ${demand.toFixed(1)}/9 · Избегание: ${avoid.toFixed(1)}/9`,
+    description: desc.trim(),
+    recommendations: demand >= 6
+      ? ["Заметив цикл настаивания и отстранения, назовите его вслух: «Кажется, я настаиваю, а ты отдаляешься — давай возьмём паузу и вернёмся через 20 минут»."]
+      : avoid >= 6
+      ? ["Договоритесь заранее, что откладывание темы — это пауза, а не отказ от разговора, и назначьте конкретное время возврата к ней."]
+      : ["Продолжайте использовать то, что уже работает — конструктивное обсуждение снижает риск накопления обид."],
+  };
+
+  try {
+    await saveTestResult(client, session.user.id, TEST_KEYS.COMMUNICATION, {
+      answers: { raw: answers },
+      scores: { constructive, demandWithdraw: demand, avoidance: avoid },
+      resultSummary,
+    });
+    document.getElementById("savedNote").textContent = "Результат сохранён в вашем профиле.";
+  } catch (err) {
+    console.error("saveTestResult failed:", err);
+    document.getElementById("savedNote").textContent = "Не удалось сохранить результат — попробуйте пройти тест ещё раз позже.";
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+init();
+</script>
+</body>
+</html>

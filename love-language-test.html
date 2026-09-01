@@ -50,6 +50,7 @@
 .t-cta{display:flex; gap:12px; margin-top:26px; flex-wrap:wrap;}
 .t-btn-primary{height:48px; padding:0 24px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:14.5px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center;}
 .t-btn-ghost{height:48px; padding:0 20px; border-radius:999px; border:1px solid var(--line); color:#fff; font-size:14.5px; font-weight:500; text-decoration:none; display:inline-flex; align-items:center;}
+.t-saved-note{font-size:12.5px; color:var(--ok); margin-top:14px; display:block;}
 .cab-loading{max-width:560px; margin:0 auto; text-align:center; line-height:1.6;}
 .cab-loading a{color:#fff; text-decoration:underline;}
 @media (max-width:560px){
@@ -91,7 +92,7 @@
       <h2 class="t-intro-title">Как вам важнее всего чувствовать заботу</h2>
       <p class="t-intro-text">По методике Гэри Чапмана «Пять языков любви» — слова поддержки, время вместе, подарки, забота через действия и физический контакт. В каждой паре выберите утверждение, которое сильнее откликается лично вам.</p>
       <button type="button" class="t-btn-next" id="startBtn">Начать тест</button>
-      <p class="t-disclaimer">Адаптированная сокращённая версия методики Гэри Чапмана для образовательных целей. Результаты не сохраняются на сервере.</p>
+      <p class="t-disclaimer">Адаптированная сокращённая версия методики Гэри Чапмана для образовательных целей. Результат сохраняется в вашем профиле.</p>
     </div>
 
     <div class="t-card" id="questionScreen" style="display:none">
@@ -110,25 +111,28 @@
       <div id="langBars"></div>
       <div class="t-top-badge" id="topLangBadge"></div>
       <div class="t-cta">
-        <a href="tests.html" class="t-btn-primary">К другим тестам</a>
+        <a href="tests.html?tab=results" class="t-btn-primary">Смотреть итоги тестирования</a>
         <a href="questionnaire.html" class="t-btn-ghost">Заполнить анкету</a>
       </div>
-      <p class="t-disclaimer">Результаты не сохраняются на сервере и видны только вам в этой сессии браузера.</p>
+      <span class="t-saved-note" id="savedNote"></span>
     </div>
 
   </div>
 </div>
 
 <script type="module">
-import { getClient, isConfigured, getSession } from "./assets/auth.js";
+import { getClient, isConfigured, getSession, saveTestResult, TEST_KEYS } from "./assets/auth.js";
 const loadingState = document.getElementById("loadingState");
 const appRoot = document.getElementById("appRoot");
+let client = null;
+let session = null;
+
 function showFatal(html) { loadingState.innerHTML = html; }
 async function init() {
   if (!isConfigured()) { showFatal('<span>Supabase не настроен. <a href="login.html">Ко входу</a></span>'); return; }
   try {
-    const client = getClient();
-    const session = await getSession(client);
+    client = getClient();
+    session = await getSession(client);
     if (!session) { window.location.href = "login.html?next=love-language-test.html"; return; }
   } catch (err) {
     console.error(err);
@@ -139,7 +143,6 @@ async function init() {
   appRoot.style.display = "block";
 }
 
-/* Языки: words, time, gifts, acts, touch. Каждая пара — форс-выбор между двумя языками. */
 const PAIRS = [
   { a: { text: "Мне важно услышать искренние слова поддержки и похвалы", lang: "words" }, b: { text: "Мне важно, чтобы партнёр помог мне делом, а не словами", lang: "acts" } },
   { a: { text: "Мне важно провести время вместе без телефонов и дел", lang: "time" }, b: { text: "Мне важно получить неожиданный подарок как знак внимания", lang: "gifts" } },
@@ -155,7 +158,7 @@ const PAIRS = [
 
 const LANG_LABELS = { words: "Слова поддержки", time: "Время вместе", gifts: "Подарки", acts: "Забота через действия", touch: "Физический контакт" };
 
-let answers = new Array(PAIRS.length).fill(null); // 'a' or 'b'
+let answers = new Array(PAIRS.length).fill(null);
 let currentIndex = 0;
 
 const introScreen = document.getElementById("introScreen");
@@ -204,7 +207,7 @@ nextBtn.addEventListener("click", () => {
   else showResults();
 });
 
-function showResults() {
+async function showResults() {
   questionScreen.style.display = "none";
   progressBlock.style.display = "none";
   resultsScreen.style.display = "block";
@@ -227,7 +230,29 @@ function showResults() {
     langBars.appendChild(row);
   });
 
-  document.getElementById("topLangBadge").textContent = "Ваш основной язык любви: " + LANG_LABELS[sorted[0][0]];
+  const topLang = sorted[0][0];
+  document.getElementById("topLangBadge").textContent = "Ваш основной язык любви: " + LANG_LABELS[topLang];
+
+  const scoreLine = sorted.map(([lang, score]) => `${LANG_LABELS[lang]}: ${score}/${maxScore}`).join(" · ");
+  const resultSummary = {
+    title: "Язык любви",
+    scoreLine,
+    description: `Ваш основной язык любви — «${LANG_LABELS[topLang]}». Это то, через что вам легче всего почувствовать заботу партнёра.`,
+    recommendations: [`Расскажите партнёру, что для вас забота выражается в первую очередь через «${LANG_LABELS[topLang]}» — это помогает избежать ситуаций, когда забота есть, но выражена не в той форме, которую вы легче всего считываете.`],
+  };
+
+  try {
+    await saveTestResult(client, session.user.id, TEST_KEYS.LOVE_LANGUAGE, {
+      answers: { raw: answers },
+      scores,
+      resultSummary,
+    });
+    document.getElementById("savedNote").textContent = "Результат сохранён в вашем профиле.";
+  } catch (err) {
+    console.error("saveTestResult failed:", err);
+    document.getElementById("savedNote").textContent = "Не удалось сохранить результат — попробуйте пройти тест ещё раз позже.";
+  }
+
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 

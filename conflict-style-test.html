@@ -52,6 +52,7 @@
 .t-cta{display:flex; gap:12px; margin-top:22px; flex-wrap:wrap;}
 .t-btn-primary{height:48px; padding:0 24px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:14.5px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center;}
 .t-btn-ghost{height:48px; padding:0 20px; border-radius:999px; border:1px solid var(--line); color:#fff; font-size:14.5px; font-weight:500; text-decoration:none; display:inline-flex; align-items:center;}
+.t-saved-note{font-size:12.5px; color:var(--ok); margin-top:14px; display:block;}
 .cab-loading{max-width:560px; margin:0 auto; text-align:center; line-height:1.6;}
 .cab-loading a{color:#fff; text-decoration:underline;}
 @media (max-width:560px){
@@ -93,7 +94,7 @@
       <h2 class="t-intro-title">Как вы обычно ведёте себя в разногласиях</h2>
       <p class="t-intro-text">По модели Томаса-Килманна — пять стратегий поведения в конфликте: соперничество, сотрудничество, компромисс, избегание и приспособление. В каждой паре выберите утверждение, которое ближе к вашему обычному поведению.</p>
       <button type="button" class="t-btn-next" id="startBtn">Начать тест</button>
-      <p class="t-disclaimer">Адаптированная сокращённая версия модели Томаса-Килманна для образовательных целей. Результаты не сохраняются на сервере.</p>
+      <p class="t-disclaimer">Адаптированная сокращённая версия модели Томаса-Килманна для образовательных целей. Результат сохраняется в вашем профиле.</p>
     </div>
 
     <div class="t-card" id="questionScreen" style="display:none">
@@ -112,25 +113,28 @@
       <div id="styleBars"></div>
       <div class="t-top-badge" id="topStyleBadge"></div>
       <div class="t-cta">
-        <a href="tests.html" class="t-btn-primary">К другим тестам</a>
+        <a href="tests.html?tab=results" class="t-btn-primary">Смотреть итоги тестирования</a>
         <a href="questionnaire.html" class="t-btn-ghost">Заполнить анкету</a>
       </div>
-      <p class="t-disclaimer">Результаты не сохраняются на сервере и видны только вам в этой сессии браузера.</p>
+      <span class="t-saved-note" id="savedNote"></span>
     </div>
 
   </div>
 </div>
 
 <script type="module">
-import { getClient, isConfigured, getSession } from "./assets/auth.js";
+import { getClient, isConfigured, getSession, saveTestResult, TEST_KEYS } from "./assets/auth.js";
 const loadingState = document.getElementById("loadingState");
 const appRoot = document.getElementById("appRoot");
+let client = null;
+let session = null;
+
 function showFatal(html) { loadingState.innerHTML = html; }
 async function init() {
   if (!isConfigured()) { showFatal('<span>Supabase не настроен. <a href="login.html">Ко входу</a></span>'); return; }
   try {
-    const client = getClient();
-    const session = await getSession(client);
+    client = getClient();
+    session = await getSession(client);
     if (!session) { window.location.href = "login.html?next=conflict-style-test.html"; return; }
   } catch (err) {
     console.error(err);
@@ -141,7 +145,6 @@ async function init() {
   appRoot.style.display = "block";
 }
 
-/* Стили: competing, collaborating, compromising, avoiding, accommodating (Thomas-Kilmann). */
 const PAIRS = [
   { a: { text: "Я твёрдо отстаиваю свою позицию, даже если партнёр недоволен", style: "competing" }, b: { text: "Я стараюсь найти решение, которое устроит нас обоих полностью", style: "collaborating" } },
   { a: { text: "Я предпочитаю уступить в мелочах, чтобы сохранить мир", style: "accommodating" }, b: { text: "Я предпочитаю отложить обсуждение, пока эмоции не остынут", style: "avoiding" } },
@@ -155,14 +158,7 @@ const PAIRS = [
   { a: { text: "Я предлагаю обсудить все варианты, пока не найдём общее решение", style: "collaborating" }, b: { text: "Я предлагаю разделить разницу и двигаться дальше", style: "compromising" } },
 ];
 
-const STYLE_LABELS = {
-  competing: "Соперничество",
-  collaborating: "Сотрудничество",
-  compromising: "Компромисс",
-  avoiding: "Избегание",
-  accommodating: "Приспособление",
-};
-
+const STYLE_LABELS = { competing: "Соперничество", collaborating: "Сотрудничество", compromising: "Компромисс", avoiding: "Избегание", accommodating: "Приспособление" };
 const STYLE_DESC = {
   competing: "Вы отстаиваете свою позицию даже при разногласиях — это полезно в важных вопросах, но рискует восприниматься партнёром как давление.",
   collaborating: "Вы ищете решение, устраивающее обе стороны полностью — самая ресурсоёмкая, но самая устойчивая стратегия в долгосрочных отношениях.",
@@ -220,7 +216,7 @@ nextBtn.addEventListener("click", () => {
   else showResults();
 });
 
-function showResults() {
+async function showResults() {
   questionScreen.style.display = "none";
   progressBlock.style.display = "none";
   resultsScreen.style.display = "block";
@@ -244,8 +240,35 @@ function showResults() {
   });
 
   const topStyle = sorted[0][0];
-  document.getElementById("topStyleBadge").innerHTML =
-    "<strong>Ваш основной стиль: " + STYLE_LABELS[topStyle] + "</strong><span>" + STYLE_DESC[topStyle] + "</span>";
+  document.getElementById("topStyleBadge").innerHTML = "<strong>Ваш основной стиль: " + STYLE_LABELS[topStyle] + "</strong><span>" + STYLE_DESC[topStyle] + "</span>";
+
+  const scoreLine = sorted.map(([style, score]) => `${STYLE_LABELS[style]}: ${score}/${maxScore}`).join(" · ");
+  const resultSummary = {
+    title: "Стиль в конфликте",
+    scoreLine,
+    description: STYLE_DESC[topStyle],
+    recommendations: [
+      topStyle === "avoiding"
+        ? "Договоритесь с партнёром, что пауза в конфликте — это не отказ от разговора, и называйте конкретное время, когда вернётесь к теме."
+        : topStyle === "competing"
+        ? "Перед тем как настаивать на своей позиции, попробуйте сначала спросить у партнёра, что для него важно в этой ситуации."
+        : topStyle === "accommodating"
+        ? "Периодически проверяйте себя: уступаете ли вы, потому что действительно не так важно, или потому что боитесь конфликта."
+        : "Продолжайте использовать эту стратегию — она хорошо работает для устойчивых долгосрочных отношений.",
+    ],
+  };
+
+  try {
+    await saveTestResult(client, session.user.id, TEST_KEYS.CONFLICT_STYLE, {
+      answers: { raw: answers },
+      scores: { ...scores, topStyle },
+      resultSummary,
+    });
+    document.getElementById("savedNote").textContent = "Результат сохранён в вашем профиле.";
+  } catch (err) {
+    console.error("saveTestResult failed:", err);
+    document.getElementById("savedNote").textContent = "Не удалось сохранить результат — попробуйте пройти тест ещё раз позже.";
+  }
 
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
