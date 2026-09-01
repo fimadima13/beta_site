@@ -26,7 +26,6 @@
 }
 .th-hint svg{flex:none; width:18px; height:18px; margin-top:1px; color:var(--muted);}
 
-/* Tabs */
 .th-tabs{display:flex; gap:6px; padding:4px; border:1px solid var(--line); border-radius:999px; background:var(--card); width:fit-content; margin-bottom:28px;}
 .th-tab{padding:10px 20px; border-radius:999px; font-size:13.5px; font-weight:600; color:var(--nav); cursor:pointer; border:0; background:none; font-family:inherit; transition:background .2s ease, color .2s ease;}
 .th-tab.active{background:var(--pill); color:var(--pill-ink);}
@@ -35,7 +34,6 @@
 .th-view.active{display:block; animation:thFade .35s cubic-bezier(.22,1,.36,1) both;}
 @keyframes thFade{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
 
-/* Take-tests grid */
 .th-progress-summary{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; font-size:13px; color:var(--muted);}
 .th-progress-summary strong{color:var(--ink);}
 .th-progress-track{width:100%; height:5px; border-radius:999px; background:rgba(255,255,255,.07); overflow:hidden; margin-bottom:26px;}
@@ -59,7 +57,6 @@
 .th-card-status{position:absolute; top:20px; right:20px; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:3px 9px; border-radius:999px; border:1px solid var(--line); color:var(--muted);}
 .th-card-status.done{color:var(--ok); border-color:rgba(126,224,168,.3); background:rgba(126,224,168,.08);}
 
-/* Results view */
 .results-empty{border:1px solid var(--line); background:var(--card); border-radius:18px; padding:40px 28px; text-align:center;}
 .results-empty h3{font-size:17px; font-weight:700; margin:0 0 10px; color:var(--ink);}
 .results-empty p{font-size:13.5px; color:var(--muted); margin:0 0 20px; line-height:1.6;}
@@ -74,7 +71,8 @@
 .overall-list li{font-size:13.5px; color:var(--ink); padding-left:16px; position:relative; line-height:1.5;}
 .overall-list li::before{content:"•"; position:absolute; left:0; color:var(--ok);}
 .overall-focus{font-size:13.5px; color:var(--ink); line-height:1.6; background:rgba(255,255,255,.03); border-radius:10px; padding:12px 14px; margin-top:4px;}
-.overall-actions{display:flex; gap:10px; margin-top:18px; flex-wrap:wrap;}
+.overall-actions{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:18px; flex-wrap:wrap;}
+.overall-actions-left{display:flex; gap:10px; flex-wrap:wrap;}
 
 .result-card{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:22px 22px; margin-bottom:14px;}
 .result-card-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;}
@@ -85,7 +83,8 @@
 .result-card-recs{list-style:none; margin:0 0 16px; padding:0; display:flex; flex-direction:column; gap:6px;}
 .result-card-recs li{font-size:13px; color:var(--ink); padding-left:16px; position:relative; line-height:1.5;}
 .result-card-recs li::before{content:"→"; position:absolute; left:0; color:var(--muted);}
-.result-card-actions{display:flex; gap:8px; flex-wrap:wrap;}
+.result-card-actions{display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;}
+.result-card-actions-left{display:flex; gap:8px; flex-wrap:wrap;}
 
 .mini-btn{
   height:38px; padding:0 15px; border-radius:999px; font-size:12.5px; font-weight:600;
@@ -94,6 +93,8 @@
 }
 .mini-btn:hover{background:rgba(255,255,255,.06);}
 .mini-btn.primary{background:var(--pill); color:var(--pill-ink); border-color:transparent;}
+.mini-btn.danger{color:var(--err); border-color:rgba(255,107,107,.25);}
+.mini-btn.danger:hover{background:rgba(255,107,107,.08);}
 .mini-btn svg{width:13px; height:13px;}
 
 .copy-toast{
@@ -105,6 +106,16 @@
 
 .not-taken-row{display:flex; align-items:center; justify-content:space-between; gap:12px; border:1px dashed rgba(255,255,255,.16); border-radius:14px; padding:16px 18px; margin-bottom:10px;}
 .not-taken-row span{font-size:13.5px; color:var(--muted);}
+
+/* Confirm modal for "reset results" */
+.confirm-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:200; padding:20px;
+}
+.confirm-overlay.show{display:flex;}
+.confirm-box{background:#111; border:1px solid var(--line); border-radius:16px; padding:24px; max-width:360px; width:100%;}
+.confirm-box h4{font-size:15.5px; font-weight:700; margin:0 0 8px; color:var(--ink);}
+.confirm-box p{font-size:13px; color:var(--muted); margin:0 0 20px; line-height:1.55;}
+.confirm-actions{display:flex; gap:10px; justify-content:flex-end;}
 
 .cab-loading{max-width:560px; margin:0 auto; text-align:center; line-height:1.6;}
 .cab-loading a{color:#fff; text-decoration:underline;}
@@ -212,11 +223,23 @@
 
 <div class="copy-toast" id="copyToast">Скопировано в буфер обмена</div>
 
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h4 id="confirmTitle">Сбросить результаты?</h4>
+    <p id="confirmText">Это удалит сохранённые результаты и историю. Действие нельзя отменить.</p>
+    <div class="confirm-actions">
+      <button type="button" class="mini-btn" id="confirmCancelBtn">Отмена</button>
+      <button type="button" class="mini-btn danger" id="confirmOkBtn">Да, сбросить</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import {
   getClient, isConfigured, getSession,
   loadLatestTestResults, buildOverallProfile,
   formatTestResultForShare, formatOverallProfileForShare,
+  deleteAllTestResults, deleteTestResultsByKey,
   TEST_KEYS, TEST_META
 } from "./assets/auth.js";
 
@@ -258,30 +281,66 @@ function renderTakeStatuses() {
   document.getElementById("progressFillBar").style.width = (completedCount / 5 * 100) + "%";
 }
 
-function copyToClipboard(text) {
-  navigator.clipboard?.writeText(text).then(() => showToast()).catch(() => fallbackCopy(text));
+/* Единая кнопка отправки результата: нативный Share, если доступен,
+   иначе — автоматическое копирование в буфер с уведомлением. Пользователю
+   не нужно выбирать между двумя похожими действиями. */
+async function sendResult(text) {
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: "RelationSync.AI — результат", text });
+      return;
+    } catch (e) {
+      // Пользователь отменил системное окно — не считаем это ошибкой, просто выходим.
+      if (e && e.name === "AbortError") return;
+    }
+  }
+  const ok = await copyToClipboard(text);
+  showToast(ok ? "Результат скопирован — вставьте его в чат или заметки" : "Не удалось скопировать результат");
+}
+
+async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (e) {
+    return fallbackCopy(text);
+  }
 }
 function fallbackCopy(text) {
   const ta = document.createElement("textarea");
   ta.value = text;
   document.body.appendChild(ta);
   ta.select();
-  try { document.execCommand("copy"); showToast(); } catch (e) {}
+  let ok = false;
+  try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
   document.body.removeChild(ta);
+  return ok;
 }
-function showToast() {
+function showToast(message) {
   const toast = document.getElementById("copyToast");
+  toast.textContent = message;
   toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 2000);
+  setTimeout(() => toast.classList.remove("show"), 2400);
 }
 
-async function shareOrCopy(text) {
-  if (navigator.share) {
-    try { await navigator.share({ title: "RelationSync.AI — результат", text }); return; }
-    catch (e) { /* пользователь отменил или share не сработал — fallback ниже */ }
-  }
-  copyToClipboard(text);
+/* Confirm modal */
+let pendingConfirmAction = null;
+const confirmOverlay = document.getElementById("confirmOverlay");
+function openConfirm({ title, text, onConfirm }) {
+  document.getElementById("confirmTitle").textContent = title;
+  document.getElementById("confirmText").textContent = text;
+  pendingConfirmAction = onConfirm;
+  confirmOverlay.classList.add("show");
 }
+function closeConfirm() {
+  confirmOverlay.classList.remove("show");
+  pendingConfirmAction = null;
+}
+document.getElementById("confirmCancelBtn").addEventListener("click", closeConfirm);
+document.getElementById("confirmOkBtn").addEventListener("click", async () => {
+  if (pendingConfirmAction) await pendingConfirmAction();
+  closeConfirm();
+});
 
 function renderResultsView() {
   const container = document.getElementById("resultsContent");
@@ -292,8 +351,9 @@ function renderResultsView() {
       <div class="results-empty">
         <h3>Пока нет результатов</h3>
         <p>Пройдите хотя бы один тест, чтобы увидеть здесь результаты и общий профиль.</p>
-        <button type="button" class="mini-btn primary" onclick="document.getElementById('tabTake').click()">Пройти первый тест</button>
+        <button type="button" class="mini-btn primary" id="goToTakeBtn">Пройти первый тест</button>
       </div>`;
+    document.getElementById("goToTakeBtn")?.addEventListener("click", () => switchTab("take"));
     return;
   }
 
@@ -319,8 +379,10 @@ function renderResultsView() {
     html += `<div class="overall-block"><div class="overall-block-label">Фокус на ближайшее время</div><div class="overall-focus">${escapeHtml(overall.nextFocus)}</div></div>`;
     html += `
         <div class="overall-actions">
-          <button type="button" class="mini-btn primary" id="shareOverallBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7M16 6l-4-4-4 4M12 2v14"/></svg>Поделиться профилем</button>
-          <button type="button" class="mini-btn" id="copyOverallBtn">Скопировать текст</button>
+          <div class="overall-actions-left">
+            <button type="button" class="mini-btn primary" id="sendOverallBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7M16 6l-4-4-4 4M12 2v14"/></svg>Отправить результат</button>
+          </div>
+          <button type="button" class="mini-btn danger" id="resetAllBtn">Сбросить все результаты</button>
         </div>
       </div>`;
   }
@@ -347,23 +409,64 @@ function renderResultsView() {
         <p class="result-card-desc">${escapeHtml(summary.description || "")}</p>
         ${summary.recommendations && summary.recommendations.length ? `<ul class="result-card-recs">` + summary.recommendations.map((r) => `<li>${escapeHtml(r)}</li>`).join("") + `</ul>` : ""}
         <div class="result-card-actions">
-          <button type="button" class="mini-btn share-one-btn" data-key="${key}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7M16 6l-4-4-4 4M12 2v14"/></svg>Поделиться</button>
-          <a href="${meta.href}" class="mini-btn">Пройти заново</a>
+          <div class="result-card-actions-left">
+            <button type="button" class="mini-btn send-one-btn" data-key="${key}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7M16 6l-4-4-4 4M12 2v14"/></svg>Отправить результат</button>
+            <a href="${meta.href}" class="mini-btn">Пройти заново</a>
+          </div>
+          <button type="button" class="mini-btn danger reset-one-btn" data-key="${key}">Сбросить</button>
         </div>
       </div>`;
   });
 
   container.innerHTML = html;
 
-  const shareOverallBtn = document.getElementById("shareOverallBtn");
-  if (shareOverallBtn) shareOverallBtn.addEventListener("click", () => shareOrCopy(formatOverallProfileForShare(overall)));
-  const copyOverallBtn = document.getElementById("copyOverallBtn");
-  if (copyOverallBtn) copyOverallBtn.addEventListener("click", () => copyToClipboard(formatOverallProfileForShare(overall)));
+  document.getElementById("sendOverallBtn")?.addEventListener("click", () => sendResult(formatOverallProfileForShare(overall)));
+  document.getElementById("resetAllBtn")?.addEventListener("click", () => {
+    openConfirm({
+      title: "Сбросить все результаты?",
+      text: "Удалятся результаты всех пройденных тестов и общий профиль. Вы сможете пройти тесты заново в любой момент.",
+      onConfirm: async () => {
+        try {
+          await deleteAllTestResults(client, session.user.id);
+          latestResults = await loadLatestTestResults(client, session.user.id);
+          renderTakeStatuses();
+          renderResultsView();
+          showToast("Результаты сброшены");
+        } catch (err) {
+          console.error("deleteAllTestResults failed:", err);
+          showToast("Не удалось сбросить результаты");
+        }
+      },
+    });
+  });
 
-  container.querySelectorAll(".share-one-btn").forEach((btn) => {
+  container.querySelectorAll(".send-one-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const key = btn.dataset.key;
-      shareOrCopy(formatTestResultForShare(key, latestResults[key]));
+      sendResult(formatTestResultForShare(key, latestResults[key]));
+    });
+  });
+
+  container.querySelectorAll(".reset-one-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.key;
+      const title = TEST_META[key]?.title || "этот тест";
+      openConfirm({
+        title: "Сбросить результат?",
+        text: `Результат теста «${title}» будет удалён. Вы сможете пройти его заново в любой момент.`,
+        onConfirm: async () => {
+          try {
+            await deleteTestResultsByKey(client, session.user.id, key);
+            latestResults = await loadLatestTestResults(client, session.user.id);
+            renderTakeStatuses();
+            renderResultsView();
+            showToast("Результат сброшен");
+          } catch (err) {
+            console.error("deleteTestResultsByKey failed:", err);
+            showToast("Не удалось сбросить результат");
+          }
+        },
+      });
     });
   });
 }
@@ -374,7 +477,6 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-/* Tabs */
 const tabTake = document.getElementById("tabTake");
 const tabResults = document.getElementById("tabResults");
 const viewTake = document.getElementById("viewTake");
