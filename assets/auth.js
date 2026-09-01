@@ -117,104 +117,59 @@ export async function loadCoupleProfile(client, userId) {
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (error) {
-      console.error("loadCoupleProfile error:", error);
-      return null;
-    }
+    if (error) { console.error("loadCoupleProfile error:", error); return null; }
     return data;
-  } catch (err) {
-    console.error("loadCoupleProfile exception:", err);
-    return null;
-  }
+  } catch (err) { console.error("loadCoupleProfile exception:", err); return null; }
 }
 
 export async function hasCoupleProfile(client, userId) {
   try {
     const profile = await loadCoupleProfile(client, userId);
     return !!(profile && profile.relationship_stage);
-  } catch (err) {
-    console.error("hasCoupleProfile exception:", err);
-    return false;
-  }
+  } catch (err) { console.error("hasCoupleProfile exception:", err); return false; }
 }
 
 /* ============================================================
-   ТАРИФ (couple_profiles.selected_plan)
+   ТАРИФ
    ============================================================ */
 
 const VALID_PLANS = ["free", "premium", "couple"];
 
 export async function setSelectedPlan(client, userId, plan) {
   if (!VALID_PLANS.includes(plan)) throw new Error("Некорректный тариф: " + plan);
-
   const { data, error } = await client
     .from("couple_profiles")
-    .upsert(
-      { user_id: userId, selected_plan: plan, updated_at: new Date().toISOString() },
-      { onConflict: "user_id" }
-    )
+    .upsert({ user_id: userId, selected_plan: plan, updated_at: new Date().toISOString() }, { onConflict: "user_id" })
     .select()
     .single();
-
   if (error) throw error;
   return data;
 }
 
 export async function getSelectedPlan(client, userId) {
   try {
-    const { data, error } = await client
-      .from("couple_profiles")
-      .select("selected_plan")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    if (error) {
-      console.error("getSelectedPlan error:", error);
-      return "free";
-    }
+    const { data, error } = await client.from("couple_profiles").select("selected_plan").eq("user_id", userId).maybeSingle();
+    if (error) { console.error("getSelectedPlan error:", error); return "free"; }
     return (data && data.selected_plan) || "free";
-  } catch (err) {
-    console.error("getSelectedPlan exception:", err);
-    return "free";
-  }
+  } catch (err) { console.error("getSelectedPlan exception:", err); return "free"; }
 }
 
 export function getLandingSelectedPlan() {
   try {
     const plan = localStorage.getItem("relationsync_selected_plan");
     return VALID_PLANS.includes(plan) ? plan : null;
-  } catch (e) {
-    return null;
-  }
+  } catch (e) { return null; }
 }
 
 /* ============================================================
-   ЧЕК-ЛИСТ (checklists)
+   ЧЕК-ЛИСТ
    ============================================================ */
 
-const STAGE_LABELS = {
-  dating_start: "Знакомство", dating: "Свидания", relationship: "Отношения",
-  crisis: "Кризис", recovery: "Восстановление",
-};
-const ATTACHMENT_LABELS = {
-  secure: "надёжный", anxious: "тревожный", avoidant: "избегающий",
-  fearful: "тревожно-избегающий", unsure: "не определён",
-};
-const CONFLICT_LABELS = {
-  discuss: "сразу обсуждать", withdraw: "отойти и подумать", appease: "сглаживать и уступать",
-  escalate: "повышать тон", avoid: "избегать темы", unsure: "неизвестно",
-};
-const VALUE_LABELS = {
-  honesty: "честность", support: "поддержка", independence: "личное пространство",
-  passion: "страсть и близость", stability: "стабильность", growth: "совместный рост",
-  humor: "юмор и лёгкость", loyalty: "верность", communication: "открытое общение",
-  ambition: "общие цели и амбиции",
-};
-const GOAL_LABELS = {
-  understand_partner: "лучше понимать партнёра", communication: "улучшить общение",
-  resolve_conflict: "разрешить текущий конфликт", rebuild_trust: "восстановить доверие",
-  deepen_intimacy: "больше близости", decide_future: "понять, куда движутся отношения",
-};
+const STAGE_LABELS = { dating_start: "Знакомство", dating: "Свидания", relationship: "Отношения", crisis: "Кризис", recovery: "Восстановление" };
+const ATTACHMENT_LABELS = { secure: "надёжный", anxious: "тревожный", avoidant: "избегающий", fearful: "тревожно-избегающий", unsure: "не определён" };
+const CONFLICT_LABELS = { discuss: "сразу обсуждать", withdraw: "отойти и подумать", appease: "сглаживать и уступать", escalate: "повышать тон", avoid: "избегать темы", unsure: "неизвестно" };
+const VALUE_LABELS = { honesty: "честность", support: "поддержка", independence: "личное пространство", passion: "страсть и близость", stability: "стабильность", growth: "совместный рост", humor: "юмор и лёгкость", loyalty: "верность", communication: "открытое общение", ambition: "общие цели и амбиции" };
+const GOAL_LABELS = { understand_partner: "лучше понимать партнёра", communication: "улучшить общение", resolve_conflict: "разрешить текущий конфликт", rebuild_trust: "восстановить доверие", deepen_intimacy: "больше близости", decide_future: "понять, куда движутся отношения" };
 
 function buildPlaceholderItems(profile) {
   const items = [];
@@ -233,11 +188,7 @@ function buildPlaceholderItems(profile) {
 
 export async function generateChecklistPlaceholder(client, userId, profile, options = {}) {
   const items = buildPlaceholderItems(profile);
-  const payload = {
-    user_id: userId, items, generation_status: "placeholder",
-    source_profile_updated_at: profile.updated_at || new Date().toISOString(),
-    raw_prompt_input: profile, generated_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-  };
+  const payload = { user_id: userId, items, generation_status: "placeholder", source_profile_updated_at: profile.updated_at || new Date().toISOString(), raw_prompt_input: profile, generated_at: new Date().toISOString(), updated_at: new Date().toISOString() };
   const { data, error } = await client.from("checklists").upsert(payload, { onConflict: "user_id" }).select().single();
   if (error) throw error;
   return data;
@@ -263,62 +214,30 @@ export async function toggleChecklistItem(client, userId, itemIndex, doneValue) 
 }
 
 export async function saveChecklist(client, userId, items, options = {}) {
-  const payload = {
-    user_id: userId, items, generation_status: options.generationStatus || "ai_generated",
-    source_profile_updated_at: options.sourceProfileUpdatedAt || new Date().toISOString(),
-    raw_prompt_input: options.rawPromptInput || null,
-    generated_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-  };
+  const payload = { user_id: userId, items, generation_status: options.generationStatus || "ai_generated", source_profile_updated_at: options.sourceProfileUpdatedAt || new Date().toISOString(), raw_prompt_input: options.rawPromptInput || null, generated_at: new Date().toISOString(), updated_at: new Date().toISOString() };
   const { data, error } = await client.from("checklists").upsert(payload, { onConflict: "user_id" }).select().single();
   if (error) throw error;
   return data;
 }
 
 /* ============================================================
-   ДНЕВНИК: настроение (mood_entries)
+   ДНЕВНИК
    ============================================================ */
 
-/**
- * Сохраняет отметку настроения на сегодня (одна запись в день на пользователя —
- * повторная отметка в тот же день обновляет существующую запись).
- * @param {number} moodValue - 1..5 (1 = очень плохо, 5 = очень хорошо)
- */
 export async function saveMoodEntry(client, userId, moodValue, note = "") {
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-  const { data, error } = await client
-    .from("mood_entries")
-    .upsert(
-      { user_id: userId, entry_date: today, mood_value: moodValue, note: note || "" },
-      { onConflict: "user_id,entry_date" }
-    )
-    .select()
-    .single();
+  const today = new Date().toISOString().slice(0, 10);
+  const { data, error } = await client.from("mood_entries").upsert({ user_id: userId, entry_date: today, mood_value: moodValue, note: note || "" }, { onConflict: "user_id,entry_date" }).select().single();
   if (error) throw error;
   return data;
 }
 
-/**
- * Загружает последние N отметок настроения, по возрастанию даты (для графика).
- */
 export async function loadMoodHistory(client, userId, days = 14) {
   try {
-    const { data, error } = await client
-      .from("mood_entries")
-      .select("*")
-      .eq("user_id", userId)
-      .order("entry_date", { ascending: false })
-      .limit(days);
+    const { data, error } = await client.from("mood_entries").select("*").eq("user_id", userId).order("entry_date", { ascending: false }).limit(days);
     if (error) { console.error("loadMoodHistory error:", error); return []; }
     return (data || []).reverse();
-  } catch (err) {
-    console.error("loadMoodHistory exception:", err);
-    return [];
-  }
+  } catch (err) { console.error("loadMoodHistory exception:", err); return []; }
 }
-
-/* ============================================================
-   ДНЕВНИК: записи (diary_entries)
-   ============================================================ */
 
 export async function saveDiaryEntry(client, userId, text, prompt = "") {
   const payload = { user_id: userId, entry_text: text, prompt_used: prompt || "" };
@@ -329,18 +248,10 @@ export async function saveDiaryEntry(client, userId, text, prompt = "") {
 
 export async function loadDiaryEntries(client, userId, limit = 30) {
   try {
-    const { data, error } = await client
-      .from("diary_entries")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(limit);
+    const { data, error } = await client.from("diary_entries").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(limit);
     if (error) { console.error("loadDiaryEntries error:", error); return []; }
     return data || [];
-  } catch (err) {
-    console.error("loadDiaryEntries exception:", err);
-    return [];
-  }
+  } catch (err) { console.error("loadDiaryEntries exception:", err); return []; }
 }
 
 export async function deleteDiaryEntry(client, userId, entryId) {
@@ -348,10 +259,6 @@ export async function deleteDiaryEntry(client, userId, entryId) {
   if (error) throw error;
   return true;
 }
-
-/* ============================================================
-   ВАЖНЫЕ ДАТЫ ПАРЫ (important_dates)
-   ============================================================ */
 
 export async function saveImportantDate(client, userId, title, dateValue, isRecurringYearly = true) {
   const payload = { user_id: userId, title, date_value: dateValue, is_recurring_yearly: isRecurringYearly };
@@ -362,17 +269,10 @@ export async function saveImportantDate(client, userId, title, dateValue, isRecu
 
 export async function loadImportantDates(client, userId) {
   try {
-    const { data, error } = await client
-      .from("important_dates")
-      .select("*")
-      .eq("user_id", userId)
-      .order("date_value", { ascending: true });
+    const { data, error } = await client.from("important_dates").select("*").eq("user_id", userId).order("date_value", { ascending: true });
     if (error) { console.error("loadImportantDates error:", error); return []; }
     return data || [];
-  } catch (err) {
-    console.error("loadImportantDates exception:", err);
-    return [];
-  }
+  } catch (err) { console.error("loadImportantDates exception:", err); return []; }
 }
 
 export async function deleteImportantDate(client, userId, dateId) {
@@ -381,21 +281,237 @@ export async function deleteImportantDate(client, userId, dateId) {
   return true;
 }
 
-/**
- * Вычисляет для важной даты: сколько дней до следующего наступления
- * (с учётом is_recurring_yearly — переносит на следующий год, если дата уже прошла).
- */
 export function daysUntilNext(dateValue, isRecurringYearly) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   let target = new Date(dateValue);
   target.setHours(0, 0, 0, 0);
-
   if (isRecurringYearly) {
     target.setFullYear(today.getFullYear());
     if (target < today) target.setFullYear(today.getFullYear() + 1);
   }
+  return Math.round((target - today) / (1000 * 60 * 60 * 24));
+}
 
-  const diffMs = target - today;
-  return Math.round(diffMs / (1000 * 60 * 60 * 24));
+/* ============================================================
+   РЕЗУЛЬТАТЫ ТЕСТОВ (test_results)
+   ============================================================
+   test_key: attachment_relationship | love_language | conflict_style
+             | communication_patterns | emotional_awareness
+
+   result_summary — то, что показывается пользователю и попадает в экспорт:
+   {
+     title: "...",
+     scoreLine: "...",       // короткая сводка баллов, для карточки
+     description: "...",     // развёрнутая интерпретация
+     recommendations: ["...", "..."]
+   }
+   ============================================================ */
+
+export const TEST_KEYS = {
+  ATTACHMENT: "attachment_relationship",
+  LOVE_LANGUAGE: "love_language",
+  CONFLICT_STYLE: "conflict_style",
+  COMMUNICATION: "communication_patterns",
+  EMOTIONAL_AWARENESS: "emotional_awareness",
+};
+
+export const TEST_META = {
+  attachment_relationship: { title: "Привязанность и удовлетворённость", shortTitle: "Привязанность", href: "self-test.html" },
+  love_language: { title: "Язык любви", shortTitle: "Язык любви", href: "love-language-test.html" },
+  conflict_style: { title: "Стиль в конфликте", shortTitle: "Стиль в конфликте", href: "conflict-style-test.html" },
+  communication_patterns: { title: "Паттерны общения", shortTitle: "Общение", href: "communication-patterns-test.html" },
+  emotional_awareness: { title: "Эмоциональная осознанность", shortTitle: "Эмоц. осознанность", href: "emotional-awareness-test.html" },
+};
+
+/**
+ * Сохраняет результат прохождения теста. Каждое прохождение — новая строка
+ * (история сохраняется), но "актуальным" всегда считается последний по дате.
+ */
+export async function saveTestResult(client, userId, testKey, { answers = {}, scores = {}, resultSummary = {}, testVersion = "v1" } = {}) {
+  const payload = {
+    user_id: userId,
+    test_key: testKey,
+    test_version: testVersion,
+    answers,
+    scores,
+    result_summary: resultSummary,
+    completed_at: new Date().toISOString(),
+  };
+  const { data, error } = await client.from("test_results").insert(payload).select().single();
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Загружает самый свежий результат по каждому из пяти тестов.
+ * Возвращает объект { test_key: latestRow | null }.
+ */
+export async function loadLatestTestResults(client, userId) {
+  const result = {};
+  Object.values(TEST_KEYS).forEach((key) => { result[key] = null; });
+
+  try {
+    const { data, error } = await client
+      .from("test_results")
+      .select("*")
+      .eq("user_id", userId)
+      .order("completed_at", { ascending: false });
+
+    if (error) { console.error("loadLatestTestResults error:", error); return result; }
+
+    (data || []).forEach((row) => {
+      if (!result[row.test_key]) result[row.test_key] = row;
+    });
+    return result;
+  } catch (err) {
+    console.error("loadLatestTestResults exception:", err);
+    return result;
+  }
+}
+
+/**
+ * Загружает всю историю прохождений конкретного теста, по убыванию даты.
+ */
+export async function loadTestResultHistory(client, userId, testKey, limit = 10) {
+  try {
+    const { data, error } = await client
+      .from("test_results")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("test_key", testKey)
+      .order("completed_at", { ascending: false })
+      .limit(limit);
+    if (error) { console.error("loadTestResultHistory error:", error); return []; }
+    return data || [];
+  } catch (err) {
+    console.error("loadTestResultHistory exception:", err);
+    return [];
+  }
+}
+
+/**
+ * Строит общий (интегральный) профиль на основе последних результатов всех
+ * пройденных тестов. Правило-ориентированная логика (без LLM) — детерминирована,
+ * прозрачна и не требует внешнего вызова.
+ *
+ * @param {object} latestResults - объект из loadLatestTestResults()
+ * @returns {object|null} { completedCount, totalCount, resources: [], attentionAreas: [], nextFocus: string }
+ */
+export function buildOverallProfile(latestResults) {
+  const completed = Object.values(latestResults).filter(Boolean);
+  const totalCount = Object.keys(TEST_KEYS).length;
+
+  if (completed.length === 0) return null;
+
+  const resources = [];
+  const attentionAreas = [];
+  let nextFocus = "";
+
+  const attachment = latestResults[TEST_KEYS.ATTACHMENT];
+  if (attachment && attachment.scores) {
+    const anxiety = attachment.scores.anxiety;
+    const avoidance = attachment.scores.avoidance;
+    if (typeof anxiety === "number" && anxiety >= 4.5) {
+      attentionAreas.push("Повышенная тревожность при дистанции с партнёром");
+      nextFocus = nextFocus || "Договоритесь с партнёром о понятных сигналах, когда одному из вас нужно больше контакта, а другому — пространства.";
+    } else if (typeof anxiety === "number" && anxiety <= 3) {
+      resources.push("Устойчивость к тревоге о стабильности отношений");
+    }
+    if (typeof avoidance === "number" && avoidance >= 4.5) {
+      attentionAreas.push("Склонность отстраняться при слишком тесной близости");
+    } else if (typeof avoidance === "number" && avoidance <= 3) {
+      resources.push("Комфорт в эмоциональной близости с партнёром");
+    }
+  }
+
+  const conflict = latestResults[TEST_KEYS.CONFLICT_STYLE];
+  if (conflict && conflict.scores && conflict.scores.topStyle) {
+    const style = conflict.scores.topStyle;
+    if (style === "collaborating") resources.push("Готовность искать решения, устраивающие обе стороны");
+    if (style === "avoiding") {
+      attentionAreas.push("Склонность откладывать сложные разговоры");
+      nextFocus = nextFocus || "Договоритесь не просто брать паузу в конфликте, а называть конкретное время возврата к разговору.";
+    }
+    if (style === "competing") attentionAreas.push("Тенденция настаивать на своей позиции в споре");
+    if (style === "compromising") resources.push("Гибкость и готовность к компромиссу");
+  }
+
+  const communication = latestResults[TEST_KEYS.COMMUNICATION];
+  if (communication && communication.scores) {
+    const constructive = communication.scores.constructive;
+    const demandWithdraw = communication.scores.demandWithdraw;
+    if (typeof constructive === "number" && constructive >= 4) resources.push("Способность конструктивно обсуждать проблемы в паре");
+    if (typeof demandWithdraw === "number" && demandWithdraw >= 4) {
+      attentionAreas.push("Повторяющийся цикл «один настаивает — другой отдаляется»");
+      nextFocus = nextFocus || "Заметив этот цикл в моменте, назовите его вслух партнёру вместо того, чтобы продолжать давить или отстраняться.";
+    }
+  }
+
+  const emotional = latestResults[TEST_KEYS.EMOTIONAL_AWARENESS];
+  if (emotional && emotional.scores && typeof emotional.scores.total === "number") {
+    if (emotional.scores.total >= 4) resources.push("Развитая способность замечать и называть свои эмоции");
+    else if (emotional.scores.total <= 2.8) attentionAreas.push("Пока сложно точно называть свои эмоции в моменте");
+  }
+
+  if (!nextFocus) {
+    nextFocus = "Продолжайте проходить тесты и вести дневник — чем больше данных о себе и паре, тем точнее будет общий профиль.";
+  }
+
+  return {
+    completedCount: completed.length,
+    totalCount,
+    resources: [...new Set(resources)],
+    attentionAreas: [...new Set(attentionAreas)],
+    nextFocus,
+  };
+}
+
+/**
+ * Форматирует результат одного теста в читаемый текст для "Поделиться"/экспорта.
+ * Использует только result_summary — никогда сырые answers.
+ */
+export function formatTestResultForShare(testKey, resultRow) {
+  const meta = TEST_META[testKey];
+  const summary = resultRow?.result_summary || {};
+  const lines = [
+    "RelationSync.AI — результат теста",
+    "",
+    meta?.title || testKey,
+    summary.scoreLine || "",
+    "",
+    summary.description || "",
+  ];
+  if (summary.recommendations && summary.recommendations.length) {
+    lines.push("", "Рекомендации:");
+    summary.recommendations.forEach((r) => lines.push("• " + r));
+  }
+  lines.push("", "Это образовательный результат самооценки, не диагноз.");
+  return lines.filter((l) => l !== undefined).join("\n");
+}
+
+/**
+ * Форматирует общий профиль (все тесты) в читаемый текст для экспорта.
+ */
+export function formatOverallProfileForShare(overallProfile) {
+  if (!overallProfile) return "";
+  const lines = [
+    "RelationSync.AI — профиль взаимодействия в отношениях",
+    "",
+    `Пройдено тестов: ${overallProfile.completedCount} из ${overallProfile.totalCount}`,
+    "",
+  ];
+  if (overallProfile.resources.length) {
+    lines.push("Сильные ресурсы:");
+    overallProfile.resources.forEach((r) => lines.push("• " + r));
+    lines.push("");
+  }
+  if (overallProfile.attentionAreas.length) {
+    lines.push("Зоны внимания:");
+    overallProfile.attentionAreas.forEach((a) => lines.push("• " + a));
+    lines.push("");
+  }
+  lines.push("Фокус на ближайшее время:", overallProfile.nextFocus);
+  lines.push("", "Это образовательная самооценка, не диагноз и не замена консультации психолога.");
+  return lines.join("\n");
 }
