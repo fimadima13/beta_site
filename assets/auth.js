@@ -295,17 +295,6 @@ export function daysUntilNext(dateValue, isRecurringYearly) {
 
 /* ============================================================
    РЕЗУЛЬТАТЫ ТЕСТОВ (test_results)
-   ============================================================
-   test_key: attachment_relationship | love_language | conflict_style
-             | communication_patterns | emotional_awareness
-
-   result_summary — то, что показывается пользователю и попадает в экспорт:
-   {
-     title: "...",
-     scoreLine: "...",       // короткая сводка баллов, для карточки
-     description: "...",     // развёрнутая интерпретация
-     recommendations: ["...", "..."]
-   }
    ============================================================ */
 
 export const TEST_KEYS = {
@@ -324,10 +313,6 @@ export const TEST_META = {
   emotional_awareness: { title: "Эмоциональная осознанность", shortTitle: "Эмоц. осознанность", href: "emotional-awareness-test.html" },
 };
 
-/**
- * Сохраняет результат прохождения теста. Каждое прохождение — новая строка
- * (история сохраняется), но "актуальным" всегда считается последний по дате.
- */
 export async function saveTestResult(client, userId, testKey, { answers = {}, scores = {}, resultSummary = {}, testVersion = "v1" } = {}) {
   const payload = {
     user_id: userId,
@@ -343,10 +328,6 @@ export async function saveTestResult(client, userId, testKey, { answers = {}, sc
   return data;
 }
 
-/**
- * Загружает самый свежий результат по каждому из пяти тестов.
- * Возвращает объект { test_key: latestRow | null }.
- */
 export async function loadLatestTestResults(client, userId) {
   const result = {};
   Object.values(TEST_KEYS).forEach((key) => { result[key] = null; });
@@ -370,9 +351,6 @@ export async function loadLatestTestResults(client, userId) {
   }
 }
 
-/**
- * Загружает всю историю прохождений конкретного теста, по убыванию даты.
- */
 export async function loadTestResultHistory(client, userId, testKey, limit = 10) {
   try {
     const { data, error } = await client
@@ -391,13 +369,32 @@ export async function loadTestResultHistory(client, userId, testKey, limit = 10)
 }
 
 /**
- * Строит общий (интегральный) профиль на основе последних результатов всех
- * пройденных тестов. Правило-ориентированная логика (без LLM) — детерминирована,
- * прозрачна и не требует внешнего вызова.
- *
- * @param {object} latestResults - объект из loadLatestTestResults()
- * @returns {object|null} { completedCount, totalCount, resources: [], attentionAreas: [], nextFocus: string }
+ * Удаляет ВСЮ историю результатов конкретного теста для пользователя
+ * (не только последний результат) — карточка теста возвращается в статус "Не пройден".
  */
+export async function deleteTestResultsByKey(client, userId, testKey) {
+  const { error } = await client
+    .from("test_results")
+    .delete()
+    .eq("user_id", userId)
+    .eq("test_key", testKey);
+  if (error) throw error;
+  return true;
+}
+
+/**
+ * Удаляет результаты ВСЕХ тестов пользователя — используется кнопкой
+ * "Сбросить все результаты" в общем профиле.
+ */
+export async function deleteAllTestResults(client, userId) {
+  const { error } = await client
+    .from("test_results")
+    .delete()
+    .eq("user_id", userId);
+  if (error) throw error;
+  return true;
+}
+
 export function buildOverallProfile(latestResults) {
   const completed = Object.values(latestResults).filter(Boolean);
   const totalCount = Object.keys(TEST_KEYS).length;
@@ -467,10 +464,6 @@ export function buildOverallProfile(latestResults) {
   };
 }
 
-/**
- * Форматирует результат одного теста в читаемый текст для "Поделиться"/экспорта.
- * Использует только result_summary — никогда сырые answers.
- */
 export function formatTestResultForShare(testKey, resultRow) {
   const meta = TEST_META[testKey];
   const summary = resultRow?.result_summary || {};
@@ -490,9 +483,6 @@ export function formatTestResultForShare(testKey, resultRow) {
   return lines.filter((l) => l !== undefined).join("\n");
 }
 
-/**
- * Форматирует общий профиль (все тесты) в читаемый текст для экспорта.
- */
 export function formatOverallProfileForShare(overallProfile) {
   if (!overallProfile) return "";
   const lines = [
