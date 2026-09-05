@@ -12,6 +12,26 @@
 <style>
   .ct-main{max-width:640px; width:100%; margin:0 auto; padding:36px 24px 90px; flex:1;}
   .ct-card{border:1px solid var(--line); background:var(--card); border-radius:20px; padding:32px 30px;}
+
+  /* ---------- вступительный экран ---------- */
+  .intro-badge{
+    display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; letter-spacing:.08em;
+    text-transform:uppercase; color:#7ee0a8; border:1px solid rgba(126,224,168,.3);
+    background:rgba(126,224,168,.08); padding:5px 12px; border-radius:999px; margin-bottom:16px;
+  }
+  .intro-title{font-size:23px; font-weight:800; margin:0 0 14px; letter-spacing:-.01em;}
+  .intro-block{margin-bottom:18px;}
+  .intro-block h3{font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin:0 0 8px;}
+  .intro-block p{font-size:14.5px; color:#e6e6e6; line-height:1.6; margin:0;}
+  .intro-meta{display:flex; gap:20px; margin:20px 0 26px; flex-wrap:wrap;}
+  .intro-meta-item{display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--muted);}
+  .intro-meta-item svg{width:16px; height:16px; flex-shrink:0;}
+  .intro-start-btn{
+    width:100%; height:50px; border-radius:999px; background:var(--pill); color:var(--pill-ink);
+    font-size:15px; font-weight:700;
+  }
+
+  /* ---------- прогресс + вопросы ---------- */
   .ct-progress{height:4px; border-radius:999px; background:rgba(255,255,255,.08); margin-bottom:26px; overflow:hidden;}
   .ct-progress-fill{height:100%; background:#fff; border-radius:999px; transition:width .3s ease; width:0%;}
   .ct-qnum{font-size:12px; color:var(--muted); font-weight:600; letter-spacing:.06em; text-transform:uppercase; margin-bottom:10px;}
@@ -23,12 +43,32 @@
   }
   .ct-option:hover{background:var(--card-hover); border-color:rgba(255,255,255,.25);}
   .ct-option.selected{border-color:#7ee0a8; background:rgba(126,224,168,.08);}
-  .ct-done{text-align:center; padding:20px 0;}
+
+  /* ---------- экран завершения со статусом партнёра ---------- */
+  .ct-done{text-align:center; padding:10px 0;}
+  .ct-done-icon{
+    width:56px; height:56px; border-radius:50%; background:rgba(126,224,168,.1);
+    border:1px solid rgba(126,224,168,.3); display:flex; align-items:center; justify-content:center;
+    margin:0 auto 18px; color:#7ee0a8;
+  }
   .ct-done h2{font-size:20px; font-weight:700; margin:0 0 10px;}
-  .ct-done p{font-size:14px; color:var(--muted); line-height:1.55; margin:0 0 24px;}
+  .ct-done > p{font-size:14px; color:var(--muted); line-height:1.55; margin:0 0 22px;}
+
+  .partner-wait-card{
+    border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:22px; text-align:left;
+  }
+  .partner-wait-card.waiting{background:rgba(255,193,107,.06); border-color:rgba(255,193,107,.25);}
+  .partner-wait-card.done{background:rgba(126,224,168,.06); border-color:rgba(126,224,168,.25);}
+  .partner-wait-row{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+  .partner-wait-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+  .partner-wait-card.waiting .partner-wait-dot{background:#ffc16b;}
+  .partner-wait-card.done .partner-wait-dot{background:#7ee0a8;}
+  .partner-wait-title{font-size:14px; font-weight:700; color:#fff;}
+  .partner-wait-sub{font-size:13px; color:var(--muted); line-height:1.5; margin:0;}
+
   .ct-back{
     display:inline-flex; height:46px; padding:0 24px; border-radius:999px; background:var(--pill);
-    color:var(--pill-ink); font-size:14px; font-weight:600; align-items:center;
+    color:var(--pill-ink); font-size:14px; font-weight:600; align-items:center; justify-content:center;
   }
   .page-loading{
     flex:1; display:flex; align-items:center; justify-content:center; gap:10px;
@@ -68,56 +108,89 @@
 
 <main class="ct-main" id="pageContent" style="display:none;">
   <div class="ct-card">
-    <div class="ct-progress"><div class="ct-progress-fill" id="progressFill"></div></div>
-    <div id="quizBody">
+
+    <!-- Экран 1: вступление -->
+    <div id="introBody">
+      <span class="intro-badge">Бесплатно · совместный тест</span>
+      <h1 class="intro-title" id="introTitle">Название теста</h1>
+
+      <div class="intro-block">
+        <h3>О чём этот тест</h3>
+        <p id="introAbout"></p>
+      </div>
+
+      <div class="intro-block">
+        <h3>Зачем его проходить</h3>
+        <p id="introWhy"></p>
+      </div>
+
+      <div class="intro-meta">
+        <div class="intro-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <span id="introDuration">3–4 минуты</span>
+        </div>
+        <div class="intro-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <span id="introQuestionsCount">10 вопросов</span>
+        </div>
+      </div>
+
+      <button type="button" class="intro-start-btn" id="startTestBtn">Начать тест</button>
+    </div>
+
+    <!-- Экран 2: прохождение -->
+    <div id="quizBody" style="display:none;">
+      <div class="ct-progress"><div class="ct-progress-fill" id="progressFill"></div></div>
       <p class="ct-qnum" id="qNumLabel">Вопрос 1 из 10</p>
       <p class="ct-question" id="qText">Загрузка…</p>
       <div class="ct-options" id="qOptions"></div>
     </div>
+
+    <!-- Экран 3: завершение со статусом партнёра -->
     <div class="ct-done" id="doneBody" style="display:none;">
-      <h2>Готово!</h2>
-      <p id="doneText">Ваш ответ сохранён. Как только партнёр тоже пройдёт тест — на странице «Режим пары» появится общая оценка совпадения.</p>
+      <div class="ct-done-icon">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <h2>Ваш ответ сохранён</h2>
+      <p>Результат станет частью общего отчёта пары, как только оба партнёра пройдут этот тест.</p>
+
+      <div class="partner-wait-card" id="partnerWaitCard">
+        <div class="partner-wait-row">
+          <span class="partner-wait-dot"></span>
+          <span class="partner-wait-title" id="partnerWaitTitle">Проверяем статус партнёра…</span>
+        </div>
+        <p class="partner-wait-sub" id="partnerWaitSub"></p>
+      </div>
+
       <a class="ct-back" href="couple.html">Вернуться в режим пары</a>
     </div>
+
   </div>
 </main>
 
 <script type="module">
   import { getClient, isConfigured, getSession } from "./assets/auth.js";
-  import { getCoupleLink, saveCoupleTestResult } from "./assets/couple-features.js";
-
-  const QUESTION_BANKS = {
-    couple_sync: [
-      { id: "q1", text: "Как вы предпочитаете проводить свободный вечер вдвоём?", a: "Дома, в тишине и уюте", b: "Куда-то выйти, сменить обстановку" },
-      { id: "q2", text: "Как быстро вы готовы обсуждать сложную тему?", a: "Сразу, пока свежо в памяти", b: "Нужно время подумать перед разговором" },
-      { id: "q3", text: "Что для вас важнее в конфликте?", a: "Найти решение как можно быстрее", b: "Сначала убедиться, что чувства услышаны" },
-      { id: "q4", text: "Как вы относитесь к совместным финансам?", a: "Всё общее и прозрачное", b: "У каждого своя часть и свобода трат" },
-      { id: "q5", text: "Что вам ближе в планах на выходные?", a: "Заранее спланировать", b: "Решить по настроению в моменте" },
-      { id: "q6", text: "Как вы выражаете заботу чаще всего?", a: "Словами и разговором", b: "Действиями и делами" },
-      { id: "q7", text: "Как вы относитесь к личному пространству партнёра?", a: "Мне важно быть рядом почаще", b: "Мне комфортно, когда у каждого своё время" },
-      { id: "q8", text: "Что вы делаете, если задели друг друга?", a: "Говорю об этом в тот же день", b: "Нужна пауза, прежде чем обсуждать" },
-      { id: "q9", text: "Как вы относитесь к большим совместным целям?", a: "Люблю строить долгосрочные планы вместе", b: "Предпочитаю идти шаг за шагом, без далёких обещаний" },
-      { id: "q10", text: "Что важнее в повседневном общении?", a: "Обсуждать бытовые детали дня", b: "Обсуждать мысли, идеи, чувства" },
-    ],
-    couple_values: [
-      { id: "v1", text: "Что важнее в отношениях на этом этапе?", a: "Стабильность и предсказуемость", b: "Рост и новые совместные вызовы" },
-      { id: "v2", text: "Что вам ближе в проявлении честности?", a: "Говорить всё, даже если это неприятно", b: "Выбирать момент и формулировки бережно" },
-      { id: "v3", text: "Что важнее в поддержке партнёра?", a: "Дать практический совет", b: "Просто быть рядом и выслушать" },
-      { id: "v4", text: "Как вы относитесь к разногласиям во взглядах на жизнь?", a: "Это нормально, если базовые ценности совпадают", b: "Хочу, чтобы взгляды совпадали как можно точнее" },
-      { id: "v5", text: "Что вам важнее в близости?", a: "Эмоциональная близость важнее физической", b: "Обе важны в равной степени" },
-      { id: "v6", text: "Как вы относитесь к юмору в отношениях?", a: "Юмор снимает напряжение почти всегда", b: "В серьёзные моменты юмор мешает" },
-      { id: "v7", text: "Что важнее для доверия?", a: "Полная прозрачность в деталях", b: "Уверенность в намерениях, без детального контроля" },
-      { id: "v8", text: "Как вы смотрите на общие цели?", a: "Важно, чтобы цели совпадали почти полностью", b: "Достаточно уважать цели друг друга, даже если они разные" },
-    ],
-  };
+  import {
+    getCoupleLink, saveCoupleTestResult, getPartnerId, loadCoupleTestResults,
+    COUPLE_TEST_META, COUPLE_QUESTION_BANKS,
+  } from "./assets/couple-features.js";
 
   const params = new URLSearchParams(window.location.search);
   const testKey = params.get("key") || "couple_sync";
-  const questions = QUESTION_BANKS[testKey] || QUESTION_BANKS.couple_sync;
+  const meta = COUPLE_TEST_META[testKey] || COUPLE_TEST_META.couple_sync;
+  const questions = COUPLE_QUESTION_BANKS[testKey] || COUPLE_QUESTION_BANKS.couple_sync;
 
   let client, userId, coupleLink;
   let currentIndex = 0;
   const answers = {};
+
+  function renderIntro() {
+    document.getElementById("introTitle").textContent = meta.title;
+    document.getElementById("introAbout").textContent = meta.about;
+    document.getElementById("introWhy").textContent = meta.why;
+    document.getElementById("introDuration").textContent = meta.duration;
+    document.getElementById("introQuestionsCount").textContent = meta.questionsCount + " вопросов";
+  }
 
   function renderQuestion() {
     const q = questions[currentIndex];
@@ -149,12 +222,41 @@
     document.getElementById("progressFill").style.width = "100%";
     document.getElementById("quizBody").style.display = "none";
     document.getElementById("doneBody").style.display = "";
+
     try {
       await saveCoupleTestResult(client, coupleLink.id, userId, testKey, { answers });
     } catch (err) {
       console.error("Не удалось сохранить результат совместного теста:", err);
     }
+
+    await renderPartnerWaitStatus();
   }
+
+  async function renderPartnerWaitStatus() {
+    const card = document.getElementById("partnerWaitCard");
+    const titleEl = document.getElementById("partnerWaitTitle");
+    const subEl = document.getElementById("partnerWaitSub");
+
+    const partnerId = getPartnerId(coupleLink, userId);
+    const results = await loadCoupleTestResults(client, coupleLink.id, testKey);
+    const partnerResult = results.find(r => r.user_id === partnerId);
+
+    if (partnerResult) {
+      card.className = "partner-wait-card done";
+      titleEl.textContent = "Партнёр уже прошёл этот тест";
+      subEl.textContent = "Общий результат и сравнение ответов уже доступны на странице «Режим пары».";
+    } else {
+      card.className = "partner-wait-card waiting";
+      titleEl.textContent = "Партнёр пока не проходил этот тест";
+      subEl.textContent = "Как только партнёр ответит на те же вопросы в своём кабинете — здесь появится сравнение и общая оценка совпадения. Отправьте ему ссылку на «Режим пары», чтобы он тоже прошёл тест.";
+    }
+  }
+
+  document.getElementById("startTestBtn").addEventListener("click", () => {
+    document.getElementById("introBody").style.display = "none";
+    document.getElementById("quizBody").style.display = "";
+    renderQuestion();
+  });
 
   async function init() {
     if (!isConfigured()) {
@@ -171,7 +273,7 @@
 
     document.getElementById("pageLoading").style.display = "none";
     document.getElementById("pageContent").style.display = "";
-    renderQuestion();
+    renderIntro();
   }
 
   init();

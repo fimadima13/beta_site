@@ -123,17 +123,25 @@
   }
   .test-card:hover{background:var(--card-hover); border-color:rgba(255,255,255,.18);}
   .test-card h3{font-size:15.5px; font-weight:700; margin:10px 0 8px;}
-  .test-card p{font-size:13px; color:var(--muted); line-height:1.5; margin:0 0 16px;}
+  .test-card p{font-size:13px; color:var(--muted); line-height:1.5; margin:0 0 14px;}
   .test-cta{
-    display:inline-flex; align-items:center; gap:6px; height:38px; padding:0 16px; border-radius:999px;
-    background:var(--pill); color:var(--pill-ink); font-size:13px; font-weight:600;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px; height:38px; padding:0 16px;
+    border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:13px; font-weight:600;
   }
+  .test-status-row{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;}
+  .test-status-chip{
+    display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600; padding:4px 10px;
+    border-radius:999px; border:1px solid var(--line); color:var(--muted);
+  }
+  .test-status-chip.done{color:#7ee0a8; border-color:rgba(126,224,168,.3); background:rgba(126,224,168,.08);}
+  .test-status-chip.waiting{color:#ffc16b; border-color:rgba(255,193,107,.3); background:rgba(255,193,107,.08);}
+  .test-status-dot{width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0;}
 
   .result-card{
     border:1px solid var(--line); background:var(--card); border-radius:16px; padding:26px;
-    margin-bottom:32px;
+    margin-bottom:20px;
   }
-  .result-score{display:flex; align-items:center; gap:20px; margin-bottom:18px; flex-wrap:wrap;}
+  .result-score{display:flex; align-items:center; gap:20px; margin-bottom:16px; flex-wrap:wrap;}
   .score-ring{
     width:84px; height:84px; border-radius:50%; flex-shrink:0;
     background:conic-gradient(#7ee0a8 calc(var(--pct,0) * 1%), rgba(255,255,255,.08) 0);
@@ -145,10 +153,27 @@
   }
   .result-label{font-size:15px; font-weight:700; margin:0 0 4px;}
   .result-sub{font-size:13px; color:var(--muted); margin:0;}
-  .mismatch-list{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
-  .mismatch-chip{
-    font-size:12px; color:var(--muted); border:1px solid var(--line); border-radius:999px;
-    padding:5px 12px; background:rgba(255,255,255,.03);
+  .result-explain{font-size:13.5px; color:#d6d6d6; line-height:1.6; margin:16px 0 0; padding-top:16px; border-top:1px solid var(--line);}
+
+  .qa-list{margin-top:20px; display:flex; flex-direction:column; gap:10px;}
+  .qa-item{border:1px solid var(--line); border-radius:12px; padding:14px 16px;}
+  .qa-item.match{background:rgba(126,224,168,.04); border-color:rgba(126,224,168,.18);}
+  .qa-item.mismatch{background:rgba(255,193,107,.04); border-color:rgba(255,193,107,.18);}
+  .qa-question{font-size:13.5px; font-weight:600; color:#fff; margin:0 0 8px;}
+  .qa-answers{display:flex; flex-direction:column; gap:4px;}
+  .qa-answer-row{display:flex; align-items:baseline; gap:8px; font-size:12.5px; line-height:1.5;}
+  .qa-answer-who{color:var(--muted); flex-shrink:0; min-width:56px;}
+  .qa-answer-text{color:#e2e2e2;}
+  .qa-tag{
+    display:inline-flex; margin-top:8px; font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+    padding:2px 8px; border-radius:999px;
+  }
+  .qa-item.match .qa-tag{color:#7ee0a8; background:rgba(126,224,168,.12);}
+  .qa-item.mismatch .qa-tag{color:#ffc16b; background:rgba(255,193,107,.12);}
+
+  .empty-state{
+    display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px;
+    padding:50px 24px; color:var(--muted); font-size:14px;
   }
 
   .locked-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
@@ -175,16 +200,15 @@
   }
   .upgrade-banner h3{font-size:16px; font-weight:700; margin:0 0 6px; color:#fff;}
   .upgrade-banner p{font-size:13px; color:var(--muted); margin:0; max-width:480px; line-height:1.5;}
+
+  /* Кнопка "Перейти на тариф «Для пары»" — фикс неровных краёв текста/паддингов */
   .upgrade-cta{
-    height:44px; padding:0 22px; border-radius:999px; background:#ffc16b; color:#050505;
-    font-size:14px; font-weight:700; flex-shrink:0; transition:opacity .15s ease;
+    display:inline-flex; align-items:center; justify-content:center;
+    height:46px; padding:0 24px; border-radius:999px; background:#ffc16b; color:#050505;
+    font-size:14px; font-weight:700; line-height:1; text-align:center; white-space:nowrap;
+    flex-shrink:0; transition:opacity .15s ease; border:none;
   }
   .upgrade-cta:hover{opacity:.88;}
-
-  .empty-state{
-    display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px;
-    padding:50px 24px; color:var(--muted); font-size:14px;
-  }
 
   .page-loading{
     flex:1; display:flex; align-items:center; justify-content:center; gap:10px;
@@ -293,29 +317,12 @@
 
     <div class="couple-grid" id="coupleTestsGrid"></div>
 
-    <h2 class="section-title">Общий результат пары</h2>
-    <p class="section-sub">Появится, как только тест «Насколько вы синхронны» пройдут оба партнёра.</p>
+    <h2 class="section-title">Отчёт по совместным тестам</h2>
+    <p class="section-sub">Развёрнутое сравнение ответов появляется здесь по каждому тесту, который прошли оба партнёра.</p>
 
-    <div class="result-card" id="resultCard">
-      <div class="empty-state" id="resultEmpty">
-        <span>Пока недостаточно данных для общей оценки.</span>
-        <span>Пройдите совместный тест — и здесь появится оценка совпадения.</span>
-      </div>
-      <div id="resultFilled" style="display:none;">
-        <div class="result-score">
-          <div class="score-ring" id="scoreRing" style="--pct:0;">
-            <div class="score-ring-inner"><span id="scoreValue">0%</span></div>
-          </div>
-          <div>
-            <p class="result-label" id="resultLabel">Оценка синхронности</p>
-            <p class="result-sub" id="resultSub">Совпадение ответов: 0 из 0</p>
-          </div>
-        </div>
-        <div class="mismatch-list" id="mismatchList"></div>
-      </div>
-    </div>
+    <div id="reportsContainer"></div>
 
-    <div style="margin-bottom:14px;"><span class="badge-locked">Доступно на тарифе «Для пары»</span></div>
+    <div style="margin-bottom:14px; margin-top:8px;"><span class="badge-locked">Доступно на тарифе «Для пары»</span></div>
     <h2 class="section-title">Полный режим пары</h2>
     <p class="section-sub">Углублённые совместные инструменты — с полной приватностью личных данных каждого.</p>
 
@@ -360,14 +367,17 @@
   import {
     createCoupleInvite, acceptCoupleInvite, getCoupleLink, getPendingInvite,
     getPartnerId, unlinkCouple, startHeartbeat, getPartnerLastSeen, formatOnlineStatus,
-    COUPLE_TEST_META, loadCoupleTestResults, computeCoupleMatchScore, scoreLabel,
+    COUPLE_TEST_META, COUPLE_QUESTION_BANKS, loadCoupleTestResults,
+    computeCoupleMatchScore, scoreLabel, scoreExplanation,
   } from "./assets/couple-features.js";
 
   const MODE_KEY = "relationsync_couple_mode_enabled";
+  const ANSWER_LABEL = { a: "a", b: "b" };
 
   let client = null;
   let userId = null;
   let coupleLink = null;
+  let partnerName = "Партнёр";
   let ready = false;
 
   function showMsg(text, type) {
@@ -384,8 +394,6 @@
     const on = isModeOn();
     document.getElementById("modeSwitch").classList.toggle("on", on);
     document.getElementById("modeToggleLabel").textContent = "Режим пары: " + (on ? "включён" : "выключен");
-    // Панель привязки видна всегда, когда режим включён и пары ещё нет.
-    // Если пара уже есть — показываем экран пары, а панель привязки скрываем.
     document.getElementById("linkPanel").style.display = (on && !coupleLink) ? "" : "none";
     document.getElementById("coupleActiveWrap").style.display = (on && coupleLink) ? "" : "none";
   }
@@ -393,17 +401,47 @@
   async function renderCoupleTests() {
     const grid = document.getElementById("coupleTestsGrid");
     grid.innerHTML = "";
-    Object.entries(COUPLE_TEST_META).forEach(([key, meta]) => {
+    const partnerId = getPartnerId(coupleLink, userId);
+
+    for (const [key, meta] of Object.entries(COUPLE_TEST_META)) {
+      const results = await loadCoupleTestResults(client, coupleLink.id, key);
+      const mine = results.find(r => r.user_id === userId);
+      const partner = results.find(r => r.user_id === partnerId);
+
       const card = document.createElement("div");
       card.className = "test-card";
+
+      let statusHtml = "";
+      if (mine && partner) {
+        statusHtml = `<div class="test-status-row">
+          <span class="test-status-chip done"><span class="test-status-dot"></span>Вы прошли</span>
+          <span class="test-status-chip done"><span class="test-status-dot"></span>Партнёр прошёл</span>
+        </div>`;
+      } else if (mine && !partner) {
+        statusHtml = `<div class="test-status-row">
+          <span class="test-status-chip done"><span class="test-status-dot"></span>Вы прошли</span>
+          <span class="test-status-chip waiting"><span class="test-status-dot"></span>Партнёр ещё не проходил</span>
+        </div>`;
+      } else if (!mine && partner) {
+        statusHtml = `<div class="test-status-row">
+          <span class="test-status-chip waiting"><span class="test-status-dot"></span>Вы ещё не проходили</span>
+          <span class="test-status-chip done"><span class="test-status-dot"></span>Партнёр прошёл</span>
+        </div>`;
+      } else {
+        statusHtml = `<div class="test-status-row">
+          <span class="test-status-chip waiting"><span class="test-status-dot"></span>Никто ещё не проходил</span>
+        </div>`;
+      }
+
       card.innerHTML = `
         <span class="badge-free" style="position:relative;">Бесплатно</span>
         <h3>${meta.title}</h3>
         <p>${meta.description}</p>
-        <a class="test-cta" href="couple-test.html?key=${key}">Пройти тест →</a>
+        ${statusHtml}
+        <a class="test-cta" href="couple-test.html?key=${key}">${mine ? "Пройти ещё раз" : "Пройти тест"} →</a>
       `;
       grid.appendChild(card);
-    });
+    }
   }
 
   async function renderPartnerStatus() {
@@ -411,51 +449,94 @@
     const partnerId = getPartnerId(coupleLink, userId);
     const partnerData = await getPartnerLastSeen(client, partnerId);
     const status = formatOnlineStatus(partnerData && partnerData.last_seen_at);
-    const name = (partnerData && partnerData.user_name) || "Партнёр";
+    partnerName = (partnerData && partnerData.user_name) || "Партнёр";
 
-    document.getElementById("partnerName").textContent = name;
-    document.getElementById("partnerInitial").textContent = name.charAt(0).toUpperCase();
+    document.getElementById("partnerName").textContent = partnerName;
+    document.getElementById("partnerInitial").textContent = partnerName.charAt(0).toUpperCase();
     document.getElementById("partnerStatus").textContent = status.label;
     document.getElementById("onlineDot").classList.toggle("on", status.online);
   }
 
-  async function renderCoupleResult() {
-    if (!coupleLink) return;
-    const results = await loadCoupleTestResults(client, coupleLink.id, "couple_sync");
-    const mine = results.find(r => r.user_id === userId);
-    const partnerId = getPartnerId(coupleLink, userId);
-    const partnerResult = results.find(r => r.user_id === partnerId);
-    if (!mine || !partnerResult) return;
+  function buildQaList(testKey, mineAnswers, partnerAnswers) {
+    const questions = COUPLE_QUESTION_BANKS[testKey] || [];
+    const list = document.createElement("div");
+    list.className = "qa-list";
 
-    const match = computeCoupleMatchScore(mine.answers, partnerResult.answers);
-    document.getElementById("resultEmpty").style.display = "none";
-    document.getElementById("resultFilled").style.display = "";
-    document.getElementById("scoreRing").style.setProperty("--pct", match.score);
-    document.getElementById("scoreValue").textContent = match.score + "%";
-    document.getElementById("resultLabel").textContent = scoreLabel(match.score);
-    document.getElementById("resultSub").textContent = `Совпадение ответов: ${match.matched} из ${match.total}`;
+    questions.forEach((q) => {
+      const myAns = mineAnswers[q.id];
+      const partnerAns = partnerAnswers[q.id];
+      const isMatch = myAns === partnerAns;
 
-    const list = document.getElementById("mismatchList");
-    list.innerHTML = "";
-    match.mismatches.slice(0, 6).forEach((q) => {
-      const chip = document.createElement("span");
-      chip.className = "mismatch-chip";
-      chip.textContent = "Различие: " + q;
-      list.appendChild(chip);
+      const item = document.createElement("div");
+      item.className = "qa-item " + (isMatch ? "match" : "mismatch");
+      item.innerHTML = `
+        <p class="qa-question">${q.text}</p>
+        <div class="qa-answers">
+          <div class="qa-answer-row"><span class="qa-answer-who">Вы:</span><span class="qa-answer-text">${q[myAns] || "—"}</span></div>
+          <div class="qa-answer-row"><span class="qa-answer-who">Партнёр:</span><span class="qa-answer-text">${q[partnerAns] || "—"}</span></div>
+        </div>
+        <span class="qa-tag">${isMatch ? "Совпадает" : "Отличается"}</span>
+      `;
+      list.appendChild(item);
     });
+
+    return list;
+  }
+
+  async function renderReports() {
+    const container = document.getElementById("reportsContainer");
+    container.innerHTML = "";
+    const partnerId = getPartnerId(coupleLink, userId);
+    let anyReport = false;
+
+    for (const [key, meta] of Object.entries(COUPLE_TEST_META)) {
+      const results = await loadCoupleTestResults(client, coupleLink.id, key);
+      const mine = results.find(r => r.user_id === userId);
+      const partner = results.find(r => r.user_id === partnerId);
+      if (!mine || !partner) continue;
+
+      anyReport = true;
+      const match = computeCoupleMatchScore(mine.answers, partner.answers);
+
+      const card = document.createElement("div");
+      card.className = "result-card";
+      card.innerHTML = `
+        <div class="result-score">
+          <div class="score-ring" style="--pct:${match.score};">
+            <div class="score-ring-inner"><span>${match.score}%</span></div>
+          </div>
+          <div>
+            <p class="result-label">${meta.title}: ${scoreLabel(match.score)}</p>
+            <p class="result-sub">Совпадение ответов: ${match.matched} из ${match.total}</p>
+          </div>
+        </div>
+        <p class="result-explain">${scoreExplanation(match.score)}</p>
+      `;
+      card.appendChild(buildQaList(key, mine.answers, partner.answers));
+      container.appendChild(card);
+    }
+
+    if (!anyReport) {
+      const empty = document.createElement("div");
+      empty.className = "result-card";
+      empty.innerHTML = `<div class="empty-state">
+        <span>Пока нет ни одного теста, пройденного обоими партнёрами.</span>
+        <span>Как только вы и партнёр пройдёте один и тот же тест — здесь появится подробное сравнение по каждому вопросу и общая оценка совпадения.</span>
+      </div>`;
+      container.appendChild(empty);
+    }
   }
 
   async function refreshCoupleScreens() {
     if (!coupleLink) return;
     await renderCoupleTests();
     await renderPartnerStatus();
-    await renderCoupleResult();
+    await renderReports();
   }
 
   async function init() {
     if (!isConfigured()) {
-      document.getElementById("pageLoading").innerHTML =
-        '<span>Supabase не настроен. Проверьте assets/supabase-config.js</span>';
+      document.getElementById("pageLoading").innerHTML = '<span>Supabase не настроен. Проверьте assets/supabase-config.js</span>';
       return;
     }
 
@@ -503,7 +584,7 @@
       }
     }
 
-    ready = true; // только теперь кнопки могут безопасно использовать client/userId
+    ready = true;
   }
 
   document.getElementById("modeSwitch").addEventListener("click", () => {
