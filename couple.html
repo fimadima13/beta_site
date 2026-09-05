@@ -7,9 +7,8 @@
 <meta name="description" content="Свяжите аккаунт с партнёром: статус онлайн, совместные тесты и общий результат пары.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="auth.css">
+<link rel="stylesheet" href="assets/auth.css">
 <style>
-  /* ---------- couple.html — локальные стили, наследуют токены auth.css ---------- */
   .couple-main{max-width:1100px; width:100%; margin:0 auto; padding:36px 24px 90px; flex:1;}
 
   .couple-hero{
@@ -20,7 +19,6 @@
   .couple-hero-text h1{font-size:22px; font-weight:700; margin:0 0 8px; letter-spacing:-.01em;}
   .couple-hero-text p{font-size:14px; color:var(--muted); margin:0; max-width:480px; line-height:1.55;}
 
-  /* переключатель режима пары (toggle) */
   .mode-toggle{
     display:inline-flex; align-items:center; gap:12px; padding:6px; border:1px solid var(--line);
     border-radius:999px; background:rgba(255,255,255,.03); flex-shrink:0;
@@ -48,7 +46,6 @@
     background:rgba(255,193,107,.08); padding:4px 10px; border-radius:999px;
   }
 
-  /* экран привязки партнёра (пока нет активной пары) */
   .link-panel{
     border:1px solid var(--line); background:var(--card); border-radius:16px; padding:28px;
     margin-bottom:24px;
@@ -91,7 +88,6 @@
   .link-msg.error{color:var(--err);}
   .link-msg.ok{color:var(--ok);}
 
-  /* экран активной пары */
   .partner-strip{
     display:flex; align-items:center; justify-content:space-between; gap:16px;
     border:1px solid var(--line); background:var(--card); border-radius:16px;
@@ -151,7 +147,6 @@
     padding:5px 12px; background:rgba(255,255,255,.03);
   }
 
-  /* платные заглушки */
   .locked-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
   .locked-card{
     position:relative; border:1px solid var(--line); background:rgba(255,255,255,.015);
@@ -220,7 +215,6 @@
     </div>
   </section>
 
-  <!-- ЭКРАН 1: нет активной связи — привязка партнёра -->
   <section class="link-panel" id="linkPanel">
     <h2>Привяжите аккаунт партнёра</h2>
     <p>Это бесплатно и не требует смены тарифа. Один из вас создаёт код, второй вводит его в своём кабинете — готово, вы в одной паре.</p>
@@ -250,7 +244,6 @@
     <div class="link-msg" id="linkMsg"></div>
   </section>
 
-  <!-- ЭКРАН 2: активная пара -->
   <div id="coupleActiveWrap" style="display:none;">
 
     <section class="partner-strip">
@@ -271,9 +264,7 @@
     <h2 class="section-title">Совместные тесты</h2>
     <p class="section-sub">Пройдите оба — результат сравнивается автоматически, как только ответит партнёр.</p>
 
-    <div class="couple-grid" id="coupleTestsGrid">
-      <!-- Карточки тестов рендерятся через JS из COUPLE_TEST_META -->
-    </div>
+    <div class="couple-grid" id="coupleTestsGrid"></div>
 
     <h2 class="section-title">Общий результат пары</h2>
     <p class="section-sub">Появится, как только тест «Насколько вы синхронны» пройдут оба партнёра.</p>
@@ -338,13 +329,13 @@
 </main>
 
 <script type="module">
-  import { getClient, isConfigured, getSession } from "./auth.js";
+  import { getClient, isConfigured, getSession } from "./assets/auth.js";
   import {
     createCoupleInvite, acceptCoupleInvite, getCoupleLink, getPendingInvite,
     getPartnerId, unlinkCouple, startHeartbeat, getPartnerLastSeen, formatOnlineStatus,
     COUPLE_TEST_META, loadCoupleTestResults, computeCoupleMatchScore, scoreLabel,
     hasCoupleFullAccess,
-  } from "./couple-features.js";
+  } from "./assets/couple-features.js";
 
   const MODE_KEY = "relationsync_couple_mode_enabled";
 
@@ -406,7 +397,7 @@
     const partnerId = getPartnerId(coupleLink, userId);
     const partnerResult = results.find(r => r.user_id === partnerId);
 
-    if (!mine || !partnerResult) return; // остаётся empty state
+    if (!mine || !partnerResult) return;
 
     const match = computeCoupleMatchScore(mine.answers, partnerResult.answers);
     document.getElementById("resultEmpty").style.display = "none";

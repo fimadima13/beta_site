@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Совместный тест — RelationSync.AI</title>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="auth.css">
+<link rel="stylesheet" href="assets/auth.css">
 <style>
   .ct-main{max-width:640px; width:100%; margin:0 auto; padding:36px 24px 90px; flex:1;}
   .ct-card{border:1px solid var(--line); background:var(--card); border-radius:20px; padding:32px 30px;}
@@ -58,11 +58,9 @@
 </main>
 
 <script type="module">
-  import { getClient, isConfigured, getSession } from "./auth.js";
-  import { getCoupleLink, saveCoupleTestResult } from "./couple-features.js";
+  import { getClient, isConfigured, getSession } from "./assets/auth.js";
+  import { getCoupleLink, saveCoupleTestResult } from "./assets/couple-features.js";
 
-  // Банки вопросов совместных тестов. Каждый вопрос — бинарный выбор (a/b),
-  // ключи вопросов одинаковы для обоих партнёров, что и позволяет сравнивать ответы.
   const QUESTION_BANKS = {
     couple_sync: [
       { id: "q1", text: "Как вы предпочитаете проводить свободный вечер вдвоём?", a: "Дома, в тишине и уюте", b: "Куда-то выйти, сменить обстановку" },
