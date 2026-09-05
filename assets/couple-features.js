@@ -1,10 +1,6 @@
 // RelationSync.ai — couple-features.js
 // Модуль режима "Пара" (Couple Mode): привязка аккаунтов, статус "онлайн",
 // совместные тесты и общий результат пары.
-//
-// Использует Supabase client, переданный явным аргументом в каждую функцию —
-// НЕ создаёт свой собственный клиент и не импортирует getClient() напрямую,
-// чтобы исключить рассинхронизацию с уже инициализированным client на странице.
 
 const VALID_TEST_KEYS = ["couple_sync", "couple_values"];
 
@@ -13,7 +9,7 @@ const VALID_TEST_KEYS = ["couple_sync", "couple_values"];
    ============================================================ */
 
 function generateInviteCode() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // без похожих символов (0/O, 1/I)
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "RS-";
   for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
   return code;
@@ -43,11 +39,6 @@ export async function acceptCoupleInvite(client, userId, rawCode) {
   const code = String(rawCode || "").trim().toUpperCase();
   if (!code) throw new Error("Введите код приглашения");
 
-  // Сначала читаем приглашение, чтобы дать точную и понятную ошибку —
-  // включая явную защиту от привязки аккаунта к самому себе. Эта проверка
-  // выполняется здесь, на уровне приложения, а не только в RLS Supabase,
-  // потому что RLS может по-разному вести себя в зависимости от настроек
-  // политики update, и полагаться только на базу данных недостаточно надёжно.
   const { data: invite, error: fetchError } = await client
     .from("couple_links")
     .select("*")
@@ -58,26 +49,11 @@ export async function acceptCoupleInvite(client, userId, rawCode) {
     console.error("acceptCoupleInvite fetch error:", fetchError);
     throw new Error("Не удалось проверить код. Попробуйте снова.");
   }
-
-  if (!invite) {
-    throw new Error("Код не найден. Проверьте, что ввели его без ошибок.");
-  }
-
-  if (invite.user_a_id === userId) {
-    throw new Error("Это ваш собственный код — попросите партнёра ввести его в своём аккаунте.");
-  }
-
-  if (invite.status !== "pending") {
-    throw new Error("Этот код уже был использован или отменён.");
-  }
-
-  if (invite.user_b_id) {
-    throw new Error("Этот код уже использован другим аккаунтом.");
-  }
-
-  if (new Date(invite.expires_at).getTime() < Date.now()) {
-    throw new Error("Код просрочен. Попросите партнёра создать новый.");
-  }
+  if (!invite) throw new Error("Код не найден. Проверьте, что ввели его без ошибок.");
+  if (invite.user_a_id === userId) throw new Error("Это ваш собственный код — попросите партнёра ввести его в своём аккаунте.");
+  if (invite.status !== "pending") throw new Error("Этот код уже был использован или отменён.");
+  if (invite.user_b_id) throw new Error("Этот код уже использован другим аккаунтом.");
+  if (new Date(invite.expires_at).getTime() < Date.now()) throw new Error("Код просрочен. Попросите партнёра создать новый.");
 
   const { data, error } = await client
     .from("couple_links")
@@ -92,7 +68,6 @@ export async function acceptCoupleInvite(client, userId, rawCode) {
     console.error("acceptCoupleInvite update error:", error);
     throw new Error("Не удалось связать аккаунты. Возможно, код только что использовали. Попросите партнёра создать новый.");
   }
-
   return data;
 }
 
@@ -194,7 +169,6 @@ export function formatOnlineStatus(lastSeenAt) {
   if (!lastSeenAt) return { online: false, label: "нет данных" };
   const diffMs = Date.now() - new Date(lastSeenAt).getTime();
   const diffMin = Math.floor(diffMs / 60000);
-
   if (diffMin < 3) return { online: true, label: "в сети" };
   if (diffMin < 60) return { online: false, label: `был(а) ${diffMin} мин назад` };
   const diffHr = Math.floor(diffMin / 60);
@@ -205,20 +179,55 @@ export function formatOnlineStatus(lastSeenAt) {
 
 
 /* ============================================================
-   СОВМЕСТНЫЕ ТЕСТЫ ПАРЫ (бесплатные)
+   СОВМЕСТНЫЕ ТЕСТЫ ПАРЫ — расширенные метаданные
    ============================================================ */
 
 export const COUPLE_TEST_META = {
   couple_sync: {
     title: "Насколько вы синхронны",
     shortTitle: "Синхронность",
-    description: "10 вопросов о повседневных привычках и ожиданиях — сравните ответы сразу после прохождения обоими.",
+    description: "10 вопросов о повседневных привычках и ожиданиях в паре.",
+    about: "Этот тест не про правильные и неправильные ответы — он показывает, насколько ваши бытовые привычки, темп жизни и способ реагировать на ситуации совпадают с привычками партнёра. Синхронность в быту снижает количество мелких недопониманий, которые со временем накапливаются в конфликт.",
+    why: "Пары часто спорят не из-за глобальных ценностей, а из-за разницы в темпе и привычках — кто-то любит планировать, кто-то действует по настроению. Понимание этой разницы заранее помогает договариваться, а не удивляться друг другу в моменте.",
+    duration: "3–4 минуты",
+    questionsCount: 10,
   },
   couple_values: {
     title: "Совпадение ценностей",
     shortTitle: "Ценности пары",
-    description: "8 пар утверждений о приоритетах в отношениях — узнайте, где вы на одной волне, а где стоит поговорить.",
+    description: "8 пар утверждений о приоритетах в отношениях.",
+    about: "Тест показывает, насколько совпадают ваши базовые приоритеты в отношениях — от честности и близости до общих целей. Ценности — это фундамент, на котором строится доверие, а различия в них часто маскируются под «мелкие» бытовые конфликты.",
+    why: "Совпадение ценностей не означает одинаковость взглядов на всё — но помогает понять, где у вас общий фундамент, а где потребуется больше диалога, чтобы двигаться в одну сторону.",
+    duration: "2–3 минуты",
+    questionsCount: 8,
   },
+};
+
+// Полные банки вопросов с текстом и вариантами — нужны и странице теста,
+// и странице отчёта (чтобы показывать реальный текст вопроса, а не только id).
+export const COUPLE_QUESTION_BANKS = {
+  couple_sync: [
+    { id: "q1", text: "Как вы предпочитаете проводить свободный вечер вдвоём?", a: "Дома, в тишине и уюте", b: "Куда-то выйти, сменить обстановку" },
+    { id: "q2", text: "Как быстро вы готовы обсуждать сложную тему?", a: "Сразу, пока свежо в памяти", b: "Нужно время подумать перед разговором" },
+    { id: "q3", text: "Что для вас важнее в конфликте?", a: "Найти решение как можно быстрее", b: "Сначала убедиться, что чувства услышаны" },
+    { id: "q4", text: "Как вы относитесь к совместным финансам?", a: "Всё общее и прозрачное", b: "У каждого своя часть и свобода трат" },
+    { id: "q5", text: "Что вам ближе в планах на выходные?", a: "Заранее спланировать", b: "Решить по настроению в моменте" },
+    { id: "q6", text: "Как вы выражаете заботу чаще всего?", a: "Словами и разговором", b: "Действиями и делами" },
+    { id: "q7", text: "Как вы относитесь к личному пространству партнёра?", a: "Мне важно быть рядом почаще", b: "Мне комфортно, когда у каждого своё время" },
+    { id: "q8", text: "Что вы делаете, если задели друг друга?", a: "Говорю об этом в тот же день", b: "Нужна пауза, прежде чем обсуждать" },
+    { id: "q9", text: "Как вы относитесь к большим совместным целям?", a: "Люблю строить долгосрочные планы вместе", b: "Предпочитаю идти шаг за шагом, без далёких обещаний" },
+    { id: "q10", text: "Что важнее в повседневном общении?", a: "Обсуждать бытовые детали дня", b: "Обсуждать мысли, идеи, чувства" },
+  ],
+  couple_values: [
+    { id: "v1", text: "Что важнее в отношениях на этом этапе?", a: "Стабильность и предсказуемость", b: "Рост и новые совместные вызовы" },
+    { id: "v2", text: "Что вам ближе в проявлении честности?", a: "Говорить всё, даже если это неприятно", b: "Выбирать момент и формулировки бережно" },
+    { id: "v3", text: "Что важнее в поддержке партнёра?", a: "Дать практический совет", b: "Просто быть рядом и выслушать" },
+    { id: "v4", text: "Как вы относитесь к разногласиям во взглядах на жизнь?", a: "Это нормально, если базовые ценности совпадают", b: "Хочу, чтобы взгляды совпадали как можно точнее" },
+    { id: "v5", text: "Что вам важнее в близости?", a: "Эмоциональная близость важнее физической", b: "Обе важны в равной степени" },
+    { id: "v6", text: "Как вы относитесь к юмору в отношениях?", a: "Юмор снимает напряжение почти всегда", b: "В серьёзные моменты юмор мешает" },
+    { id: "v7", text: "Что важнее для доверия?", a: "Полная прозрачность в деталях", b: "Уверенность в намерениях, без детального контроля" },
+    { id: "v8", text: "Как вы смотрите на общие цели?", a: "Важно, чтобы цели совпадали почти полностью", b: "Достаточно уважать цели друг друга, даже если они разные" },
+  ],
 };
 
 export async function saveCoupleTestResult(client, coupleLinkId, userId, testKey, { answers = {}, scores = {} } = {}) {
@@ -253,22 +262,37 @@ export async function loadCoupleTestResults(client, coupleLinkId, testKey) {
   }
 }
 
+// Загружает результаты СРАЗУ по всем совместным тестам — используется на
+// странице couple.html, чтобы показать статус "прошли / не прошли" по каждому.
+export async function loadAllCoupleTestStatus(client, coupleLinkId, userId, partnerId) {
+  const statusByTest = {};
+  for (const testKey of VALID_TEST_KEYS) {
+    const results = await loadCoupleTestResults(client, coupleLinkId, testKey);
+    const mine = results.find(r => r.user_id === userId) || null;
+    const partner = results.find(r => r.user_id === partnerId) || null;
+    statusByTest[testKey] = { mine, partner };
+  }
+  return statusByTest;
+}
+
 export function computeCoupleMatchScore(answersA, answersB) {
   const keys = Object.keys(answersA || {});
-  if (!keys.length) return { score: null, matched: 0, total: 0, mismatches: [] };
+  if (!keys.length) return { score: null, matched: 0, total: 0, mismatches: [], matches: [] };
 
   let matched = 0;
   const mismatches = [];
+  const matches = [];
   keys.forEach((k) => {
     if (answersA[k] === answersB[k]) {
       matched += 1;
+      matches.push(k);
     } else {
       mismatches.push(k);
     }
   });
 
   const score = Math.round((matched / keys.length) * 100);
-  return { score, matched, total: keys.length, mismatches };
+  return { score, matched, total: keys.length, mismatches, matches };
 }
 
 export function scoreLabel(score) {
@@ -277,6 +301,14 @@ export function scoreLabel(score) {
   if (score >= 65) return "Хорошее совпадение, есть пара нюансов";
   if (score >= 40) return "Взгляды расходятся примерно поровну";
   return "Много различий — хороший повод для разговора";
+}
+
+export function scoreExplanation(score) {
+  if (score === null) return "";
+  if (score >= 85) return "Вы очень похоже смотрите на большинство бытовых и коммуникативных ситуаций. Это не значит, что у вас нет тем для разговора — но фундамент совпадения широкий, и разногласия скорее точечные.";
+  if (score >= 65) return "У вас общий взгляд на большинство ситуаций, но есть конкретные зоны, где привычки и ожидания расходятся. Ниже отмечены именно эти вопросы — стоит обсудить их отдельно, не дожидаясь конфликта.";
+  if (score >= 40) return "Примерно половина ваших ответов совпала, половина различается. Это нормально для пары с разными характерами — но такие различия стоит проговаривать явно, а не считать, что партнёр «должен понимать сам».";
+  return "Заметная часть ваших ответов расходится. Это не значит, что отношения обречены — многие успешные пары сильно различаются по привычкам. Но именно эти различия стоит обсуждать открыто, иначе они будут проявляться как повторяющиеся мелкие конфликты.";
 }
 
 
