@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Совместный тест — RelationSync.AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="auth.css">
+<style>
+  .ct-main{max-width:640px; width:100%; margin:0 auto; padding:36px 24px 90px; flex:1;}
+  .ct-card{border:1px solid var(--line); background:var(--card); border-radius:20px; padding:32px 30px;}
+  .ct-progress{height:4px; border-radius:999px; background:rgba(255,255,255,.08); margin-bottom:26px; overflow:hidden;}
+  .ct-progress-fill{height:100%; background:#fff; border-radius:999px; transition:width .3s ease; width:0%;}
+  .ct-qnum{font-size:12px; color:var(--muted); font-weight:600; letter-spacing:.06em; text-transform:uppercase; margin-bottom:10px;}
+  .ct-question{font-size:19px; font-weight:700; margin:0 0 22px; line-height:1.4;}
+  .ct-options{display:flex; flex-direction:column; gap:10px;}
+  .ct-option{
+    text-align:left; border:1px solid var(--line); background:rgba(255,255,255,.03); border-radius:12px;
+    padding:16px 18px; font-size:14.5px; color:#fff; transition:border-color .2s ease, background .2s ease;
+  }
+  .ct-option:hover{background:var(--card-hover); border-color:rgba(255,255,255,.25);}
+  .ct-option.selected{border-color:#7ee0a8; background:rgba(126,224,168,.08);}
+  .ct-done{text-align:center; padding:20px 0;}
+  .ct-done h2{font-size:20px; font-weight:700; margin:0 0 10px;}
+  .ct-done p{font-size:14px; color:var(--muted); line-height:1.55; margin:0 0 24px;}
+  .ct-back{
+    display:inline-flex; height:46px; padding:0 24px; border-radius:999px; background:var(--pill);
+    color:var(--pill-ink); font-size:14px; font-weight:600; align-items:center;
+  }
+</style>
+</head>
+<body>
+
+<header class="mini-header">
+  <a class="brand" href="couple.html">
+    <svg viewBox="0 0 19 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9.5 0C4.25 4 0 9.5 0 15.5C0 22.4 4.25 29 9.5 29C14.75 29 19 22.4 19 15.5C19 9.5 14.75 4 9.5 0Z" fill="#fafafa"/>
+    </svg>
+    <span class="word">RelationSync<span class="dim">.AI</span></span>
+  </a>
+  <a class="back-link" href="couple.html">← Режим пары</a>
+</header>
+
+<main class="ct-main">
+  <div class="ct-card">
+    <div class="ct-progress"><div class="ct-progress-fill" id="progressFill"></div></div>
+    <div id="quizBody">
+      <p class="ct-qnum" id="qNumLabel">Вопрос 1 из 10</p>
+      <p class="ct-question" id="qText">Загрузка…</p>
+      <div class="ct-options" id="qOptions"></div>
+    </div>
+    <div class="ct-done" id="doneBody" style="display:none;">
+      <h2>Готово!</h2>
+      <p id="doneText">Ваш ответ сохранён. Как только партнёр тоже пройдёт тест — на странице «Режим пары» появится общая оценка совпадения.</p>
+      <a class="ct-back" href="couple.html">Вернуться в режим пары</a>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+  import { getClient, isConfigured, getSession } from "./auth.js";
+  import { getCoupleLink, saveCoupleTestResult } from "./couple-features.js";
+
+  // Банки вопросов совместных тестов. Каждый вопрос — бинарный выбор (a/b),
+  // ключи вопросов одинаковы для обоих партнёров, что и позволяет сравнивать ответы.
+  const QUESTION_BANKS = {
+    couple_sync: [
+      { id: "q1", text: "Как вы предпочитаете проводить свободный вечер вдвоём?", a: "Дома, в тишине и уюте", b: "Куда-то выйти, сменить обстановку" },
+      { id: "q2", text: "Как быстро вы готовы обсуждать сложную тему?", a: "Сразу, пока свежо в памяти", b: "Нужно время подумать перед разговором" },
+      { id: "q3", text: "Что для вас важнее в конфликте?", a: "Найти решение как можно быстрее", b: "Сначала убедиться, что чувства услышаны" },
+      { id: "q4", text: "Как вы относитесь к совместным финансам?", a: "Всё общее и прозрачное", b: "У каждого своя часть и свобода трат" },
+      { id: "q5", text: "Что вам ближе в планах на выходные?", a: "Заранее спланировать", b: "Решить по настроению в моменте" },
+      { id: "q6", text: "Как вы выражаете заботу чаще всего?", a: "Словами и разговором", b: "Действиями и делами" },
+      { id: "q7", text: "Как вы относитесь к личному пространству партнёра?", a: "Мне важно быть рядом почаще", b: "Мне комфортно, когда у каждого своё время" },
+      { id: "q8", text: "Что вы делаете, если задели друг друга?", a: "Говорю об этом в тот же день", b: "Нужна пауза, прежде чем обсуждать" },
+      { id: "q9", text: "Как вы относитесь к большим совместным целям?", a: "Люблю строить долгосрочные планы вместе", b: "Предпочитаю идти шаг за шагом, без далёких обещаний" },
+      { id: "q10", text: "Что важнее в повседневном общении?", a: "Обсуждать бытовые детали дня", b: "Обсуждать мысли, идеи, чувства" },
+    ],
+    couple_values: [
+      { id: "v1", text: "Что важнее в отношениях на этом этапе?", a: "Стабильность и предсказуемость", b: "Рост и новые совместные вызовы" },
+      { id: "v2", text: "Что вам ближе в проявлении честности?", a: "Говорить всё, даже если это неприятно", b: "Выбирать момент и формулировки бережно" },
+      { id: "v3", text: "Что важнее в поддержке партнёра?", a: "Дать практический совет", b: "Просто быть рядом и выслушать" },
+      { id: "v4", text: "Как вы относитесь к разногласиям во взглядах на жизнь?", a: "Это нормально, если базовые ценности совпадают", b: "Хочу, чтобы взгляды совпадали как можно точнее" },
+      { id: "v5", text: "Что вам важнее в близости?", a: "Эмоциональная близость важнее физической", b: "Обе важны в равной степени" },
+      { id: "v6", text: "Как вы относитесь к юмору в отношениях?", a: "Юмор снимает напряжение почти всегда", b: "В серьёзные моменты юмор мешает" },
+      { id: "v7", text: "Что важнее для доверия?", a: "Полная прозрачность в деталях", b: "Уверенность в намерениях, без детального контроля" },
+      { id: "v8", text: "Как вы смотрите на общие цели?", a: "Важно, чтобы цели совпадали почти полностью", b: "Достаточно уважать цели друг друга, даже если они разные" },
+    ],
+  };
+
+  const params = new URLSearchParams(window.location.search);
+  const testKey = params.get("key") || "couple_sync";
+  const questions = QUESTION_BANKS[testKey] || QUESTION_BANKS.couple_sync;
+
+  let client, session, userId, coupleLink;
+  let currentIndex = 0;
+  const answers = {};
+
+  function renderQuestion() {
+    const q = questions[currentIndex];
+    document.getElementById("qNumLabel").textContent = `Вопрос ${currentIndex + 1} из ${questions.length}`;
+    document.getElementById("qText").textContent = q.text;
+    document.getElementById("progressFill").style.width = `${Math.round((currentIndex / questions.length) * 100)}%`;
+
+    const optionsEl = document.getElementById("qOptions");
+    optionsEl.innerHTML = "";
+    ["a", "b"].forEach((key) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "ct-option";
+      btn.textContent = q[key];
+      btn.addEventListener("click", () => {
+        answers[q.id] = key;
+        currentIndex += 1;
+        if (currentIndex < questions.length) {
+          renderQuestion();
+        } else {
+          finishQuiz();
+        }
+      });
+      optionsEl.appendChild(btn);
+    });
+  }
+
+  async function finishQuiz() {
+    document.getElementById("progressFill").style.width = "100%";
+    document.getElementById("quizBody").style.display = "none";
+    document.getElementById("doneBody").style.display = "";
+    try {
+      await saveCoupleTestResult(client, coupleLink.id, userId, testKey, { answers });
+    } catch (err) {
+      console.error("Не удалось сохранить результат совместного теста:", err);
+    }
+  }
+
+  async function init() {
+    if (!isConfigured()) return;
+    client = getClient();
+    session = await getSession(client);
+    if (!session) { window.location.href = "login.html"; return; }
+    userId = session.user.id;
+
+    coupleLink = await getCoupleLink(client, userId);
+    if (!coupleLink) { window.location.href = "couple.html"; return; }
+
+    renderQuestion();
+  }
+
+  init();
+</script>
+
+</body>
+</html>
