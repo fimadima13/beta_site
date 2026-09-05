@@ -43,17 +43,56 @@ export async function acceptCoupleInvite(client, userId, rawCode) {
   const code = String(rawCode || "").trim().toUpperCase();
   if (!code) throw new Error("Введите код приглашения");
 
-  const { data, error } = await client.from("couple_links")
-    .update({ user_b_id: userId, status: "active", linked_at: new Date().toISOString() })
+  // Сначала читаем приглашение, чтобы дать точную и понятную ошибку —
+  // включая явную защиту от привязки аккаунта к самому себе. Эта проверка
+  // выполняется здесь, на уровне приложения, а не только в RLS Supabase,
+  // потому что RLS может по-разному вести себя в зависимости от настроек
+  // политики update, и полагаться только на базу данных недостаточно надёжно.
+  const { data: invite, error: fetchError } = await client
+    .from("couple_links")
+    .select("*")
     .eq("invite_code", code)
+    .maybeSingle();
+
+  if (fetchError) {
+    console.error("acceptCoupleInvite fetch error:", fetchError);
+    throw new Error("Не удалось проверить код. Попробуйте снова.");
+  }
+
+  if (!invite) {
+    throw new Error("Код не найден. Проверьте, что ввели его без ошибок.");
+  }
+
+  if (invite.user_a_id === userId) {
+    throw new Error("Это ваш собственный код — попросите партнёра ввести его в своём аккаунте.");
+  }
+
+  if (invite.status !== "pending") {
+    throw new Error("Этот код уже был использован или отменён.");
+  }
+
+  if (invite.user_b_id) {
+    throw new Error("Этот код уже использован другим аккаунтом.");
+  }
+
+  if (new Date(invite.expires_at).getTime() < Date.now()) {
+    throw new Error("Код просрочен. Попросите партнёра создать новый.");
+  }
+
+  const { data, error } = await client
+    .from("couple_links")
+    .update({ user_b_id: userId, status: "active", linked_at: new Date().toISOString() })
+    .eq("id", invite.id)
     .eq("status", "pending")
     .is("user_b_id", null)
-    .gt("expires_at", new Date().toISOString())
-    .select().single();
+    .select()
+    .single();
 
   if (error || !data) {
-    throw new Error("Код неверен, уже использован или просрочен");
+    console.error("acceptCoupleInvite update error:", error);
+    throw new Error("Не удалось связать аккаунты. Возможно, код только что использовали. Попросите партнёра создать новый.");
   }
+
   return data;
 }
 
