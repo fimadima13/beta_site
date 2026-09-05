@@ -3,11 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050505">
 <title>Режим пары — RelationSync.AI</title>
 <meta name="description" content="Свяжите аккаунт с партнёром: статус онлайн, совместные тесты и общий результат пары.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/auth.css">
+<script src="assets/supabase-config.js"></script>
 <style>
   .couple-main{max-width:1100px; width:100%; margin:0 auto; padding:36px 24px 90px; flex:1;}
 
@@ -26,7 +29,7 @@
   .mode-toggle span{font-size:13px; color:var(--muted); padding-left:8px;}
   .switch{
     position:relative; width:46px; height:26px; border-radius:999px; background:rgba(255,255,255,.12);
-    transition:background .2s ease; flex-shrink:0; border:1px solid var(--line);
+    transition:background .2s ease; flex-shrink:0; border:1px solid var(--line); cursor:pointer;
   }
   .switch::after{
     content:""; position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%;
@@ -71,6 +74,7 @@
     width:100%; height:44px; border-radius:999px; background:var(--pill); color:var(--pill-ink);
     font-size:14px; font-weight:600; margin-top:8px;
   }
+  .gen-btn:disabled{opacity:.6; cursor:default;}
   .code-input-row{display:flex; gap:8px;}
   .code-input-row input{
     flex:1; height:44px; border-radius:12px; border:1px solid var(--line);
@@ -182,6 +186,11 @@
     padding:50px 24px; color:var(--muted); font-size:14px;
   }
 
+  .page-loading{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:10px;
+    color:var(--muted); font-size:14px; padding:60px 24px;
+  }
+
   @media (max-width: 780px){
     .link-cols{grid-template-columns:1fr;}
     .couple-grid{grid-template-columns:1fr;}
@@ -194,15 +203,33 @@
 
 <header class="mini-header">
   <a class="brand" href="cabinet.html">
-    <svg viewBox="0 0 19 29" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M9.5 0C4.25 4 0 9.5 0 15.5C0 22.4 4.25 29 9.5 29C14.75 29 19 22.4 19 15.5C19 9.5 14.75 4 9.5 0Z" fill="#fafafa"/>
+    <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
+      <defs>
+        <linearGradient id="bg1" x1="8" y1="10" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#9e9e9e"/>
+          <stop offset=".28" stop-color="#a6a6a6"/>
+          <stop offset=".34" stop-color="#a3a3a3"/>
+          <stop offset=".40" stop-color="#3a3a3a"/>
+          <stop offset=".55" stop-color="#414141"/>
+          <stop offset=".60" stop-color="#7a7a7a"/>
+          <stop offset=".68" stop-color="#8e8e8e"/>
+          <stop offset=".80" stop-color="#a9a9a9"/>
+          <stop offset=".95" stop-color="#c4c4c4"/>
+          <stop offset="1" stop-color="#cccccc"/>
+        </linearGradient>
+      </defs>
+      <path d="M21.5 0 L21.5 19.5 L31.5 19.5 L31.5 29 L10 48.5 L10 28.5 L0.5 28.5 L0.5 18.5 Z" fill="url(#bg1)"/>
+      <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/>
+      <rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
     </svg>
     <span class="word">RelationSync<span class="dim">.AI</span></span>
   </a>
   <a class="back-link" href="cabinet.html">← Кабинет</a>
 </header>
 
-<main class="couple-main">
+<div id="pageLoading" class="page-loading"><span class="spinner"></span><span>Загрузка…</span></div>
+
+<main class="couple-main" id="pageContent" style="display:none;">
 
   <section class="couple-hero">
     <div class="couple-hero-text">
@@ -334,12 +361,14 @@
     createCoupleInvite, acceptCoupleInvite, getCoupleLink, getPendingInvite,
     getPartnerId, unlinkCouple, startHeartbeat, getPartnerLastSeen, formatOnlineStatus,
     COUPLE_TEST_META, loadCoupleTestResults, computeCoupleMatchScore, scoreLabel,
-    hasCoupleFullAccess,
   } from "./assets/couple-features.js";
 
   const MODE_KEY = "relationsync_couple_mode_enabled";
 
-  let client, session, userId, coupleLink;
+  let client = null;
+  let userId = null;
+  let coupleLink = null;
+  let ready = false;
 
   function showMsg(text, type) {
     const el = document.getElementById("linkMsg");
@@ -347,19 +376,19 @@
     el.className = "link-msg show " + type;
   }
 
-  function renderModeToggle() {
-    const on = localStorage.getItem(MODE_KEY) === "1";
-    document.getElementById("modeSwitch").classList.toggle("on", on);
-    document.getElementById("modeToggleLabel").textContent = "Режим пары: " + (on ? "включён" : "выключен");
-    document.getElementById("linkPanel").style.display = on ? "" : "none";
-    document.getElementById("coupleActiveWrap").style.display = (on && coupleLink) ? "" : "none";
+  function isModeOn() {
+    return localStorage.getItem(MODE_KEY) === "1";
   }
 
-  document.getElementById("modeSwitch").addEventListener("click", () => {
-    const on = localStorage.getItem(MODE_KEY) === "1";
-    localStorage.setItem(MODE_KEY, on ? "0" : "1");
-    renderModeToggle();
-  });
+  function renderModeToggle() {
+    const on = isModeOn();
+    document.getElementById("modeSwitch").classList.toggle("on", on);
+    document.getElementById("modeToggleLabel").textContent = "Режим пары: " + (on ? "включён" : "выключен");
+    // Панель привязки видна всегда, когда режим включён и пары ещё нет.
+    // Если пара уже есть — показываем экран пары, а панель привязки скрываем.
+    document.getElementById("linkPanel").style.display = (on && !coupleLink) ? "" : "none";
+    document.getElementById("coupleActiveWrap").style.display = (on && coupleLink) ? "" : "none";
+  }
 
   async function renderCoupleTests() {
     const grid = document.getElementById("coupleTestsGrid");
@@ -396,7 +425,6 @@
     const mine = results.find(r => r.user_id === userId);
     const partnerId = getPartnerId(coupleLink, userId);
     const partnerResult = results.find(r => r.user_id === partnerId);
-
     if (!mine || !partnerResult) return;
 
     const match = computeCoupleMatchScore(mine.answers, partnerResult.answers);
@@ -417,23 +445,54 @@
     });
   }
 
+  async function refreshCoupleScreens() {
+    if (!coupleLink) return;
+    await renderCoupleTests();
+    await renderPartnerStatus();
+    await renderCoupleResult();
+  }
+
   async function init() {
-    if (!isConfigured()) return;
-    client = getClient();
-    session = await getSession(client);
+    if (!isConfigured()) {
+      document.getElementById("pageLoading").innerHTML =
+        '<span>Supabase не настроен. Проверьте assets/supabase-config.js</span>';
+      return;
+    }
+
+    try {
+      client = getClient();
+    } catch (err) {
+      console.error("getClient failed:", err);
+      document.getElementById("pageLoading").innerHTML = '<span>Ошибка подключения к Supabase.</span>';
+      return;
+    }
+
+    let session;
+    try {
+      session = await getSession(client);
+    } catch (err) {
+      console.error("getSession failed:", err);
+      document.getElementById("pageLoading").innerHTML = '<span>Ошибка проверки сессии.</span>';
+      return;
+    }
+
     if (!session) { window.location.href = "login.html"; return; }
     userId = session.user.id;
 
     startHeartbeat(client, userId);
-
     coupleLink = await getCoupleLink(client, userId);
-    if (!localStorage.getItem(MODE_KEY)) localStorage.setItem(MODE_KEY, coupleLink ? "1" : "0");
+
+    if (!localStorage.getItem(MODE_KEY)) {
+      localStorage.setItem(MODE_KEY, coupleLink ? "1" : "0");
+    }
+
+    document.getElementById("pageLoading").style.display = "none";
+    document.getElementById("pageContent").style.display = "";
+
     renderModeToggle();
 
     if (coupleLink) {
-      await renderCoupleTests();
-      await renderPartnerStatus();
-      await renderCoupleResult();
+      await refreshCoupleScreens();
       setInterval(renderPartnerStatus, 60 * 1000);
     } else {
       const pending = await getPendingInvite(client, userId);
@@ -443,9 +502,18 @@
         document.getElementById("generateCodeBtn").textContent = "Создать новый код";
       }
     }
+
+    ready = true; // только теперь кнопки могут безопасно использовать client/userId
   }
 
+  document.getElementById("modeSwitch").addEventListener("click", () => {
+    const on = isModeOn();
+    localStorage.setItem(MODE_KEY, on ? "0" : "1");
+    renderModeToggle();
+  });
+
   document.getElementById("generateCodeBtn").addEventListener("click", async () => {
+    if (!ready || !client) { showMsg("Страница ещё загружается, подождите секунду и попробуйте снова.", "error"); return; }
     try {
       const invite = await createCoupleInvite(client, userId);
       document.getElementById("codeBlock").style.display = "";
@@ -453,6 +521,7 @@
       document.getElementById("generateCodeBtn").textContent = "Создать новый код";
       showMsg("Код создан. Отправьте его партнёру — он действует 30 минут.", "ok");
     } catch (err) {
+      console.error(err);
       showMsg(err.message || "Не удалось создать код", "error");
     }
   });
@@ -464,22 +533,22 @@
   });
 
   document.getElementById("acceptCodeBtn").addEventListener("click", async () => {
+    if (!ready || !client) { showMsg("Страница ещё загружается, подождите секунду и попробуйте снова.", "error"); return; }
     const input = document.getElementById("acceptCodeInput");
     try {
       coupleLink = await acceptCoupleInvite(client, userId, input.value);
       showMsg("Готово! Ваши аккаунты связаны.", "ok");
       localStorage.setItem(MODE_KEY, "1");
       renderModeToggle();
-      await renderCoupleTests();
-      await renderPartnerStatus();
-      await renderCoupleResult();
+      await refreshCoupleScreens();
     } catch (err) {
+      console.error(err);
       showMsg(err.message || "Не удалось связать аккаунты", "error");
     }
   });
 
   document.getElementById("unlinkBtn").addEventListener("click", async () => {
-    if (!coupleLink) return;
+    if (!ready || !coupleLink) return;
     if (!confirm("Отвязать аккаунт партнёра? Совместные результаты сохранятся, но перестанут обновляться.")) return;
     await unlinkCouple(client, coupleLink.id);
     coupleLink = null;
