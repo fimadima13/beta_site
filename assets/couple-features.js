@@ -2,13 +2,9 @@
 // Модуль режима "Пара" (Couple Mode): привязка аккаунтов, статус "онлайн",
 // совместные тесты и общий результат пары.
 //
-// Подключается ДОПОЛНИТЕЛЬНО к auth.js на странице couple.html:
-//   <script type="module" src="./auth.js"></script>
-//   <script type="module" src="./couple-features.js"></script>
-//
-// Ничего не меняет в существующем auth.js — использует его экспорт getClient().
-
-import { getClient, getSession } from "./auth.js";
+// Использует Supabase client, переданный явным аргументом в каждую функцию —
+// НЕ создаёт свой собственный клиент и не импортирует getClient() напрямую,
+// чтобы исключить рассинхронизацию с уже инициализированным client на странице.
 
 const VALID_TEST_KEYS = ["couple_sync", "couple_values"];
 
@@ -23,8 +19,14 @@ function generateInviteCode() {
   return code;
 }
 
+function assertClient(client) {
+  if (!client || typeof client.from !== "function") {
+    throw new Error("Supabase-клиент не инициализирован. Обновите страницу и попробуйте снова.");
+  }
+}
+
 export async function createCoupleInvite(client, userId) {
-  // Отзываем предыдущие неиспользованные приглашения этого пользователя
+  assertClient(client);
   await client.from("couple_links").update({ status: "revoked" })
     .eq("user_a_id", userId).eq("status", "pending");
 
@@ -37,6 +39,7 @@ export async function createCoupleInvite(client, userId) {
 }
 
 export async function acceptCoupleInvite(client, userId, rawCode) {
+  assertClient(client);
   const code = String(rawCode || "").trim().toUpperCase();
   if (!code) throw new Error("Введите код приглашения");
 
@@ -55,6 +58,7 @@ export async function acceptCoupleInvite(client, userId, rawCode) {
 }
 
 export async function getCoupleLink(client, userId) {
+  assertClient(client);
   try {
     const { data, error } = await client.from("couple_links")
       .select("*")
@@ -70,6 +74,7 @@ export async function getCoupleLink(client, userId) {
 }
 
 export async function getPendingInvite(client, userId) {
+  assertClient(client);
   try {
     const { data, error } = await client.from("couple_links")
       .select("*")
@@ -92,6 +97,7 @@ export function getPartnerId(coupleLink, myUserId) {
 }
 
 export async function unlinkCouple(client, coupleLinkId) {
+  assertClient(client);
   const { error } = await client.from("couple_links")
     .update({ status: "revoked" })
     .eq("id", coupleLinkId);
@@ -104,10 +110,11 @@ export async function unlinkCouple(client, coupleLinkId) {
    СТАТУС "ПОСЛЕДНИЙ ОНЛАЙН"
    ============================================================ */
 
-const HEARTBEAT_INTERVAL_MS = 60 * 1000; // раз в 60 секунд
+const HEARTBEAT_INTERVAL_MS = 60 * 1000;
 let heartbeatTimer = null;
 
 export async function pingLastSeen(client, userId) {
+  if (!client || typeof client.from !== "function") return;
   try {
     await client.from("couple_profiles")
       .upsert({ user_id: userId, last_seen_at: new Date().toISOString() }, { onConflict: "user_id" });
@@ -116,10 +123,8 @@ export async function pingLastSeen(client, userId) {
   }
 }
 
-// Запускается один раз на любой странице кабинета (не только couple.html),
-// чтобы last_seen_at обновлялся, пока пользователь активен на сайте.
 export function startHeartbeat(client, userId) {
-  if (heartbeatTimer) return;
+  if (heartbeatTimer || !client || !userId) return;
   pingLastSeen(client, userId);
   heartbeatTimer = setInterval(() => pingLastSeen(client, userId), HEARTBEAT_INTERVAL_MS);
   document.addEventListener("visibilitychange", () => {
@@ -132,6 +137,7 @@ export function stopHeartbeat() {
 }
 
 export async function getPartnerLastSeen(client, partnerUserId) {
+  assertClient(client);
   try {
     const { data, error } = await client.from("couple_profiles")
       .select("last_seen_at, user_name")
@@ -145,7 +151,6 @@ export async function getPartnerLastSeen(client, partnerUserId) {
   }
 }
 
-// Возвращает { online: bool, label: "в сети" | "был(а) 5 мин назад" | ... }
 export function formatOnlineStatus(lastSeenAt) {
   if (!lastSeenAt) return { online: false, label: "нет данных" };
   const diffMs = Date.now() - new Date(lastSeenAt).getTime();
@@ -178,6 +183,7 @@ export const COUPLE_TEST_META = {
 };
 
 export async function saveCoupleTestResult(client, coupleLinkId, userId, testKey, { answers = {}, scores = {} } = {}) {
+  assertClient(client);
   if (!VALID_TEST_KEYS.includes(testKey)) throw new Error("Неизвестный совместный тест: " + testKey);
   const payload = {
     couple_link_id: coupleLinkId,
@@ -193,6 +199,7 @@ export async function saveCoupleTestResult(client, coupleLinkId, userId, testKey
 }
 
 export async function loadCoupleTestResults(client, coupleLinkId, testKey) {
+  assertClient(client);
   try {
     const { data, error } = await client.from("couple_test_results")
       .select("*")
@@ -207,8 +214,6 @@ export async function loadCoupleTestResults(client, coupleLinkId, testKey) {
   }
 }
 
-// Общий результат пары с оценкой (0-100), на основе совпадения ответов.
-// answers ожидается как { "q1": "a" | "b", ... } — одинаковые ключи вопросов у обоих.
 export function computeCoupleMatchScore(answersA, answersB) {
   const keys = Object.keys(answersA || {});
   if (!keys.length) return { score: null, matched: 0, total: 0, mismatches: [] };
@@ -241,6 +246,7 @@ export function scoreLabel(score) {
    ============================================================ */
 
 export async function hasCoupleFullAccess(client, userId) {
+  assertClient(client);
   try {
     const { data, error } = await client.from("couple_profiles")
       .select("selected_plan").eq("user_id", userId).maybeSingle();
