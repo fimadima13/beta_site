@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#050505">
 <title>Совместимость — RelationSync.AI</title>
-<meta name="description" content="Тесты, темы для обсуждения и генератор свиданий для вашей пары.">
+<meta name="description" content="Тесты, темы для обсуждения, генератор свиданий и прогресс вашей пары.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,9 +23,11 @@
 .progress-label{font-size:12.5px; color:var(--muted); white-space:nowrap; flex-shrink:0;}
 
 .tabs-nav{display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap;}
-.tab-btn{height:40px; padding:0 18px; border-radius:999px; border:1px solid var(--line); font-size:13.5px; font-weight:600; color:var(--nav); background:rgba(255,255,255,.02); transition:background .2s ease, color .2s ease, border-color .2s ease;}
+.tab-btn{height:40px; padding:0 18px; border-radius:999px; border:1px solid var(--line); font-size:13.5px; font-weight:600; color:var(--nav); background:rgba(255,255,255,.02); transition:background .2s ease, color .2s ease, border-color .2s ease; display:inline-flex; align-items:center; gap:7px;}
 .tab-btn:hover{color:#fff; border-color:rgba(255,255,255,.25);}
 .tab-btn.active{background:#fff; color:#050505; border-color:#fff;}
+.tab-count{font-size:11px; font-weight:700; padding:1px 7px; border-radius:999px; background:rgba(255,255,255,.12);}
+.tab-btn.active .tab-count{background:rgba(5,5,5,.15);}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
 
@@ -56,6 +58,9 @@
 .score-ring-inner{width:66px; height:66px; border-radius:50%; background:#0a0a0a; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800;}
 .result-label{font-size:15px; font-weight:700; margin:0 0 4px;}
 .result-sub{font-size:13px; color:var(--muted); margin:0;}
+.result-delta{display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; margin-top:8px; padding:3px 9px; border-radius:999px;}
+.result-delta.up{color:#7ee0a8; background:rgba(126,224,168,.1);}
+.result-delta.down{color:#ff6b6b; background:rgba(255,107,107,.1);}
 .result-explain{font-size:13.5px; color:#d6d6d6; line-height:1.6; margin:16px 0 0; padding-top:16px; border-top:1px solid var(--line);}
 .empty-state{display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; padding:50px 24px; color:var(--muted); font-size:14px;}
 
@@ -65,25 +70,36 @@
 .how-it-works p{font-size:13px; color:#d6d6d6; line-height:1.6; margin:0 0 8px;}
 .how-it-works .hint{font-size:12.5px; color:var(--muted); margin:0;}
 
+.discuss-filters{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
+.df-btn{height:36px; padding:0 16px; border-radius:999px; border:1px solid var(--line); font-size:12.5px; font-weight:600; color:var(--nav); background:rgba(255,255,255,.02); display:inline-flex; align-items:center; gap:6px;}
+.df-btn.active{background:#fff; color:#050505; border-color:#fff;}
+.df-count{font-size:10.5px; font-weight:700; padding:1px 6px; border-radius:999px; background:rgba(255,255,255,.12);}
+.df-btn.active .df-count{background:rgba(5,5,5,.15);}
+
 .discuss-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
 .discuss-card{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:22px; position:relative;}
 .discuss-card .dc-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
 .dc-icon{display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#ffc16b;}
-.dc-new-badge{font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#ffc16b; border:1px solid rgba(255,193,107,.3); background:rgba(255,193,107,.08); padding:3px 8px; border-radius:999px;}
+.dc-badge{font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:3px 8px; border-radius:999px;}
+.dc-badge.new{color:#ffc16b; border:1px solid rgba(255,193,107,.3); background:rgba(255,193,107,.08);}
+.dc-badge.snoozed{color:var(--muted); border:1px solid var(--line);}
+.dc-badge.discussed{color:#7ee0a8; border:1px solid rgba(126,224,168,.3); background:rgba(126,224,168,.08);}
+.dc-badge.archived{color:var(--muted); border:1px solid var(--line);}
 .dc-question{font-size:14.5px; font-weight:700; color:var(--ink); margin:0 0 14px; line-height:1.4;}
 .dc-answers{display:flex; flex-direction:column; gap:6px; margin-bottom:14px;}
 .dc-answer-row{display:flex; gap:8px; font-size:12.5px; line-height:1.5;}
 .dc-answer-who{color:var(--muted); min-width:56px; flex-shrink:0;}
 .dc-answer-text{color:#e2e2e2;}
 .dc-note{font-size:12.5px; color:var(--muted); line-height:1.55; margin:0 0 16px; padding-top:12px; border-top:1px solid var(--line);}
-.dc-actions{display:flex; gap:8px;}
-.dc-btn{flex:1; height:36px; border-radius:999px; font-size:12.5px; font-weight:600; border:1px solid var(--line); color:var(--nav);}
+.dc-actions{display:flex; gap:6px; flex-wrap:wrap;}
+.dc-btn{flex:1; min-width:90px; height:36px; border-radius:999px; font-size:12px; font-weight:600; border:1px solid var(--line); color:var(--nav);}
 .dc-btn.primary{background:#7ee0a8; color:#050505; border-color:#7ee0a8;}
 .dc-btn:hover{opacity:.9;}
-.discuss-card.discussed{opacity:.55;}
+.discuss-card.discussed{opacity:.7;}
+.discuss-card.archived{opacity:.55;}
 
 /* ---------- Генератор свиданий ---------- */
-.generator-panel{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:28px;}
+.generator-panel{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:28px; margin-bottom:24px;}
 .generator-panel h2{font-size:16px; font-weight:700; margin:0 0 4px;}
 .generator-panel .sub{font-size:13px; color:var(--muted); margin:0 0 20px;}
 .filter-group{margin-bottom:16px;}
@@ -91,20 +107,50 @@
 .chip-row{display:flex; gap:8px; flex-wrap:wrap;}
 .chip{height:36px; padding:0 16px; border-radius:999px; border:1px solid var(--line); font-size:13px; font-weight:600; color:var(--nav); background:rgba(255,255,255,.02);}
 .chip.active{background:#fff; color:#050505; border-color:#fff;}
+.surprise-toggle{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
+.surprise-switch{position:relative; width:42px; height:24px; border-radius:999px; background:rgba(255,255,255,.12); border:1px solid var(--line); flex-shrink:0;}
+.surprise-switch::after{content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .2s ease;}
+.surprise-switch.on{background:#ffc16b; border-color:rgba(255,193,107,.4);}
+.surprise-switch.on::after{transform:translateX(18px);}
 .gen-cta{width:100%; height:48px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:14.5px; font-weight:700; margin-top:8px;}
 .idea-result{margin-top:22px; border:1px solid rgba(126,224,168,.25); background:rgba(126,224,168,.05); border-radius:16px; padding:24px; display:none;}
 .idea-result.show{display:block;}
 .idea-emoji{font-size:22px; margin-bottom:10px;}
 .idea-text{font-size:15px; font-weight:600; color:var(--ink); line-height:1.5; margin:0 0 14px;}
 .idea-explain{font-size:12.5px; color:var(--muted); line-height:1.55; margin:0 0 18px; padding-top:14px; border-top:1px solid var(--line);}
-.idea-actions{display:flex; gap:10px; flex-wrap:wrap;}
+.idea-actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
 .idea-btn{height:40px; padding:0 18px; border-radius:999px; font-size:13px; font-weight:600;}
 .idea-btn.save{background:var(--pill); color:var(--pill-ink);}
 .idea-btn.retry{border:1px solid var(--line); color:#fff;}
+.react-row{display:flex; gap:8px; margin-left:auto;}
+.react-btn{width:40px; height:40px; border-radius:999px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:16px;}
+.react-btn.active-like{background:rgba(126,224,168,.15); border-color:rgba(126,224,168,.4);}
+.react-btn.active-dislike{background:rgba(255,107,107,.15); border-color:rgba(255,107,107,.4);}
+
+.history-list{display:flex; flex-direction:column; gap:10px;}
+.history-item{border:1px solid var(--line); background:var(--card); border-radius:14px; padding:16px 18px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.history-text{flex:1; font-size:13px; color:#e2e2e2; line-height:1.5; min-width:200px;}
+.history-reaction{font-size:16px;}
+.history-happened-btn{height:32px; padding:0 14px; border-radius:999px; border:1px solid var(--line); font-size:12px; font-weight:600; color:var(--nav);}
+.history-happened-btn.done{color:#7ee0a8; border-color:rgba(126,224,168,.3); background:rgba(126,224,168,.08);}
+
+/* ---------- Прогресс ---------- */
+.progress-cards{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px;}
+.progress-stat{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:22px; text-align:center;}
+.progress-stat .num{font-size:28px; font-weight:800; color:var(--ink); margin-bottom:4px;}
+.progress-stat .label{font-size:12.5px; color:var(--muted);}
+.retest-banner{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:24px; margin-bottom:20px;}
+.retest-banner h3{font-size:15px; font-weight:700; margin:0 0 8px;}
+.retest-banner p{font-size:13px; color:var(--muted); line-height:1.55; margin:0 0 16px;}
+.retest-btn{height:42px; padding:0 20px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:13.5px; font-weight:600;}
+.premium-banner{display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; border:1px solid rgba(255,193,107,.25); background:rgba(255,193,107,.06); border-radius:16px; padding:22px 26px;}
+.premium-banner h3{font-size:16px; font-weight:700; margin:0 0 6px; color:#fff;}
+.premium-banner p{font-size:13px; color:var(--muted); margin:0; max-width:480px; line-height:1.5;}
+.premium-cta{display:inline-flex; align-items:center; justify-content:center; height:46px; padding:0 24px; border-radius:999px; background:#ffc16b; color:#050505; font-size:14px; font-weight:700; white-space:nowrap; flex-shrink:0;}
 
 .page-loading{flex:1; display:flex; align-items:center; justify-content:center; gap:10px; color:var(--muted); font-size:14px; padding:60px 24px;}
 
-@media (max-width: 900px){ .couple-grid{grid-template-columns:1fr;} .discuss-grid{grid-template-columns:1fr;} }
+@media (max-width: 900px){ .couple-grid{grid-template-columns:1fr;} .discuss-grid{grid-template-columns:1fr;} .progress-cards{grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
@@ -130,7 +176,7 @@
 
   <section class="couple-hero">
     <h1>Совместимость</h1>
-    <p>Тесты, темы для разговора и идеи для свиданий — всё, что помогает лучше понимать друг друга, в одном месте.</p>
+    <p>Тесты, темы для разговора, идеи для свиданий и ваш общий прогресс — всё, что помогает лучше понимать друг друга, в одном месте.</p>
     <div class="progress-row">
       <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
       <span class="progress-label" id="progressLabel">0 из 3 тестов пройдены вместе</span>
@@ -145,8 +191,9 @@
   <div id="linkedContent" style="display:none">
     <nav class="tabs-nav">
       <button class="tab-btn active" data-tab="tests">Тесты</button>
-      <button class="tab-btn" data-tab="discuss">Темы для обсуждения</button>
+      <button class="tab-btn" data-tab="discuss">Темы для обсуждения <span class="tab-count" id="discussCount">0</span></button>
       <button class="tab-btn" data-tab="dates">Генератор свиданий</button>
+      <button class="tab-btn" data-tab="progress">Прогресс</button>
     </nav>
 
     <!-- ===== ВКЛАДКА: ТЕСТЫ + ОТЧЁТЫ ===== -->
@@ -165,7 +212,12 @@
       <div class="how-it-works">
         <h3>💬 Как это работает</h3>
         <p>Каждая карточка — вопрос, где ваши ответы с партнёром разошлись в одном из тестов. Это не проблема и не тест на правильность, а повод для короткого личного разговора.</p>
-        <p class="hint">Обсудите карточку вслух, лично вдвоём — не в переписке. Когда почувствуете, что поняли позицию друг друга, отметьте «Обсудили».</p>
+        <p class="hint">Обсудите карточку вслух, лично вдвоём — не в переписке. «Позже» отложит карточку на неделю, «В архив» уберёт её из списка — вернуть можно в любой момент из вкладки «Архив».</p>
+      </div>
+      <div class="discuss-filters">
+        <button class="df-btn active" data-filter="active">Активные <span class="df-count" id="countActive">0</span></button>
+        <button class="df-btn" data-filter="discussed">Обсуждены <span class="df-count" id="countDiscussed">0</span></button>
+        <button class="df-btn" data-filter="archived">Архив <span class="df-count" id="countArchived">0</span></button>
       </div>
       <div class="discuss-grid" id="discussGrid"></div>
     </section>
@@ -174,7 +226,7 @@
     <section class="tab-panel" id="panel-dates">
       <div class="generator-panel">
         <h2>Генератор свиданий</h2>
-        <p class="sub">Выберите параметры — мы подберём идею с учётом вашей анкеты.</p>
+        <p class="sub">Выберите параметры — мы подберём идею с учётом вашей анкеты и того, что вам уже нравилось.</p>
 
         <div class="filter-group">
           <span class="filter-label">Бюджет</span>
@@ -202,6 +254,10 @@
             <button class="chip" data-value="day">Выходной день</button>
           </div>
         </div>
+        <div class="surprise-toggle">
+          <div class="surprise-switch" id="surpriseSwitch"></div>
+          <span class="filter-label" style="margin:0">Только идеи с элементом сюрприза</span>
+        </div>
 
         <button class="gen-cta" id="generateIdeaBtn">Сгенерировать идею</button>
 
@@ -212,8 +268,41 @@
           <div class="idea-actions">
             <button class="idea-btn save" id="saveIdeaBtn">Сохранить в важные даты</button>
             <button class="idea-btn retry" id="retryIdeaBtn">Ещё раз</button>
+            <div class="react-row">
+              <button class="react-btn" id="likeBtn" title="Нравится">👍</button>
+              <button class="react-btn" id="dislikeBtn" title="Не нравится">👎</button>
+            </div>
           </div>
         </div>
+      </div>
+
+      <h2 class="section-title">Ваши прошлые идеи</h2>
+      <p class="section-sub">История сгенерированных свиданий и то, что из этого случилось.</p>
+      <div class="history-list" id="historyList"></div>
+    </section>
+
+    <!-- ===== ВКЛАДКА: ПРОГРЕСС ===== -->
+    <section class="tab-panel" id="panel-progress">
+      <h2 class="section-title">Ваш путь вместе</h2>
+      <p class="section-sub">Что вы уже прошли и куда двигаться дальше.</p>
+      <div class="progress-cards">
+        <div class="progress-stat"><div class="num" id="statTests">0</div><div class="label">тестов пройдено</div></div>
+        <div class="progress-stat"><div class="num" id="statDiscussed">0</div><div class="label">тем обсуждено</div></div>
+        <div class="progress-stat"><div class="num" id="statDates">0</div><div class="label">свиданий случилось</div></div>
+      </div>
+
+      <div class="retest-banner" id="retestBanner" style="display:none">
+        <h3>Пройдите тесты заново</h3>
+        <p>С последнего прохождения прошло время — динамика в отношениях меняется. Пройдите тесты снова и сравните результат с прошлым разом.</p>
+        <button class="retest-btn" onclick="document.querySelector('[data-tab=tests]').click()">Перейти к тестам</button>
+      </div>
+
+      <div class="premium-banner">
+        <div>
+          <h3>Готовы к большему?</h3>
+          <p>На тарифе «Для пары» — общий чек-лист с задачами на двоих, полное сравнение всех личных тестов и совместный дневник конфликтов.</p>
+        </div>
+        <a class="premium-cta" href="pricing.html?plan=couple">Перейти на «Для пары»</a>
       </div>
     </section>
   </div>
@@ -222,14 +311,17 @@
 
 <script type="module">
 import { getClient, isConfigured, getSession, loadCoupleProfile } from "./assets/auth.js";
-import { getCoupleLink, getPartnerId, startHeartbeat, COUPLE_TEST_META, COUPLE_QUESTION_BANKS, loadCoupleTestResults, computeCoupleMatchScore, scoreLabel, scoreExplanation } from "./assets/couple-features.js";
-import { syncDiscussionCards, loadDiscussionCards, markDiscussionCard, DATE_IDEAS, filterDateIdeas, explainDateIdea, pickRandomDateIdea, saveDateIdeaToImportantDates } from "./assets/discussion-and-dates.js";
+import { getCoupleLink, getPartnerId, startHeartbeat, COUPLE_TEST_META, COUPLE_QUESTION_BANKS, loadCoupleTestResults, computeCoupleMatchScore, scoreLabel, scoreExplanation, compareWithPreviousResult } from "./assets/couple-features.js";
+import { syncDiscussionCards, loadDiscussionCards, countDiscussionCardsByStatus, markDiscussionCard, DATE_IDEAS, filterDateIdeas, explainDateIdea, pickWeightedDateIdea, saveDateIdeaToImportantDates, loadDateHistory, saveIdeaToHistory, reactToDateHistoryEntry, markDateHappened, getDislikedIdeaIds, getLikedTags } from "./assets/discussion-and-dates.js";
 
 let client = null;
 let userId = null;
 let coupleLink = null;
 let coupleProfile = null;
 let currentIdea = null;
+let currentHistoryEntryId = null;
+let discussFilter = "active";
+let surpriseOnly = false;
 const activeFilters = { budget: "", format: "", duration: "" };
 
 document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -248,6 +340,20 @@ document.querySelectorAll(".chip-row").forEach(row => {
       chip.classList.add("active");
       activeFilters[row.dataset.group] = chip.dataset.value;
     });
+  });
+});
+
+document.getElementById("surpriseSwitch").addEventListener("click", function() {
+  surpriseOnly = !surpriseOnly;
+  this.classList.toggle("on", surpriseOnly);
+});
+
+document.querySelectorAll(".df-btn").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    document.querySelectorAll(".df-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    discussFilter = btn.dataset.filter;
+    await renderDiscussionCards();
   });
 });
 
@@ -291,6 +397,7 @@ async function renderCoupleTests() {
 
   document.getElementById("progressFill").style.width = Math.round((doneCount / totalCount) * 100) + "%";
   document.getElementById("progressLabel").textContent = doneCount + " из " + totalCount + " тестов пройдены вместе";
+  return doneCount;
 }
 
 async function renderReports() {
@@ -301,17 +408,26 @@ async function renderReports() {
 
   for (const [key, meta] of Object.entries(COUPLE_TEST_META)) {
     const results = await loadCoupleTestResults(client, coupleLink.id, key);
-    const mine = results.find(r => r.user_id === userId);
-    const partner = results.find(r => r.user_id === partnerId);
-    if (!mine || !partner) continue;
+    const mine = results.filter(r => r.user_id === userId);
+    const partner = results.filter(r => r.user_id === partnerId);
+    if (!mine.length || !partner.length) continue;
     anyReport = true;
 
-    const match = computeCoupleMatchScore(mine.answers, partner.answers);
+    const match = computeCoupleMatchScore(mine[0].answers, partner[0].answers);
+    const comparison = compareWithPreviousResult(mine, partner);
+
+    let deltaHtml = "";
+    if (comparison && comparison.delta !== 0) {
+      const arrow = comparison.delta > 0 ? "↑" : "↓";
+      const cls = comparison.delta > 0 ? "up" : "down";
+      deltaHtml = '<div class="result-delta ' + cls + '">' + arrow + " " + Math.abs(comparison.delta) + "% с прошлого раза</div>";
+    }
+
     const card = document.createElement("div");
     card.className = "result-card";
     card.innerHTML = '<div class="result-score"><div class="score-ring" style="--pct:' + match.score + '"><div class="score-ring-inner"><span>' + match.score + "%</span></div></div>" +
       "<div><p class=\"result-label\">" + meta.title + " — " + scoreLabel(match.score) + "</p>" +
-      "<p class=\"result-sub\">" + match.matched + " из " + match.total + " ответов совпало</p></div></div>" +
+      "<p class=\"result-sub\">" + match.matched + " из " + match.total + " ответов совпало</p>" + deltaHtml + "</div></div>" +
       '<p class="result-explain">' + scoreExplanation(match.score) + "</p>";
     container.appendChild(card);
   }
@@ -329,14 +445,26 @@ function findQuestionText(testKey, questionId) {
   return bank.find(q => q.id === questionId);
 }
 
+async function renderDiscussCounts() {
+  const counts = await countDiscussionCardsByStatus(client, coupleLink.id);
+  document.getElementById("countActive").textContent = counts.active;
+  document.getElementById("countDiscussed").textContent = counts.discussed;
+  document.getElementById("countArchived").textContent = counts.archived;
+  document.getElementById("discussCount").textContent = counts.active;
+  return counts;
+}
+
 async function renderDiscussionCards() {
   const grid = document.getElementById("discussGrid");
   grid.innerHTML = "";
-  const cards = await loadDiscussionCards(client, coupleLink.id);
+  const cards = await loadDiscussionCards(client, coupleLink.id, discussFilter);
   const partnerId = getPartnerId(coupleLink, userId);
 
   if (!cards.length) {
-    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><span>Пока нет тем для обсуждения.</span><span>Они появятся, когда вы оба пройдёте тест и в ответах найдутся различия.</span></div>';
+    const emptyMsg = discussFilter === "active" ? "Пока нет тем для обсуждения. Они появятся, когда вы оба пройдёте тест и в ответах найдутся различия."
+      : discussFilter === "discussed" ? "Вы ещё ничего не отметили как «Обсудили»."
+      : "Архив пуст.";
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><span>' + emptyMsg + '</span></div>';
     return;
   }
 
@@ -351,52 +479,72 @@ async function renderDiscussionCards() {
     const myAns = q[mine.answers[card.question_id]] || mine.answers[card.question_id];
     const partnerAns = q[partner.answers[card.question_id]] || partner.answers[card.question_id];
 
+    const badgeMap = { new: "Новое", snoozed: "Отложено", discussed: "Обсуждено", archived: "В архиве" };
+
     const el = document.createElement("div");
-    el.className = "discuss-card" + (card.status === "discussed" ? " discussed" : "");
+    el.className = "discuss-card" + (card.status === "discussed" ? " discussed" : "") + (card.status === "archived" ? " archived" : "");
     el.innerHTML = '<div class="dc-top"><span class="dc-icon">💬 Тема для разговора</span>' +
-      (card.status === "new" ? '<span class="dc-new-badge">Новое</span>' : "") + "</div>" +
+      '<span class="dc-badge ' + card.status + '">' + badgeMap[card.status] + "</span></div>" +
       '<p class="dc-question">«' + q.text + '»</p>' +
       '<div class="dc-answers">' +
       '<div class="dc-answer-row"><span class="dc-answer-who">Вы:</span><span class="dc-answer-text">' + myAns + "</span></div>" +
       '<div class="dc-answer-row"><span class="dc-answer-who">Партнёр:</span><span class="dc-answer-text">' + partnerAns + "</span></div>" +
       "</div>" +
       '<p class="dc-note">Это не значит, что кто-то неправ — у вас просто разные способы смотреть на это. Стоит обсудить лично, вдвоём.</p>' +
-      '<div class="dc-actions">' +
-      (card.status === "discussed"
-        ? '<button class="dc-btn" disabled>Обсуждено ✓</button>'
-        : '<button class="dc-btn primary" data-id="' + card.id + '" data-action="discussed">Обсудили</button>') +
-      '<button class="dc-btn" data-id="' + card.id + '" data-action="hidden">Скрыть</button>' +
-      "</div>";
+      '<div class="dc-actions">' + buildActionsHtml(card) + "</div>";
     grid.appendChild(el);
   }
 
   grid.querySelectorAll("[data-action]").forEach(btn => {
     btn.addEventListener("click", async () => {
       await markDiscussionCard(client, btn.dataset.id, btn.dataset.action);
+      await renderDiscussCounts();
       await renderDiscussionCards();
     });
   });
 }
 
+function buildActionsHtml(card) {
+  if (card.status === "new" || card.status === "snoozed") {
+    return '<button class="dc-btn primary" data-id="' + card.id + '" data-action="discussed">✓ Обсудили</button>' +
+      '<button class="dc-btn" data-id="' + card.id + '" data-action="snoozed">🕓 Позже</button>' +
+      '<button class="dc-btn" data-id="' + card.id + '" data-action="archived">🗄 В архив</button>';
+  }
+  if (card.status === "discussed") {
+    return '<button class="dc-btn" data-id="' + card.id + '" data-action="archived">🗄 В архив</button>' +
+      '<button class="dc-btn" data-id="' + card.id + '" data-action="restore">↺ Вернуть в активные</button>';
+  }
+  return '<button class="dc-btn primary" data-id="' + card.id + '" data-action="restore">↺ Вернуть в активные</button>';
+}
+
 function renderIdea(idea) {
   currentIdea = idea;
+  currentHistoryEntryId = null;
   document.getElementById("ideaResult").classList.add("show");
   document.getElementById("ideaText").textContent = idea.text;
   document.getElementById("ideaExplain").textContent = explainDateIdea(idea, coupleProfile);
+  document.getElementById("likeBtn").classList.remove("active-like");
+  document.getElementById("dislikeBtn").classList.remove("active-dislike");
+  document.getElementById("saveIdeaBtn").textContent = "Сохранить в важные даты";
 }
 
-document.getElementById("generateIdeaBtn").addEventListener("click", () => {
-  const filtered = filterDateIdeas(activeFilters);
-  const idea = pickRandomDateIdea(filtered.length ? filtered : DATE_IDEAS);
-  if (idea) renderIdea(idea);
-});
+async function generateIdea() {
+  const history = await loadDateHistory(client, coupleLink.id);
+  const disliked = getDislikedIdeaIds(history);
+  const likedTags = getLikedTags(history);
+  const filtered = filterDateIdeas({ ...activeFilters, surpriseOnly }, disliked);
+  const pool = filtered.length ? filtered : filterDateIdeas({ ...activeFilters, surpriseOnly });
+  const idea = pickWeightedDateIdea(pool.length ? pool : DATE_IDEAS, likedTags);
+  if (idea) {
+    renderIdea(idea);
+    const entry = await saveIdeaToHistory(client, coupleLink.id, idea);
+    currentHistoryEntryId = entry.id;
+    await renderHistory();
+  }
+}
 
-document.getElementById("retryIdeaBtn").addEventListener("click", () => {
-  const filtered = filterDateIdeas(activeFilters);
-  const pool = (filtered.length ? filtered : DATE_IDEAS).filter(i => !currentIdea || i.id !== currentIdea.id);
-  const idea = pickRandomDateIdea(pool.length ? pool : DATE_IDEAS);
-  if (idea) renderIdea(idea);
-});
+document.getElementById("generateIdeaBtn").addEventListener("click", generateIdea);
+document.getElementById("retryIdeaBtn").addEventListener("click", generateIdea);
 
 document.getElementById("saveIdeaBtn").addEventListener("click", async () => {
   if (!currentIdea) return;
@@ -405,6 +553,72 @@ document.getElementById("saveIdeaBtn").addEventListener("click", async () => {
     document.getElementById("saveIdeaBtn").textContent = "Сохранено ✓";
   } catch (err) { console.error(err); alert("Не удалось сохранить. Попробуйте снова."); }
 });
+
+document.getElementById("likeBtn").addEventListener("click", async () => {
+  if (!currentHistoryEntryId) return;
+  await reactToDateHistoryEntry(client, currentHistoryEntryId, "like");
+  document.getElementById("likeBtn").classList.add("active-like");
+  document.getElementById("dislikeBtn").classList.remove("active-dislike");
+  await renderHistory();
+});
+document.getElementById("dislikeBtn").addEventListener("click", async () => {
+  if (!currentHistoryEntryId) return;
+  await reactToDateHistoryEntry(client, currentHistoryEntryId, "dislike");
+  document.getElementById("dislikeBtn").classList.add("active-dislike");
+  document.getElementById("likeBtn").classList.remove("active-like");
+  await renderHistory();
+});
+
+async function renderHistory() {
+  const list = document.getElementById("historyList");
+  const history = await loadDateHistory(client, coupleLink.id);
+  list.innerHTML = "";
+  if (!history.length) {
+    list.innerHTML = '<div class="empty-state"><span>Пока нет сгенерированных идей.</span></div>';
+    return;
+  }
+  history.slice(0, 15).forEach(entry => {
+    const reactionEmoji = entry.reaction === "like" ? "👍" : entry.reaction === "dislike" ? "👎" : "";
+    const el = document.createElement("div");
+    el.className = "history-item";
+    el.innerHTML = '<span class="history-text">' + entry.idea_text + "</span>" +
+      (reactionEmoji ? '<span class="history-reaction">' + reactionEmoji + "</span>" : "") +
+      '<button class="history-happened-btn ' + (entry.happened ? "done" : "") + '" data-id="' + entry.id + '">' +
+      (entry.happened ? "Сходили ✓" : "Отметить, что сходили") + "</button>";
+    list.appendChild(el);
+  });
+  list.querySelectorAll(".history-happened-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const isDone = btn.classList.contains("done");
+      await markDateHappened(client, btn.dataset.id, !isDone);
+      await renderHistory();
+    });
+  });
+}
+
+async function renderProgress(testsDone) {
+  const counts = await countDiscussionCardsByStatus(client, coupleLink.id);
+  const history = await loadDateHistory(client, coupleLink.id);
+  const happenedCount = history.filter(h => h.happened).length;
+
+  document.getElementById("statTests").textContent = testsDone;
+  document.getElementById("statDiscussed").textContent = counts.discussed;
+  document.getElementById("statDates").textContent = happenedCount;
+
+  let oldestCompletedAt = null;
+  for (const key of Object.keys(COUPLE_TEST_META)) {
+    const results = await loadCoupleTestResults(client, coupleLink.id, key);
+    const mine = results.find(r => r.user_id === userId);
+    if (mine) {
+      const d = new Date(mine.completed_at);
+      if (!oldestCompletedAt || d < oldestCompletedAt) oldestCompletedAt = d;
+    }
+  }
+  if (oldestCompletedAt) {
+    const daysSince = Math.floor((Date.now() - oldestCompletedAt.getTime()) / (1000 * 60 * 60 * 24));
+    if (daysSince >= 90) document.getElementById("retestBanner").style.display = "block";
+  }
+}
 
 async function init() {
   if (!isConfigured()) { document.getElementById("pageLoading").innerHTML = "<span>Supabase не настроен.</span>"; return; }
@@ -429,9 +643,12 @@ async function init() {
   }
 
   document.getElementById("linkedContent").style.display = "block";
-  await renderCoupleTests();
+  const testsDone = await renderCoupleTests();
   await renderReports();
+  await renderDiscussCounts();
   await renderDiscussionCards();
+  await renderHistory();
+  await renderProgress(testsDone);
 }
 
 init();
