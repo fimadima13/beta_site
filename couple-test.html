@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#050505">
-<title>Совместные тесты — RelationSync.AI</title>
-<meta name="description" content="Пройдите тесты вдвоём и получите общий отчёт с процентом совпадения.">
+<title>Совместимость — RelationSync.AI</title>
+<meta name="description" content="Тесты, темы для обсуждения и генератор свиданий для вашей пары.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,30 +15,41 @@
 .couple-main{max-width:1100px; width:100%; margin:0 auto; padding:36px 24px 90px; flex:1;}
 .couple-hero{border:1px solid var(--line); background:var(--card); border-radius:20px; padding:28px; margin-bottom:24px;}
 .couple-hero h1{font-size:22px; font-weight:700; margin:0 0 8px; letter-spacing:-.01em;}
-.couple-hero p{font-size:14px; color:var(--muted); margin:0; max-width:520px; line-height:1.55;}
+.couple-hero p{font-size:14px; color:var(--muted); margin:0; max-width:560px; line-height:1.55;}
 
-.not-linked{
-  border:1px solid var(--line); background:var(--card); border-radius:16px;
-  padding:50px 24px; text-align:center; color:var(--muted); font-size:14px;
-}
+.progress-row{display:flex; align-items:center; gap:14px; margin-top:18px;}
+.progress-track{flex:1; height:8px; border-radius:999px; background:rgba(255,255,255,.08); overflow:hidden;}
+.progress-fill{height:100%; background:#7ee0a8; border-radius:999px; transition:width .4s ease;}
+.progress-label{font-size:12.5px; color:var(--muted); white-space:nowrap; flex-shrink:0;}
+
+.tabs-nav{display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap;}
+.tab-btn{height:40px; padding:0 18px; border-radius:999px; border:1px solid var(--line); font-size:13.5px; font-weight:600; color:var(--nav); background:rgba(255,255,255,.02); transition:background .2s ease, color .2s ease, border-color .2s ease;}
+.tab-btn:hover{color:#fff; border-color:rgba(255,255,255,.25);}
+.tab-btn.active{background:#fff; color:#050505; border-color:#fff;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+.not-linked{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:50px 24px; text-align:center; color:var(--muted); font-size:14px;}
 .not-linked a{color:#fff; text-decoration:underline;}
 
 .section-title{font-size:15px; font-weight:700; margin:0 0 4px;}
 .section-sub{font-size:13px; color:var(--muted); margin:0 0 16px;}
 
-.couple-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:32px;}
+/* ---------- Тесты ---------- */
+.couple-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:32px;}
 .test-card{position:relative; border:1px solid var(--line); background:var(--card); border-radius:16px; padding:22px 22px 20px; transition:background .25s ease, border-color .25s ease;}
 .test-card:hover{background:var(--card-hover); border-color:rgba(255,255,255,.18);}
-.test-card h3{font-size:15.5px; font-weight:700; margin:10px 0 8px;}
-.test-card p{font-size:13px; color:var(--muted); line-height:1.5; margin:0 0 14px;}
+.test-card h3{font-size:15px; font-weight:700; margin:10px 0 8px;}
+.test-card p{font-size:12.5px; color:var(--muted); line-height:1.5; margin:0 0 14px;}
 .test-cta{display:inline-flex; align-items:center; justify-content:center; gap:6px; height:38px; padding:0 16px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:13px; font-weight:600;}
 .test-status-row{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;}
-.test-status-chip{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted);}
+.test-status-chip{display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600; padding:4px 9px; border-radius:999px; border:1px solid var(--line); color:var(--muted);}
 .test-status-chip.done{color:#7ee0a8; border-color:rgba(126,224,168,.3); background:rgba(126,224,168,.08);}
 .test-status-chip.waiting{color:#ffc16b; border-color:rgba(255,193,107,.3); background:rgba(255,193,107,.08);}
 .test-status-dot{width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0;}
-.badge-free{display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#7ee0a8; border:1px solid rgba(126,224,168,.3); background:rgba(126,224,168,.08); padding:4px 10px; border-radius:999px;}
+.badge-free{display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#7ee0a8; border:1px solid rgba(126,224,168,.3); background:rgba(126,224,168,.08); padding:4px 9px; border-radius:999px;}
 
+/* ---------- Отчёты ---------- */
 .result-card{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:26px; margin-bottom:20px;}
 .result-score{display:flex; align-items:center; gap:20px; margin-bottom:16px; flex-wrap:wrap;}
 .score-ring{width:84px; height:84px; border-radius:50%; flex-shrink:0; background:conic-gradient(#7ee0a8 calc(var(--pct)*1%), rgba(255,255,255,.08) 0); display:flex; align-items:center; justify-content:center;}
@@ -46,23 +57,54 @@
 .result-label{font-size:15px; font-weight:700; margin:0 0 4px;}
 .result-sub{font-size:13px; color:var(--muted); margin:0;}
 .result-explain{font-size:13.5px; color:#d6d6d6; line-height:1.6; margin:16px 0 0; padding-top:16px; border-top:1px solid var(--line);}
-.qa-list{margin-top:20px; display:flex; flex-direction:column; gap:10px;}
-.qa-item{border:1px solid var(--line); border-radius:12px; padding:14px 16px;}
-.qa-item.match{background:rgba(126,224,168,.04); border-color:rgba(126,224,168,.18);}
-.qa-item.mismatch{background:rgba(255,193,107,.04); border-color:rgba(255,193,107,.18);}
-.qa-question{font-size:13.5px; font-weight:600; color:#fff; margin:0 0 8px;}
-.qa-answers{display:flex; flex-direction:column; gap:4px;}
-.qa-answer-row{display:flex; align-items:baseline; gap:8px; font-size:12.5px; line-height:1.5;}
-.qa-answer-who{color:var(--muted); flex-shrink:0; min-width:56px;}
-.qa-answer-text{color:#e2e2e2;}
-.qa-tag{display:inline-flex; margin-top:8px; font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:2px 8px; border-radius:999px;}
-.qa-item.match .qa-tag{color:#7ee0a8; background:rgba(126,224,168,.12);}
-.qa-item.mismatch .qa-tag{color:#ffc16b; background:rgba(255,193,107,.12);}
 .empty-state{display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; padding:50px 24px; color:var(--muted); font-size:14px;}
+
+/* ---------- Карточки для обсуждения ---------- */
+.how-it-works{border:1px solid rgba(126,224,168,.25); background:rgba(126,224,168,.05); border-radius:16px; padding:22px 24px; margin-bottom:22px;}
+.how-it-works h3{font-size:14.5px; font-weight:700; margin:0 0 8px; color:var(--ink); display:flex; align-items:center; gap:8px;}
+.how-it-works p{font-size:13px; color:#d6d6d6; line-height:1.6; margin:0 0 8px;}
+.how-it-works .hint{font-size:12.5px; color:var(--muted); margin:0;}
+
+.discuss-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+.discuss-card{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:22px; position:relative;}
+.discuss-card .dc-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+.dc-icon{display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:700; color:#ffc16b;}
+.dc-new-badge{font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#ffc16b; border:1px solid rgba(255,193,107,.3); background:rgba(255,193,107,.08); padding:3px 8px; border-radius:999px;}
+.dc-question{font-size:14.5px; font-weight:700; color:var(--ink); margin:0 0 14px; line-height:1.4;}
+.dc-answers{display:flex; flex-direction:column; gap:6px; margin-bottom:14px;}
+.dc-answer-row{display:flex; gap:8px; font-size:12.5px; line-height:1.5;}
+.dc-answer-who{color:var(--muted); min-width:56px; flex-shrink:0;}
+.dc-answer-text{color:#e2e2e2;}
+.dc-note{font-size:12.5px; color:var(--muted); line-height:1.55; margin:0 0 16px; padding-top:12px; border-top:1px solid var(--line);}
+.dc-actions{display:flex; gap:8px;}
+.dc-btn{flex:1; height:36px; border-radius:999px; font-size:12.5px; font-weight:600; border:1px solid var(--line); color:var(--nav);}
+.dc-btn.primary{background:#7ee0a8; color:#050505; border-color:#7ee0a8;}
+.dc-btn:hover{opacity:.9;}
+.discuss-card.discussed{opacity:.55;}
+
+/* ---------- Генератор свиданий ---------- */
+.generator-panel{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:28px;}
+.generator-panel h2{font-size:16px; font-weight:700; margin:0 0 4px;}
+.generator-panel .sub{font-size:13px; color:var(--muted); margin:0 0 20px;}
+.filter-group{margin-bottom:16px;}
+.filter-label{font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; display:block;}
+.chip-row{display:flex; gap:8px; flex-wrap:wrap;}
+.chip{height:36px; padding:0 16px; border-radius:999px; border:1px solid var(--line); font-size:13px; font-weight:600; color:var(--nav); background:rgba(255,255,255,.02);}
+.chip.active{background:#fff; color:#050505; border-color:#fff;}
+.gen-cta{width:100%; height:48px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:14.5px; font-weight:700; margin-top:8px;}
+.idea-result{margin-top:22px; border:1px solid rgba(126,224,168,.25); background:rgba(126,224,168,.05); border-radius:16px; padding:24px; display:none;}
+.idea-result.show{display:block;}
+.idea-emoji{font-size:22px; margin-bottom:10px;}
+.idea-text{font-size:15px; font-weight:600; color:var(--ink); line-height:1.5; margin:0 0 14px;}
+.idea-explain{font-size:12.5px; color:var(--muted); line-height:1.55; margin:0 0 18px; padding-top:14px; border-top:1px solid var(--line);}
+.idea-actions{display:flex; gap:10px; flex-wrap:wrap;}
+.idea-btn{height:40px; padding:0 18px; border-radius:999px; font-size:13px; font-weight:600;}
+.idea-btn.save{background:var(--pill); color:var(--pill-ink);}
+.idea-btn.retry{border:1px solid var(--line); color:#fff;}
 
 .page-loading{flex:1; display:flex; align-items:center; justify-content:center; gap:10px; color:var(--muted); font-size:14px; padding:60px 24px;}
 
-@media (max-width: 780px){ .couple-grid{grid-template-columns:1fr;} }
+@media (max-width: 900px){ .couple-grid{grid-template-columns:1fr;} .discuss-grid{grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
@@ -87,85 +129,168 @@
 <main class="couple-main" id="pageContent" style="display:none">
 
   <section class="couple-hero">
-    <h1>Совместные тесты</h1>
-    <p>Пройдите тесты вдвоём — синхронность в быту и совпадение ценностей. Отчёт с процентом совпадения и построчным сравнением открывается, когда тест пройдут оба партнёра.</p>
+    <h1>Совместимость</h1>
+    <p>Тесты, темы для разговора и идеи для свиданий — всё, что помогает лучше понимать друг друга, в одном месте.</p>
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-label" id="progressLabel">0 из 3 тестов пройдены вместе</span>
+    </div>
   </section>
 
   <div id="notLinkedState" class="not-linked" style="display:none">
-    Совместные тесты доступны после привязки партнёра.<br>
+    Совместимость доступна после привязки партнёра.<br>
     <a href="couple.html">Подключить партнёра →</a>
   </div>
 
   <div id="linkedContent" style="display:none">
-    <h2 class="section-title">Тесты</h2>
-    <p class="section-sub">Пройдите оба теста — вы и партнёр увидите общий отчёт сразу после завершения.</p>
-    <div class="couple-grid" id="coupleTestsGrid"></div>
+    <nav class="tabs-nav">
+      <button class="tab-btn active" data-tab="tests">Тесты</button>
+      <button class="tab-btn" data-tab="discuss">Темы для обсуждения</button>
+      <button class="tab-btn" data-tab="dates">Генератор свиданий</button>
+    </nav>
 
-    <h2 class="section-title">Отчёты</h2>
-    <p class="section-sub">Появляются, как только тест пройден обоими участниками пары.</p>
-    <div id="reportsContainer"></div>
+    <!-- ===== ВКЛАДКА: ТЕСТЫ + ОТЧЁТЫ ===== -->
+    <section class="tab-panel active" id="panel-tests">
+      <h2 class="section-title">Тесты</h2>
+      <p class="section-sub">Пройдите тесты вдвоём — отчёт откроется, когда оба закончат.</p>
+      <div class="couple-grid" id="coupleTestsGrid"></div>
+
+      <h2 class="section-title">Отчёты</h2>
+      <p class="section-sub">Появляются, как только тест пройден обоими участниками пары.</p>
+      <div id="reportsContainer"></div>
+    </section>
+
+    <!-- ===== ВКЛАДКА: ТЕМЫ ДЛЯ ОБСУЖДЕНИЯ ===== -->
+    <section class="tab-panel" id="panel-discuss">
+      <div class="how-it-works">
+        <h3>💬 Как это работает</h3>
+        <p>Каждая карточка — вопрос, где ваши ответы с партнёром разошлись в одном из тестов. Это не проблема и не тест на правильность, а повод для короткого личного разговора.</p>
+        <p class="hint">Обсудите карточку вслух, лично вдвоём — не в переписке. Когда почувствуете, что поняли позицию друг друга, отметьте «Обсудили».</p>
+      </div>
+      <div class="discuss-grid" id="discussGrid"></div>
+    </section>
+
+    <!-- ===== ВКЛАДКА: ГЕНЕРАТОР СВИДАНИЙ ===== -->
+    <section class="tab-panel" id="panel-dates">
+      <div class="generator-panel">
+        <h2>Генератор свиданий</h2>
+        <p class="sub">Выберите параметры — мы подберём идею с учётом вашей анкеты.</p>
+
+        <div class="filter-group">
+          <span class="filter-label">Бюджет</span>
+          <div class="chip-row" data-group="budget">
+            <button class="chip active" data-value="">Любой</button>
+            <button class="chip" data-value="free">Бесплатно</button>
+            <button class="chip" data-value="budget">До 30$</button>
+            <button class="chip" data-value="premium">Люкс</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Формат</span>
+          <div class="chip-row" data-group="format">
+            <button class="chip active" data-value="">Любой</button>
+            <button class="chip" data-value="home">Дома</button>
+            <button class="chip" data-value="city">В городе</button>
+            <button class="chip" data-value="active">Активно</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Время</span>
+          <div class="chip-row" data-group="duration">
+            <button class="chip active" data-value="">Любое</button>
+            <button class="chip" data-value="evening">Вечер</button>
+            <button class="chip" data-value="day">Выходной день</button>
+          </div>
+        </div>
+
+        <button class="gen-cta" id="generateIdeaBtn">Сгенерировать идею</button>
+
+        <div class="idea-result" id="ideaResult">
+          <div class="idea-emoji">🎲</div>
+          <p class="idea-text" id="ideaText"></p>
+          <p class="idea-explain" id="ideaExplain"></p>
+          <div class="idea-actions">
+            <button class="idea-btn save" id="saveIdeaBtn">Сохранить в важные даты</button>
+            <button class="idea-btn retry" id="retryIdeaBtn">Ещё раз</button>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 
 </main>
 
 <script type="module">
-import { getClient, isConfigured, getSession } from "./assets/auth.js";
+import { getClient, isConfigured, getSession, loadCoupleProfile } from "./assets/auth.js";
 import { getCoupleLink, getPartnerId, startHeartbeat, COUPLE_TEST_META, COUPLE_QUESTION_BANKS, loadCoupleTestResults, computeCoupleMatchScore, scoreLabel, scoreExplanation } from "./assets/couple-features.js";
+import { syncDiscussionCards, loadDiscussionCards, markDiscussionCard, DATE_IDEAS, filterDateIdeas, explainDateIdea, pickRandomDateIdea, saveDateIdeaToImportantDates } from "./assets/discussion-and-dates.js";
 
 let client = null;
 let userId = null;
 let coupleLink = null;
+let coupleProfile = null;
+let currentIdea = null;
+const activeFilters = { budget: "", format: "", duration: "" };
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
+  });
+});
+
+document.querySelectorAll(".chip-row").forEach(row => {
+  row.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      row.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      activeFilters[row.dataset.group] = chip.dataset.value;
+    });
+  });
+});
 
 async function renderCoupleTests() {
   const grid = document.getElementById("coupleTestsGrid");
   grid.innerHTML = "";
   const partnerId = getPartnerId(coupleLink, userId);
+  let doneCount = 0;
+  const totalCount = Object.keys(COUPLE_TEST_META).length;
 
   for (const [key, meta] of Object.entries(COUPLE_TEST_META)) {
     const results = await loadCoupleTestResults(client, coupleLink.id, key);
     const mine = results.find(r => r.user_id === userId);
     const partner = results.find(r => r.user_id === partnerId);
+    if (mine && partner) doneCount++;
 
     const card = document.createElement("div");
     card.className = "test-card";
-
     let statusHtml;
     if (mine && partner) {
-      statusHtml = '<div class="test-status-row"><span class="test-status-chip done"><span class="test-status-dot"></span>Вы прошли</span><span class="test-status-chip done"><span class="test-status-dot"></span>Партнёр прошёл</span></div>';
+      statusHtml = '<div class="test-status-row"><span class="test-status-chip done"><span class="test-status-dot"></span>Вы</span><span class="test-status-chip done"><span class="test-status-dot"></span>Партнёр</span></div>';
     } else if (mine && !partner) {
-      statusHtml = '<div class="test-status-row"><span class="test-status-chip done"><span class="test-status-dot"></span>Вы прошли</span><span class="test-status-chip waiting"><span class="test-status-dot"></span>Партнёр ещё не проходил</span></div>';
+      statusHtml = '<div class="test-status-row"><span class="test-status-chip done"><span class="test-status-dot"></span>Вы</span><span class="test-status-chip waiting"><span class="test-status-dot"></span>Партнёр</span></div>';
     } else if (!mine && partner) {
-      statusHtml = '<div class="test-status-row"><span class="test-status-chip waiting"><span class="test-status-dot"></span>Партнёр прошёл</span><span class="test-status-chip waiting"><span class="test-status-dot"></span>Вы ещё не проходили</span></div>';
+      statusHtml = '<div class="test-status-row"><span class="test-status-chip waiting"><span class="test-status-dot"></span>Вы</span><span class="test-status-chip done"><span class="test-status-dot"></span>Партнёр</span></div>';
     } else {
-      statusHtml = '<div class="test-status-row"><span class="test-status-chip waiting"><span class="test-status-dot"></span>Никто ещё не проходил</span></div>';
+      statusHtml = '<div class="test-status-row"><span class="test-status-chip waiting"><span class="test-status-dot"></span>Никто не проходил</span></div>';
     }
 
-    card.innerHTML = '<span class="badge-free">Бесплатно</span>' +
-      "<h3>" + meta.title + "</h3><p>" + meta.description + "</p>" + statusHtml +
-      '<a class="test-cta" href="couple-test.html?key=' + key + '">' + (mine ? "Пройти снова" : "Пройти тест") + "</a>";
+    card.innerHTML = '<span class="badge-free">Бесплатно</span><h3>' + meta.title + "</h3><p>" + meta.description + "</p>" + statusHtml +
+      '<a class="test-cta" href="couple-test-run.html?key=' + key + '">' + (mine ? "Пройти снова" : "Пройти тест") + "</a>";
     grid.appendChild(card);
-  }
-}
 
-function buildQaList(testKey, mineAnswers, partnerAnswers) {
-  const questions = COUPLE_QUESTION_BANKS[testKey];
-  const list = document.createElement("div");
-  list.className = "qa-list";
-  questions.forEach(q => {
-    const myAns = mineAnswers[q.id];
-    const partnerAns = partnerAnswers[q.id];
-    const isMatch = myAns === partnerAns;
-    const item = document.createElement("div");
-    item.className = "qa-item " + (isMatch ? "match" : "mismatch");
-    item.innerHTML = "<p class=\"qa-question\">" + q.text + "</p>" +
-      '<div class="qa-answers">' +
-      '<div class="qa-answer-row"><span class="qa-answer-who">Вы:</span><span class="qa-answer-text">' + (q[myAns] || myAns || "—") + "</span></div>" +
-      '<div class="qa-answer-row"><span class="qa-answer-who">Партнёр:</span><span class="qa-answer-text">' + (q[partnerAns] || partnerAns || "—") + "</span></div>" +
-      "</div>" +
-      '<span class="qa-tag">' + (isMatch ? "Совпадает" : "Отличается") + "</span>";
-    list.appendChild(item);
-  });
-  return list;
+    if (mine && partner) {
+      const match = computeCoupleMatchScore(mine.answers, partner.answers);
+      if (match.mismatches && match.mismatches.length) {
+        await syncDiscussionCards(client, coupleLink.id, key, match.mismatches);
+      }
+    }
+  }
+
+  document.getElementById("progressFill").style.width = Math.round((doneCount / totalCount) * 100) + "%";
+  document.getElementById("progressLabel").textContent = doneCount + " из " + totalCount + " тестов пройдены вместе";
 }
 
 async function renderReports() {
@@ -184,12 +309,10 @@ async function renderReports() {
     const match = computeCoupleMatchScore(mine.answers, partner.answers);
     const card = document.createElement("div");
     card.className = "result-card";
-    card.innerHTML = '<div class="result-score">' +
-      '<div class="score-ring" style="--pct:' + match.score + '"><div class="score-ring-inner"><span>' + match.score + "%</span></div></div>" +
+    card.innerHTML = '<div class="result-score"><div class="score-ring" style="--pct:' + match.score + '"><div class="score-ring-inner"><span>' + match.score + "%</span></div></div>" +
       "<div><p class=\"result-label\">" + meta.title + " — " + scoreLabel(match.score) + "</p>" +
       "<p class=\"result-sub\">" + match.matched + " из " + match.total + " ответов совпало</p></div></div>" +
       '<p class="result-explain">' + scoreExplanation(match.score) + "</p>";
-    card.appendChild(buildQaList(key, mine.answers, partner.answers));
     container.appendChild(card);
   }
 
@@ -201,19 +324,101 @@ async function renderReports() {
   }
 }
 
+function findQuestionText(testKey, questionId) {
+  const bank = COUPLE_QUESTION_BANKS[testKey] || [];
+  return bank.find(q => q.id === questionId);
+}
+
+async function renderDiscussionCards() {
+  const grid = document.getElementById("discussGrid");
+  grid.innerHTML = "";
+  const cards = await loadDiscussionCards(client, coupleLink.id);
+  const partnerId = getPartnerId(coupleLink, userId);
+
+  if (!cards.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><span>Пока нет тем для обсуждения.</span><span>Они появятся, когда вы оба пройдёте тест и в ответах найдутся различия.</span></div>';
+    return;
+  }
+
+  for (const card of cards) {
+    const q = findQuestionText(card.test_key, card.question_id);
+    if (!q) continue;
+    const results = await loadCoupleTestResults(client, coupleLink.id, card.test_key);
+    const mine = results.find(r => r.user_id === userId);
+    const partner = results.find(r => r.user_id === partnerId);
+    if (!mine || !partner) continue;
+
+    const myAns = q[mine.answers[card.question_id]] || mine.answers[card.question_id];
+    const partnerAns = q[partner.answers[card.question_id]] || partner.answers[card.question_id];
+
+    const el = document.createElement("div");
+    el.className = "discuss-card" + (card.status === "discussed" ? " discussed" : "");
+    el.innerHTML = '<div class="dc-top"><span class="dc-icon">💬 Тема для разговора</span>' +
+      (card.status === "new" ? '<span class="dc-new-badge">Новое</span>' : "") + "</div>" +
+      '<p class="dc-question">«' + q.text + '»</p>' +
+      '<div class="dc-answers">' +
+      '<div class="dc-answer-row"><span class="dc-answer-who">Вы:</span><span class="dc-answer-text">' + myAns + "</span></div>" +
+      '<div class="dc-answer-row"><span class="dc-answer-who">Партнёр:</span><span class="dc-answer-text">' + partnerAns + "</span></div>" +
+      "</div>" +
+      '<p class="dc-note">Это не значит, что кто-то неправ — у вас просто разные способы смотреть на это. Стоит обсудить лично, вдвоём.</p>' +
+      '<div class="dc-actions">' +
+      (card.status === "discussed"
+        ? '<button class="dc-btn" disabled>Обсуждено ✓</button>'
+        : '<button class="dc-btn primary" data-id="' + card.id + '" data-action="discussed">Обсудили</button>') +
+      '<button class="dc-btn" data-id="' + card.id + '" data-action="hidden">Скрыть</button>' +
+      "</div>";
+    grid.appendChild(el);
+  }
+
+  grid.querySelectorAll("[data-action]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      await markDiscussionCard(client, btn.dataset.id, btn.dataset.action);
+      await renderDiscussionCards();
+    });
+  });
+}
+
+function renderIdea(idea) {
+  currentIdea = idea;
+  document.getElementById("ideaResult").classList.add("show");
+  document.getElementById("ideaText").textContent = idea.text;
+  document.getElementById("ideaExplain").textContent = explainDateIdea(idea, coupleProfile);
+}
+
+document.getElementById("generateIdeaBtn").addEventListener("click", () => {
+  const filtered = filterDateIdeas(activeFilters);
+  const idea = pickRandomDateIdea(filtered.length ? filtered : DATE_IDEAS);
+  if (idea) renderIdea(idea);
+});
+
+document.getElementById("retryIdeaBtn").addEventListener("click", () => {
+  const filtered = filterDateIdeas(activeFilters);
+  const pool = (filtered.length ? filtered : DATE_IDEAS).filter(i => !currentIdea || i.id !== currentIdea.id);
+  const idea = pickRandomDateIdea(pool.length ? pool : DATE_IDEAS);
+  if (idea) renderIdea(idea);
+});
+
+document.getElementById("saveIdeaBtn").addEventListener("click", async () => {
+  if (!currentIdea) return;
+  try {
+    await saveDateIdeaToImportantDates(client, userId, currentIdea);
+    document.getElementById("saveIdeaBtn").textContent = "Сохранено ✓";
+  } catch (err) { console.error(err); alert("Не удалось сохранить. Попробуйте снова."); }
+});
+
 async function init() {
   if (!isConfigured()) { document.getElementById("pageLoading").innerHTML = "<span>Supabase не настроен.</span>"; return; }
-  let session, clientLocal;
+  let session;
   try {
-    clientLocal = getClient();
-    session = await getSession(clientLocal);
+    client = getClient();
+    session = await getSession(client);
   } catch (err) { console.error(err); document.getElementById("pageLoading").innerHTML = "<span>Ошибка подключения.</span>"; return; }
   if (!session) { window.location.href = "login.html"; return; }
 
-  client = clientLocal;
   userId = session.user.id;
   startHeartbeat(client, userId);
   coupleLink = await getCoupleLink(client, userId);
+  coupleProfile = await loadCoupleProfile(client, userId);
 
   document.getElementById("pageLoading").style.display = "none";
   document.getElementById("pageContent").style.display = "block";
@@ -226,6 +431,7 @@ async function init() {
   document.getElementById("linkedContent").style.display = "block";
   await renderCoupleTests();
   await renderReports();
+  await renderDiscussionCards();
 }
 
 init();
