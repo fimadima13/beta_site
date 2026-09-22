@@ -10,6 +10,9 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="preconnect" href="https://tbbtblbytytzyvsmaqzg.supabase.co" crossorigin>
+<link rel="modulepreload" href="https://esm.sh/@supabase/supabase-js@2.94.1/es2022/supabase-js.bundle.mjs">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/auth.css">
 <script src="assets/supabase-config.js"></script>
@@ -505,39 +508,43 @@ document.querySelectorAll("[data-tip-title]").forEach(item => {
   if (!session) { window.location.href = "login.html"; return; }
 
   document.getElementById("userEmail").textContent = session.user.email;
+  loadingState.style.display = "none";
+  cabinetApp.style.display = "block";
+  document.getElementById("logoutBtn").addEventListener("click", async () => { await client.auth.signOut(); window.location.href = "login.html"; });
+
+  const userId = session.user.id;
+  const [filled, checklist, latest, planResult, coupleLink] = await Promise.all([
+    hasCoupleProfile(client, userId).catch((err) => { console.error("hasCoupleProfile failed:", err); return false; }),
+    loadChecklist(client, userId).catch((err) => { console.error("loadChecklist failed:", err); return null; }),
+    loadLatestTestResults(client, userId).catch((err) => { console.error("loadLatestTestResults failed:", err); return {}; }),
+    getSelectedPlan(client, userId).catch((err) => { console.error("getSelectedPlan failed:", err); return "free"; }),
+    getCoupleLink(client, userId).catch((err) => { console.error("getCoupleLink failed:", err); return null; }),
+  ]);
+
+  if (filled) {
+    const qBadge = document.getElementById("badgeQuestionnaire");
+    qBadge.textContent = "Готово";
+    qBadge.classList.remove("todo"); qBadge.classList.add("done");
+  }
+
+  const clBadge = document.getElementById("badgeChecklist");
+  if (checklist) {
+    clBadge.textContent = checklist.generation_status === "ai_generated" ? "AI" : "Базовый";
+    clBadge.classList.remove("todo"); clBadge.classList.add("done");
+  } else {
+    clBadge.textContent = "—";
+    clBadge.classList.remove("done");
+  }
+
+  const doneCount = Object.values(latest || {}).filter(Boolean).length;
+  const testsBadge = document.getElementById("badgeTests");
+  testsBadge.textContent = doneCount + " / 5";
+  if (doneCount > 0) { testsBadge.classList.remove("todo"); testsBadge.classList.add("done"); }
 
   try {
-    const filled = await hasCoupleProfile(client, session.user.id);
-    if (filled) {
-      const qBadge = document.getElementById("badgeQuestionnaire");
-      qBadge.textContent = "Готово";
-      qBadge.classList.remove("todo"); qBadge.classList.add("done");
-    }
-    const clBadge = document.getElementById("badgeChecklist");
-    const checklist = await loadChecklist(client, session.user.id);
-    if (checklist) {
-      clBadge.textContent = checklist.generation_status === "ai_generated" ? "AI" : "Базовый";
-      clBadge.classList.remove("todo"); clBadge.classList.add("done");
-    } else {
-      clBadge.textContent = "—";
-      clBadge.classList.remove("done");
-    }
-  } catch (err) { console.error("status check failed (non-fatal):", err); }
-
-  try {
-    if (typeof loadLatestTestResults === "function") {
-      const latest = await loadLatestTestResults(client, session.user.id);
-      const doneCount = Object.values(latest).filter(Boolean).length;
-      const testsBadge = document.getElementById("badgeTests");
-      testsBadge.textContent = doneCount + " / 5";
-      if (doneCount > 0) { testsBadge.classList.remove("todo"); testsBadge.classList.add("done"); }
-    }
-  } catch (err) { console.error("tests badge failed (non-fatal):", err); }
-
-  try {
-    let plan = await getSelectedPlan(client, session.user.id);
+    let plan = planResult || "free";
     const landingPlan = getLandingSelectedPlan();
-    if (landingPlan && landingPlan !== plan) { await setSelectedPlan(client, session.user.id, landingPlan); plan = landingPlan; }
+    if (landingPlan && landingPlan !== plan) { await setSelectedPlan(client, userId, landingPlan); plan = landingPlan; }
     const planRow = document.getElementById("planRow");
     const planLabel = document.getElementById("planLabel");
     planLabel.textContent = PLAN_LABELS[plan];
@@ -547,23 +554,16 @@ document.querySelectorAll("[data-tip-title]").forEach(item => {
   } catch (err) { console.error("plan sync failed (non-fatal):", err); }
 
   try {
-    const coupleLink = await getCoupleLink(client, session.user.id);
     const coupleBadge = document.getElementById("badgeCouple");
     if (coupleLink) {
       coupleBadge.classList.remove("locked");
       coupleBadge.innerHTML = '<span class="live-dot"></span>Включён';
-
       const counts = await countDiscussionCardsByStatus(client, coupleLink.id);
       const testBadge = document.getElementById("badgeCoupleTest");
       testBadge.textContent = counts.active;
       testBadge.classList.toggle("zero", counts.active === 0);
     }
   } catch (err) { console.error("couple badge failed (non-fatal):", err); }
-
-  loadingState.style.display = "none";
-  cabinetApp.style.display = "block";
-
-  document.getElementById("logoutBtn").addEventListener("click", async () => { await client.auth.signOut(); window.location.href = "login.html"; });
 })();
 </script>
 <script type="module" src="assets/heartbeat-loader.js"></script>
