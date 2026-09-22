@@ -1,7 +1,7 @@
 // RelationSync.ai — общая логика авторизации и данных для всех страниц кабинета.
 // Использует Supabase JS SDK (через ESM CDN, без сборки — подходит для GitHub Pages).
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.94.1/+esm";
 
 const SITE_URL = "https://www.relationsync.ai";
 
