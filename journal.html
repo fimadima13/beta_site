@@ -10,6 +10,9 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="preconnect" href="https://tbbtblbytytzyvsmaqzg.supabase.co" crossorigin>
+<link rel="modulepreload" href="https://esm.sh/@supabase/supabase-js@2.94.1/es2022/supabase-js.bundle.mjs">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/auth.css">
 <script src="assets/supabase-config.js"></script>
@@ -352,7 +355,7 @@ body{display:block;}
 
 <script type="module">
 import {
-  getClient, isConfigured, getSession,
+  getClient, isConfigured, getSession, resolveSession,
   saveMoodEntry, loadMoodHistory,
   saveDiaryEntry, loadDiaryEntries, deleteDiaryEntry,
   saveImportantDate, loadImportantDates, deleteImportantDate, daysUntilNext
@@ -570,7 +573,7 @@ async function init() {
   }
   try {
     client = getClient();
-    session = await getSession(client);
+    session = await resolveSession(client);
   } catch (err) {
     console.error("auth init failed:", err);
     showFatal('<span>Не удалось проверить сессию. <a href="login.html">Ко входу</a></span>');
@@ -578,16 +581,14 @@ async function init() {
   }
   if (!session) { window.location.href = "login.html?next=journal.html"; return; }
 
+  loadingState.style.display = "none";
+  appRoot.style.display = "block";
+
   try {
-    await renderMoodHistory();
-    await renderDiaryList();
-    await renderDatesList();
+    await Promise.all([renderMoodHistory(), renderDiaryList(), renderDatesList()]);
   } catch (err) {
     console.error("journal data load failed:", err);
   }
-
-  loadingState.style.display = "none";
-  appRoot.style.display = "block";
 }
 
 init();

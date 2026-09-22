@@ -10,6 +10,9 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="preconnect" href="https://tbbtblbytytzyvsmaqzg.supabase.co" crossorigin>
+<link rel="modulepreload" href="https://esm.sh/@supabase/supabase-js@2.94.1/es2022/supabase-js.bundle.mjs">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/auth.css">
 <script src="assets/supabase-config.js"></script>
@@ -287,7 +290,7 @@
 
 <script type="module">
 import {
-  getClient, isConfigured, getSession,
+  getClient, isConfigured, getSession, resolveSession, rememberSession,
   updateDisplayName, requestEmailChange, updatePassword, getDisplayProfile,
   deleteAccount, loadTelegramLink, createTelegramLinkToken,
   updateTelegramNotificationPrefs, disconnectTelegram, isTelegramConfigured,
@@ -388,7 +391,7 @@ async function init() {
 
   try {
     client = getClient();
-    session = await getSession(client);
+    session = await resolveSession(client);
   } catch (err) {
     console.error("auth init failed:", err);
     showFatal('<span>Не удалось проверить сессию. <a href="login.html">Ко входу</a></span>');
@@ -404,6 +407,9 @@ async function init() {
   document.getElementById("nameInput").value = profile.displayName || "";
   document.getElementById("currentEmailInput").value = profile.email;
 
+  loadingState.style.display = "none";
+  appRoot.style.display = "block";
+
   try {
     telegramLink = await loadTelegramLink(client, session.user.id);
   } catch (err) {
@@ -415,9 +421,6 @@ async function init() {
     document.getElementById("tgConnectBtn").disabled = true;
     showMsg("tgMsg", "Укажите имя бота в assets/telegram-config.js (botUsername).", "error");
   }
-
-  loadingState.style.display = "none";
-  appRoot.style.display = "block";
 }
 
 document.getElementById("nameForm").addEventListener("submit", async (e) => {
@@ -493,6 +496,8 @@ document.getElementById("passwordForm").addEventListener("submit", async (e) => 
 document.getElementById("logoutBtn").addEventListener("click", async () => {
   stopTelegramPolling();
   await client.auth.signOut();
+  rememberSession(null);
+  try { sessionStorage.removeItem("rs_cabinet_snapshot"); } catch (e) {}
   window.location.href = "login.html";
 });
 

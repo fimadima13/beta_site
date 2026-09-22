@@ -10,6 +10,9 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="preconnect" href="https://tbbtblbytytzyvsmaqzg.supabase.co" crossorigin>
+<link rel="modulepreload" href="https://esm.sh/@supabase/supabase-js@2.94.1/es2022/supabase-js.bundle.mjs">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/auth.css">
 <script src="assets/supabase-config.js"></script>
@@ -78,7 +81,7 @@
 </main>
 
 <script type="module">
-  import { getClient, isConfigured, getSession } from "./assets/auth.js";
+  import { getClient, isConfigured, getSession, rememberSession } from "./assets/auth.js";
 
   const configWarning = document.getElementById('configWarning');
   const authForm = document.getElementById('authForm');
@@ -141,13 +144,15 @@
 
       try {
         if (mode === 'login') {
-          const { error } = await client.auth.signInWithPassword({ email, password });
+          const { data, error } = await client.auth.signInWithPassword({ email, password });
           if (error) throw error;
+          rememberSession(data.session);
           window.location.href = 'cabinet.html';
         } else {
           const { data, error } = await client.auth.signUp({ email, password });
           if (error) throw error;
           if (data.session) {
+            rememberSession(data.session);
             window.location.href = 'cabinet.html';
           } else {
             setMode('login');

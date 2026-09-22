@@ -8,6 +8,9 @@
 <meta name="description" content="Свяжите аккаунт с партнёром и получите общий статус активности и совместные тесты.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="preconnect" href="https://tbbtblbytytzyvsmaqzg.supabase.co" crossorigin>
+<link rel="modulepreload" href="https://esm.sh/@supabase/supabase-js@2.94.1/es2022/supabase-js.bundle.mjs">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/auth.css">
 <script src="assets/supabase-config.js"></script>
@@ -233,7 +236,7 @@
 </main>
 
 <script type="module">
-import { getClient, isConfigured, getSession } from "./assets/auth.js";
+import { getClient, isConfigured, getSession, resolveSession } from "./assets/auth.js";
 import { createCoupleInvite, acceptCoupleInvite, getCoupleLink, getPendingInvite, getPartnerId, unlinkCouple, startHeartbeat, getPartnerLastSeen, formatOnlineStatus } from "./assets/couple-features.js";
 
 let client = null;
@@ -278,15 +281,15 @@ async function init() {
   try { client = getClient(); } catch (err) { console.error("getClient failed:", err); document.getElementById("pageLoading").innerHTML = "<span>Ошибка подключения к Supabase.</span>"; return; }
 
   let session;
-  try { session = await getSession(client); } catch (err) { console.error("getSession failed:", err); document.getElementById("pageLoading").innerHTML = "<span>Ошибка сессии.</span>"; return; }
+  try { session = await resolveSession(client); } catch (err) { console.error("getSession failed:", err); document.getElementById("pageLoading").innerHTML = "<span>Ошибка сессии.</span>"; return; }
   if (!session) { window.location.href = "login.html"; return; }
   userId = session.user.id;
 
-  startHeartbeat(client, userId);
-  coupleLink = await getCoupleLink(client, userId);
-
   document.getElementById("pageLoading").style.display = "none";
   document.getElementById("pageContent").style.display = "block";
+
+  startHeartbeat(client, userId);
+  coupleLink = await getCoupleLink(client, userId);
 
   renderLinkState();
   if (coupleLink) {

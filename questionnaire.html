@@ -10,6 +10,9 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="preconnect" href="https://tbbtblbytytzyvsmaqzg.supabase.co" crossorigin>
+<link rel="modulepreload" href="https://esm.sh/@supabase/supabase-js@2.94.1/es2022/supabase-js.bundle.mjs">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/auth.css">
 <script src="assets/supabase-config.js"></script>
@@ -551,7 +554,7 @@
 </div>
 
 <script type="module">
-import { getClient, isConfigured, getSession, saveCoupleProfile, loadCoupleProfile } from "./assets/auth.js";
+import { getClient, isConfigured, getSession, resolveSession, saveCoupleProfile, loadCoupleProfile } from "./assets/auth.js";
 
 const loadingState = document.getElementById("loadingState");
 const appRoot = document.getElementById("appRoot");
@@ -618,7 +621,7 @@ async function init(){
 
   try {
     client = getClient();
-    session = await getSession(client);
+    session = await resolveSession(client);
   } catch (err) {
     console.error("auth init failed:", err);
     showFatal('<span>Не удалось проверить сессию. Проверьте консоль браузера (F12). <a href="login.html">Ко входу</a></span>');
@@ -630,6 +633,10 @@ async function init(){
     return;
   }
 
+  loadingState.style.display = "none";
+  appRoot.style.display = "block";
+  renderStep();
+
   try {
     const existing = await loadCoupleProfile(client, session.user.id);
     if (existing){
@@ -637,14 +644,11 @@ async function init(){
         if (existing[key] !== undefined && existing[key] !== null) state[key] = existing[key];
       });
       hydrateFormFromState();
+      renderStep();
     }
   } catch (err) {
     console.error("loadCoupleProfile failed (non-fatal):", err);
   }
-
-  loadingState.style.display = "none";
-  appRoot.style.display = "block";
-  renderStep();
 }
 
 function setChipSelection(containerId, key, isMulti){

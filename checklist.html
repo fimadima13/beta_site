@@ -10,6 +10,9 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="preconnect" href="https://tbbtblbytytzyvsmaqzg.supabase.co" crossorigin>
+<link rel="modulepreload" href="https://esm.sh/@supabase/supabase-js@2.94.1/es2022/supabase-js.bundle.mjs">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/auth.css">
 <script src="assets/supabase-config.js"></script>
@@ -194,7 +197,7 @@
 
 <script type="module">
 import {
-  getClient, isConfigured, getSession,
+  getClient, isConfigured, getSession, resolveSession,
   loadCoupleProfile, loadChecklist, generateChecklistPlaceholder, toggleChecklistItem
 } from "./assets/auth.js";
 
@@ -351,7 +354,7 @@ async function init(){
 
   try {
     client = getClient();
-    session = await getSession(client);
+    session = await resolveSession(client);
   } catch (err) {
     console.error("auth init failed:", err);
     showFatal('<span>Не удалось проверить сессию. Проверьте консоль браузера (F12). <a href="login.html">Ко входу</a></span>');
@@ -363,16 +366,15 @@ async function init(){
     return;
   }
 
+  loadingState.style.display = "none";
+  appRoot.style.display = "block";
+
   try {
     await loadEverything();
   } catch (err) {
     console.error("loadEverything failed:", err);
     showFatal('<span>Не удалось загрузить чек-лист. Проверьте консоль браузера (F12) и таблицы в Supabase. <a href="cabinet.html">В кабинет</a></span>');
-    return;
   }
-
-  loadingState.style.display = "none";
-  appRoot.style.display = "block";
 }
 
 init();

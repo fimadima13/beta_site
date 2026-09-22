@@ -425,13 +425,49 @@ body{display:block;}
 </div>
 
 <script type="module">
-import { getClient, isConfigured, getSession, hasCoupleProfile, loadChecklist, getSelectedPlan, setSelectedPlan, getLandingSelectedPlan, loadLatestTestResults } from "./assets/auth.js";
-import { getCoupleLink, getPartnerId } from "./assets/couple-features.js";
+import { getClient, isConfigured, getSession, peekCachedSession, rememberSession, loadCabinetSnapshot, setSelectedPlan, getLandingSelectedPlan } from "./assets/auth.js";
+import { getCoupleLink } from "./assets/couple-features.js";
 import { countDiscussionCardsByStatus } from "./assets/discussion-and-dates.js";
 
 const loadingState = document.getElementById("loadingState");
 const cabinetApp = document.getElementById("cabinetApp");
 const PLAN_LABELS = { free: "Бесплатно", premium: "Premium", couple: "Couple" };
+const SNAPSHOT_CACHE_KEY = "rs_cabinet_snapshot";
+
+function readCachedSnapshot() {
+  try { return JSON.parse(sessionStorage.getItem(SNAPSHOT_CACHE_KEY) || "null"); }
+  catch (e) { return null; }
+}
+function writeCachedSnapshot(snapshot) {
+  try { sessionStorage.setItem(SNAPSHOT_CACHE_KEY, JSON.stringify(snapshot)); }
+  catch (e) {}
+}
+function applyPlan(plan) {
+  const planRow = document.getElementById("planRow");
+  const planLabel = document.getElementById("planLabel");
+  planLabel.textContent = PLAN_LABELS[plan] || PLAN_LABELS.free;
+  planRow.classList.remove("plan-premium", "plan-couple");
+  if (plan === "premium") planRow.classList.add("plan-premium");
+  if (plan === "couple") planRow.classList.add("plan-couple");
+}
+function applyCabinetSnapshot(snapshot) {
+  if (snapshot.filled) {
+    const qBadge = document.getElementById("badgeQuestionnaire");
+    qBadge.textContent = "Готово";
+    qBadge.classList.remove("todo"); qBadge.classList.add("done");
+  }
+  const clBadge = document.getElementById("badgeChecklist");
+  if (snapshot.checklistStatus) {
+    clBadge.textContent = snapshot.checklistStatus === "ai_generated" ? "AI" : "Базовый";
+    clBadge.classList.remove("todo"); clBadge.classList.add("done");
+  }
+  if (typeof snapshot.testCount === "number") {
+    const testsBadge = document.getElementById("badgeTests");
+    testsBadge.textContent = snapshot.testCount + " / 5";
+    if (snapshot.testCount > 0) { testsBadge.classList.remove("todo"); testsBadge.classList.add("done"); }
+  }
+  if (snapshot.plan) applyPlan(snapshot.plan);
+}
 
 function showFatal(html) { loadingState.innerHTML = html; }
 
@@ -503,54 +539,46 @@ document.querySelectorAll("[data-tip-title]").forEach(item => {
   let client;
   try { client = getClient(); } catch (err) { console.error("getClient failed:", err); showFatal('<span>Ошибка подключения к Supabase. <a href="login.html">Войти</a></span>'); return; }
 
-  let session;
-  try { session = await getSession(client); } catch (err) { console.error("getSession failed:", err); showFatal('<span>Ошибка сессии. <a href="login.html">Войти</a></span>'); return; }
-  if (!session) { window.location.href = "login.html"; return; }
+  let session = peekCachedSession();
+  if (session) {
+    getSession(client).then((fresh) => {
+      if (fresh) {
+        session = fresh;
+        document.getElementById("userEmail").textContent = fresh.user.email;
+      } else {
+        window.location.href = "login.html";
+      }
+    }).catch((err) => console.error("getSession failed:", err));
+  } else {
+    try { session = await getSession(client); } catch (err) { console.error("getSession failed:", err); }
+    if (!session) { window.location.href = "login.html"; return; }
+  }
 
   document.getElementById("userEmail").textContent = session.user.email;
   loadingState.style.display = "none";
   cabinetApp.style.display = "block";
-  document.getElementById("logoutBtn").addEventListener("click", async () => { await client.auth.signOut(); window.location.href = "login.html"; });
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await client.auth.signOut();
+    rememberSession(null);
+    try { sessionStorage.removeItem(SNAPSHOT_CACHE_KEY); } catch (e) {}
+    window.location.href = "login.html";
+  });
 
   const userId = session.user.id;
-  const [filled, checklist, latest, planResult, coupleLink] = await Promise.all([
-    hasCoupleProfile(client, userId).catch((err) => { console.error("hasCoupleProfile failed:", err); return false; }),
-    loadChecklist(client, userId).catch((err) => { console.error("loadChecklist failed:", err); return null; }),
-    loadLatestTestResults(client, userId).catch((err) => { console.error("loadLatestTestResults failed:", err); return {}; }),
-    getSelectedPlan(client, userId).catch((err) => { console.error("getSelectedPlan failed:", err); return "free"; }),
+  applyCabinetSnapshot(readCachedSnapshot() || {});
+
+  const [snapshot, coupleLink] = await Promise.all([
+    loadCabinetSnapshot(client, userId),
     getCoupleLink(client, userId).catch((err) => { console.error("getCoupleLink failed:", err); return null; }),
   ]);
-
-  if (filled) {
-    const qBadge = document.getElementById("badgeQuestionnaire");
-    qBadge.textContent = "Готово";
-    qBadge.classList.remove("todo"); qBadge.classList.add("done");
-  }
-
-  const clBadge = document.getElementById("badgeChecklist");
-  if (checklist) {
-    clBadge.textContent = checklist.generation_status === "ai_generated" ? "AI" : "Базовый";
-    clBadge.classList.remove("todo"); clBadge.classList.add("done");
-  } else {
-    clBadge.textContent = "—";
-    clBadge.classList.remove("done");
-  }
-
-  const doneCount = Object.values(latest || {}).filter(Boolean).length;
-  const testsBadge = document.getElementById("badgeTests");
-  testsBadge.textContent = doneCount + " / 5";
-  if (doneCount > 0) { testsBadge.classList.remove("todo"); testsBadge.classList.add("done"); }
+  writeCachedSnapshot(snapshot);
+  applyCabinetSnapshot(snapshot);
 
   try {
-    let plan = planResult || "free";
+    let plan = snapshot.plan || "free";
     const landingPlan = getLandingSelectedPlan();
     if (landingPlan && landingPlan !== plan) { await setSelectedPlan(client, userId, landingPlan); plan = landingPlan; }
-    const planRow = document.getElementById("planRow");
-    const planLabel = document.getElementById("planLabel");
-    planLabel.textContent = PLAN_LABELS[plan];
-    planRow.classList.remove("plan-premium", "plan-couple");
-    if (plan === "premium") planRow.classList.add("plan-premium");
-    if (plan === "couple") planRow.classList.add("plan-couple");
+    applyPlan(plan);
   } catch (err) { console.error("plan sync failed (non-fatal):", err); }
 
   try {

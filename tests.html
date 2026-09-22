@@ -10,6 +10,9 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="preconnect" href="https://tbbtblbytytzyvsmaqzg.supabase.co" crossorigin>
+<link rel="modulepreload" href="https://esm.sh/@supabase/supabase-js@2.94.1/es2022/supabase-js.bundle.mjs">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/auth.css">
 <script src="assets/supabase-config.js"></script>
@@ -236,7 +239,7 @@
 
 <script type="module">
 import {
-  getClient, isConfigured, getSession,
+  getClient, isConfigured, getSession, resolveSession,
   loadLatestTestResults, buildOverallProfile,
   formatTestResultForShare, formatOverallProfileForShare,
   deleteAllTestResults, deleteTestResultsByKey,
@@ -500,13 +503,16 @@ async function init() {
   }
   try {
     client = getClient();
-    session = await getSession(client);
+    session = await resolveSession(client);
     if (!session) { window.location.href = "login.html?next=tests.html"; return; }
   } catch (err) {
     console.error("auth check failed:", err);
     showFatal('<span>Не удалось проверить сессию. <a href="login.html">Ко входу</a></span>');
     return;
   }
+
+  loadingState.style.display = "none";
+  appRoot.style.display = "block";
 
   try {
     latestResults = await loadLatestTestResults(client, session.user.id);
@@ -517,9 +523,6 @@ async function init() {
 
   const params = new URLSearchParams(window.location.search);
   if (params.get("tab") === "results") switchTab("results");
-
-  loadingState.style.display = "none";
-  appRoot.style.display = "block";
 }
 
 init();
