@@ -81,7 +81,7 @@
 </main>
 
 <script type="module">
-  import { getClient, isConfigured, getSession, rememberSession } from "./assets/auth.js";
+  import { getClient, isConfigured, getSession } from "./assets/auth.js";
 
   const configWarning = document.getElementById('configWarning');
   const authForm = document.getElementById('authForm');
@@ -146,13 +146,25 @@
         if (mode === 'login') {
           const { data, error } = await client.auth.signInWithPassword({ email, password });
           if (error) throw error;
-          rememberSession(data.session);
+          try {
+            if (data.session?.user) {
+              sessionStorage.setItem("rs_session_cache", JSON.stringify({
+                ts: Date.now(),
+                session: { user: { id: data.session.user.id, email: data.session.user.email } },
+              }));
+            }
+          } catch (e) {}
           window.location.href = 'cabinet.html';
         } else {
           const { data, error } = await client.auth.signUp({ email, password });
           if (error) throw error;
           if (data.session) {
-            rememberSession(data.session);
+            try {
+              sessionStorage.setItem("rs_session_cache", JSON.stringify({
+                ts: Date.now(),
+                session: { user: { id: data.session.user.id, email: data.session.user.email } },
+              }));
+            } catch (e) {}
             window.location.href = 'cabinet.html';
           } else {
             setMode('login');
