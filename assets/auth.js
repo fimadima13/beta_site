@@ -5,6 +5,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.94.1/es2022/supabase-js.bundle.mjs";
 
 const SITE_URL = "https://www.relationsync.ai";
+const SESSION_CACHE_KEY = "rs_session_cache";
 
 let cachedClient = null;
 
@@ -21,14 +22,70 @@ export function isConfigured() {
 export function getClient() {
   if (!isConfigured()) return null;
   if (cachedClient) return cachedClient;
-  cachedClient = createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.anonKey);
+  cachedClient = createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.anonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: false,
+    },
+    global: {
+      fetch: (url, options = {}) => {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 8000);
+        const userSignal = options.signal;
+        if (userSignal) {
+          if (userSignal.aborted) ctrl.abort();
+          else userSignal.addEventListener("abort", () => ctrl.abort(), { once: true });
+        }
+        return fetch(url, { ...options, signal: ctrl.signal }).finally(() => clearTimeout(timer));
+      },
+    },
+  });
   return cachedClient;
+}
+
+export function peekCachedSession() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed?.session?.user?.id || Date.now() - parsed.ts > 30 * 60 * 1000) return null;
+    return parsed.session;
+  } catch (e) {
+    return null;
+  }
+}
+
+export function rememberSession(session) {
+  try {
+    if (!session?.user) {
+      sessionStorage.removeItem(SESSION_CACHE_KEY);
+      return;
+    }
+    sessionStorage.setItem(SESSION_CACHE_KEY, JSON.stringify({
+      ts: Date.now(),
+      session: { user: { id: session.user.id, email: session.user.email } },
+    }));
+  } catch (e) {}
 }
 
 export async function getSession(client) {
   const { data, error } = await client.auth.getSession();
-  if (error) return null;
+  if (error || !data.session) {
+    rememberSession(null);
+    return null;
+  }
+  rememberSession(data.session);
   return data.session;
+}
+
+export async function resolveSession(client) {
+  const cached = peekCachedSession();
+  if (cached) {
+    getSession(client).catch((err) => console.error("session refresh failed:", err));
+    return cached;
+  }
+  return getSession(client);
 }
 
 /* ============================================================
@@ -104,6 +161,8 @@ export async function deleteAccount(client) {
   }
 
   await client.auth.signOut();
+  rememberSession(null);
+  try { sessionStorage.removeItem("rs_cabinet_snapshot"); } catch (e) {}
   return true;
 }
 
@@ -260,9 +319,39 @@ export async function loadCoupleProfile(client, userId) {
 
 export async function hasCoupleProfile(client, userId) {
   try {
-    const profile = await loadCoupleProfile(client, userId);
-    return !!(profile && profile.relationship_stage);
+    const { data, error } = await client
+      .from("couple_profiles")
+      .select("relationship_stage")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (error) { console.error("hasCoupleProfile error:", error); return false; }
+    return !!(data && data.relationship_stage);
   } catch (err) { console.error("hasCoupleProfile exception:", err); return false; }
+}
+
+export async function loadCabinetSnapshot(client, userId) {
+  const empty = { filled: false, plan: "free", checklistStatus: null, testCount: 0 };
+  try {
+    const [profileRes, checklistRes, testsRes] = await Promise.all([
+      client.from("couple_profiles").select("relationship_stage, selected_plan").eq("user_id", userId).maybeSingle(),
+      client.from("checklists").select("generation_status").eq("user_id", userId).maybeSingle(),
+      client.from("test_results").select("test_key").eq("user_id", userId),
+    ]);
+    if (profileRes.error) console.error("loadCabinetSnapshot profile:", profileRes.error);
+    if (checklistRes.error) console.error("loadCabinetSnapshot checklist:", checklistRes.error);
+    if (testsRes.error) console.error("loadCabinetSnapshot tests:", testsRes.error);
+    const profile = profileRes.data;
+    const keys = new Set((testsRes.data || []).map((row) => row.test_key));
+    return {
+      filled: !!(profile && profile.relationship_stage),
+      plan: (profile && profile.selected_plan) || "free",
+      checklistStatus: checklistRes.data ? checklistRes.data.generation_status : null,
+      testCount: keys.size,
+    };
+  } catch (err) {
+    console.error("loadCabinetSnapshot exception:", err);
+    return empty;
+  }
 }
 
 /* ============================================================
@@ -471,7 +560,7 @@ export async function loadLatestTestResults(client, userId) {
   try {
     const { data, error } = await client
       .from("test_results")
-      .select("*")
+      .select("test_key, test_version, scores, result_summary, completed_at")
       .eq("user_id", userId)
       .order("completed_at", { ascending: false });
 

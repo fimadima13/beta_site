@@ -83,7 +83,7 @@ export async function getCoupleLink(client, userId) {
   assertClient(client);
   try {
     const { data, error } = await client.from("couple_links")
-      .select("*")
+      .select("id, status, user_a_id, user_b_id")
       .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
       .eq("status", "active")
       .maybeSingle();

@@ -19,15 +19,17 @@
 //
 // <script type="module" src="assets/heartbeat-loader.js"></script>
 
-import { getClient, isConfigured, getSession } from "./auth.js";
+import { getClient, isConfigured, getSession, peekCachedSession } from "./auth.js";
 import { startHeartbeat } from "./couple-features.js";
 
 (async function initHeartbeat() {
   try {
     if (!isConfigured()) return;
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     const client = getClient();
-    const session = await getSession(client);
-    if (!session) return; // не залогинен — нечего пинговать
+    const cached = peekCachedSession();
+    const session = cached || await getSession(client);
+    if (!session) return;
     startHeartbeat(client, session.user.id);
   } catch (err) {
     console.error("heartbeat-loader failed (non-fatal):", err);
