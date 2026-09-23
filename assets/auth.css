@@ -44,6 +44,52 @@ img,svg{display:block;}
 .back-link{font-size:14px; color:var(--nav); display:inline-flex; align-items:center; gap:6px; transition:color .2s ease;}
 .back-link:hover{color:#fff;}
 
+/* ---------- Space identity: Solo vs Couple ---------- */
+.space-strip{
+  width:100%;
+  border-bottom:1px solid var(--line);
+  flex:none;
+}
+.space-strip.solo{background:rgba(255,255,255,.018);}
+.space-strip.couple{
+  background:rgba(126,224,168,.045);
+  border-bottom-color:rgba(126,224,168,.22);
+}
+.space-strip-inner{
+  max-width:1100px; width:100%; margin:0 auto;
+  padding:8px 24px;
+  display:flex; align-items:center;
+}
+.space-chip{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:10.5px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+  color:var(--muted);
+}
+.space-chip::before{
+  content:""; width:6px; height:6px; border-radius:50%; flex:none;
+  background:var(--nav);
+}
+.space-chip.couple{color:#7ee0a8;}
+.space-chip.couple::before{
+  background:#7ee0a8;
+  box-shadow:0 0 6px rgba(126,224,168,.5);
+}
+
+html.embed .mini-header,
+html.embed .back-link,
+html.embed .space-strip,
+html.embed .j-rail-back,
+html.embed .j-rail-brand,
+html.embed .j-rail .space-chip,
+html.embed .tabs-nav,
+html.embed .couple-hero{display:none !important;}
+html.embed, html.embed body{min-height:0; height:100%;}
+html.embed body{overflow:auto;}
+html.embed .j-shell{height:100%; min-height:100%;}
+html.embed .j-rail{padding-top:16px;}
+html.embed .q-wrap,
+html.embed .couple-main{padding-top:8px;}
+
 /* ---------- auth (login/register) page ---------- */
 .auth-wrap{
   flex:1;

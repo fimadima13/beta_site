@@ -35,7 +35,7 @@ function removeLegacyInjectedLinks() {
 }
 
 function patchHeaderPillButton(isLoggedIn) {
-  const targetHref = isLoggedIn ? "cabinet.html" : "login.html";
+  const targetHref = isLoggedIn ? "home.html" : "login.html";
   const targetLabel = isLoggedIn ? "Кабинет" : "Войти";
 
   document.querySelectorAll('a.pill-nav').forEach((el) => {
@@ -46,7 +46,7 @@ function patchHeaderPillButton(isLoggedIn) {
   });
 
   document.querySelectorAll('a.pill-cta[href="#start"]').forEach((el) => {
-    el.setAttribute("href", isLoggedIn ? "cabinet.html" : "login.html?mode=register&plan=free");
+    el.setAttribute("href", isLoggedIn ? "home.html" : "login.html?mode=register&plan=free");
   });
 
   document.querySelectorAll('.menu-foot a.pill').forEach((el) => {
@@ -56,7 +56,7 @@ function patchHeaderPillButton(isLoggedIn) {
 
   if (isLoggedIn) {
     document.querySelectorAll('.menu-foot a.ghost[href="login.html"]').forEach((el) => {
-      el.setAttribute("href", "cabinet.html");
+      el.setAttribute("href", "home.html");
       el.textContent = "Кабинет";
     });
   }
@@ -90,6 +90,21 @@ function patchEarlyAccessSection() {
   `;
 }
 
+function patchEarlyAccessIfLoggedIn() {
+  const startSection = document.getElementById("start");
+  if (!startSection) return;
+  const finalCta = startSection.querySelector(".final-cta");
+  if (!finalCta) return;
+  finalCta.innerHTML = `
+    <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
+      <span class="eyebrow">Личный кабинет</span>
+      <h2 class="section-title" style="font-size:clamp(26px,3.2vw,34px); margin:16px 0 14px;">Вы уже внутри — откройте кабинет</h2>
+      <p class="section-sub" style="margin:0 0 26px;">Сначала главная: приветствие, тариф и следующий шаг. Пространства открываются оттуда, когда будете готовы.</p>
+      <a href="home.html" style="display:inline-flex; align-items:center; justify-content:center; height:50px; padding:0 28px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:15px; font-weight:600; text-decoration:none;">Открыть кабинет</a>
+    </div>
+  `;
+}
+
 async function run() {
   removeLegacyInjectedLinks();
   const session = await detectSession();
@@ -97,7 +112,8 @@ async function run() {
 
   patchHeaderPillButton(isLoggedIn);
   patchPricingButtons();
-  patchEarlyAccessSection();
+  if (isLoggedIn) patchEarlyAccessIfLoggedIn();
+  else patchEarlyAccessSection();
 }
 
 if (document.readyState === "loading") {
