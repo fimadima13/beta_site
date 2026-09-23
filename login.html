@@ -15,6 +15,7 @@
 <link rel="modulepreload" href="https://esm.sh/@supabase/supabase-js@2.94.1/es2022/supabase-js.bundle.mjs">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/auth.css">
+<script src="assets/embed-mode.js"></script>
 <script src="assets/supabase-config.js"></script>
 </head>
 <body>
@@ -83,6 +84,14 @@
 <script type="module">
   import { getClient, isConfigured, getSession } from "./assets/auth.js";
 
+  function afterAuthTarget() {
+    const next = new URLSearchParams(location.search).get("next") || "";
+    if (!next || /^https?:/i.test(next) || next.startsWith("//") || next.includes("..") || next.includes("\\")) {
+      return "home.html";
+    }
+    return next.replace(/^\//, "") || "home.html";
+  }
+
   const configWarning = document.getElementById('configWarning');
   const authForm = document.getElementById('authForm');
   const authMsg = document.getElementById('authMsg');
@@ -129,7 +138,7 @@
 
     // If already logged in, go straight to the cabinet.
     getSession(client).then(session => {
-      if (session) window.location.href = 'cabinet.html';
+      if (session) window.location.href = afterAuthTarget();
     });
 
     authForm.addEventListener('submit', async (e) => {
@@ -154,7 +163,7 @@
               }));
             }
           } catch (e) {}
-          window.location.href = 'cabinet.html';
+          window.location.href = afterAuthTarget();
         } else {
           const { data, error } = await client.auth.signUp({ email, password });
           if (error) throw error;
@@ -165,7 +174,7 @@
                 session: { user: { id: data.session.user.id, email: data.session.user.email } },
               }));
             } catch (e) {}
-            window.location.href = 'cabinet.html';
+            window.location.href = afterAuthTarget();
           } else {
             setMode('login');
             showMsg('Аккаунт создан. Проверьте почту и подтвердите email, затем войдите.', 'ok');

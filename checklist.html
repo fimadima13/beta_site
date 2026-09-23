@@ -10,11 +10,9 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://esm.sh" crossorigin>
-<link rel="preconnect" href="https://tbbtblbytytzyvsmaqzg.supabase.co" crossorigin>
-<link rel="modulepreload" href="https://esm.sh/@supabase/supabase-js@2.94.1/es2022/supabase-js.bundle.mjs">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/auth.css">
+<script src="assets/embed-mode.js"></script>
 <script src="assets/supabase-config.js"></script>
 <style>
 .cl-wrap{
@@ -137,7 +135,7 @@
 <div id="appRoot" style="display:none">
 
   <header class="mini-header">
-    <a href="cabinet.html" class="brand" aria-label="RelationSync.ai">
+    <a href="home.html" class="brand" aria-label="RelationSync.ai">
       <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
         <defs>
           <linearGradient id="bg1" x1="8" y1="10" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
@@ -154,8 +152,13 @@
       </svg>
       <span class="word">RelationSync<span class="dim">.ai</span></span>
     </a>
-    <a href="cabinet.html" class="back-link">← В кабинет</a>
+    <a href="cabinet.html" class="back-link">← Моё пространство</a>
   </header>
+  <div class="space-strip solo" role="status">
+    <div class="space-strip-inner">
+      <span class="space-chip solo">Моё пространство · видно только вам</span>
+    </div>
+  </div>
 
   <div class="cl-wrap">
 
@@ -197,7 +200,7 @@
 
 <script type="module">
 import {
-  getClient, isConfigured, getSession, resolveSession,
+  getClient, isConfigured, getSession,
   loadCoupleProfile, loadChecklist, generateChecklistPlaceholder, toggleChecklistItem
 } from "./assets/auth.js";
 
@@ -347,6 +350,11 @@ btnRegenerate.addEventListener("click", async () => {
 });
 
 async function init(){
+  if (new URLSearchParams(location.search).get("preview") === "spaces") {
+    loadingState.style.display = "none";
+    appRoot.style.display = "block";
+    return;
+  }
   if (!isConfigured()){
     showFatal('<span>Supabase не настроен — заполните <code>assets/supabase-config.js</code>. <a href="login.html">Ко входу</a></span>');
     return;
@@ -354,7 +362,7 @@ async function init(){
 
   try {
     client = getClient();
-    session = await resolveSession(client);
+    session = await getSession(client);
   } catch (err) {
     console.error("auth init failed:", err);
     showFatal('<span>Не удалось проверить сессию. Проверьте консоль браузера (F12). <a href="login.html">Ко входу</a></span>');
@@ -366,15 +374,16 @@ async function init(){
     return;
   }
 
-  loadingState.style.display = "none";
-  appRoot.style.display = "block";
-
   try {
     await loadEverything();
   } catch (err) {
     console.error("loadEverything failed:", err);
-    showFatal('<span>Не удалось загрузить чек-лист. Проверьте консоль браузера (F12) и таблицы в Supabase. <a href="cabinet.html">В кабинет</a></span>');
+    showFatal('<span>Не удалось загрузить чек-лист. Проверьте консоль браузера (F12) и таблицы в Supabase. <a href="home.html">В кабинет</a></span>');
+    return;
   }
+
+  loadingState.style.display = "none";
+  appRoot.style.display = "block";
 }
 
 init();

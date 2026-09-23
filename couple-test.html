@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/auth.css">
+<script src="assets/embed-mode.js"></script>
 <script src="assets/supabase-config.js"></script>
 <style>
 .couple-main{max-width:1100px; width:100%; margin:0 auto; padding:36px 24px 90px; flex:1;}
@@ -155,7 +156,7 @@
 </head>
 <body>
 <header class="mini-header">
-  <a class="brand" href="cabinet.html">
+  <a class="brand" href="home.html">
     <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
       <defs><linearGradient id="bg1" x1="8" y1="10" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
         <stop offset="0" stop-color="#9e9e9e"/><stop offset=".28" stop-color="#a6a6a6"/><stop offset=".34" stop-color="#a3a3a3"/>
@@ -167,8 +168,13 @@
     </svg>
     <span class="word">RelationSync<span class="dim">.AI</span></span>
   </a>
-  <a class="back-link" href="couple.html">← Режим пары</a>
+  <a class="back-link" href="couple.html">← Пространство пары</a>
 </header>
+<div class="space-strip couple" role="status">
+  <div class="space-strip-inner">
+    <span class="space-chip couple">Пространство пары · видно вам и партнёру</span>
+  </div>
+</div>
 
 <div id="pageLoading" class="page-loading"><span class="spinner"></span><span>Загрузка…</span></div>
 
@@ -176,10 +182,10 @@
 
   <section class="couple-hero">
     <h1>Совместимость</h1>
-    <p>Тесты, темы для разговора, идеи для свиданий и ваш общий прогресс — всё, что помогает лучше понимать друг друга, в одном месте.</p>
+    <p>Сравнение ответов, темы для разговора, идеи для свиданий и общий прогресс — без личных методик из «Самопонимания».</p>
     <div class="progress-row">
       <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-      <span class="progress-label" id="progressLabel">0 из 3 тестов пройдены вместе</span>
+      <span class="progress-label" id="progressLabel">0 из 3 сравнений пройдены вместе</span>
     </div>
   </section>
 
@@ -190,7 +196,7 @@
 
   <div id="linkedContent" style="display:none">
     <nav class="tabs-nav">
-      <button class="tab-btn active" data-tab="tests">Тесты</button>
+      <button class="tab-btn active" data-tab="tests">Сравнение</button>
       <button class="tab-btn" data-tab="discuss">Темы для обсуждения <span class="tab-count" id="discussCount">0</span></button>
       <button class="tab-btn" data-tab="dates">Генератор свиданий</button>
       <button class="tab-btn" data-tab="progress">Прогресс</button>
@@ -198,12 +204,12 @@
 
     <!-- ===== ВКЛАДКА: ТЕСТЫ + ОТЧЁТЫ ===== -->
     <section class="tab-panel active" id="panel-tests">
-      <h2 class="section-title">Тесты</h2>
-      <p class="section-sub">Пройдите тесты вдвоём — отчёт откроется, когда оба закончат.</p>
+      <h2 class="section-title">Сравнение</h2>
+      <p class="section-sub">Ответьте вдвоём — отчёт откроется, когда оба закончат. Это сравнение пары, не личный профиль.</p>
       <div class="couple-grid" id="coupleTestsGrid"></div>
 
       <h2 class="section-title">Отчёты</h2>
-      <p class="section-sub">Появляются, как только тест пройден обоими участниками пары.</p>
+      <p class="section-sub">Появляются, как только оба участника пары ответят.</p>
       <div id="reportsContainer"></div>
     </section>
 
@@ -292,9 +298,9 @@
       </div>
 
       <div class="retest-banner" id="retestBanner" style="display:none">
-        <h3>Пройдите тесты заново</h3>
-        <p>С последнего прохождения прошло время — динамика в отношениях меняется. Пройдите тесты снова и сравните результат с прошлым разом.</p>
-        <button class="retest-btn" onclick="document.querySelector('[data-tab=tests]').click()">Перейти к тестам</button>
+        <h3>Пройдите сравнение заново</h3>
+        <p>С последнего прохождения прошло время — динамика в отношениях меняется. Ответьте снова и сравните результат с прошлым разом.</p>
+        <button class="retest-btn" onclick="document.querySelector('[data-tab=tests]').click()">К сравнению</button>
       </div>
 
       <div class="premium-banner">
@@ -324,13 +330,15 @@ let discussFilter = "active";
 let surpriseOnly = false;
 const activeFilters = { budget: "", format: "", duration: "" };
 
+function activateCoupleTab(tab) {
+  const allowed = ["tests", "discuss", "dates", "progress"];
+  const id = allowed.includes(tab) ? tab : "tests";
+  document.querySelectorAll(".tab-btn").forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === id));
+  document.querySelectorAll(".tab-panel").forEach((panel) => panel.classList.toggle("active", panel.id === "panel-" + id));
+}
+
 document.querySelectorAll(".tab-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
-  });
+  btn.addEventListener("click", () => activateCoupleTab(btn.dataset.tab));
 });
 
 document.querySelectorAll(".chip-row").forEach(row => {
@@ -380,11 +388,11 @@ async function renderCoupleTests() {
     } else if (!mine && partner) {
       statusHtml = '<div class="test-status-row"><span class="test-status-chip waiting"><span class="test-status-dot"></span>Вы</span><span class="test-status-chip done"><span class="test-status-dot"></span>Партнёр</span></div>';
     } else {
-      statusHtml = '<div class="test-status-row"><span class="test-status-chip waiting"><span class="test-status-dot"></span>Никто не проходил</span></div>';
+      statusHtml = '<div class="test-status-row"><span class="test-status-chip waiting"><span class="test-status-dot"></span>Ещё никто не отвечал</span></div>';
     }
 
     card.innerHTML = '<span class="badge-free">Бесплатно</span><h3>' + meta.title + "</h3><p>" + meta.description + "</p>" + statusHtml +
-      '<a class="test-cta" href="couple-test-run.html?key=' + key + '">' + (mine ? "Пройти снова" : "Пройти тест") + "</a>";
+      '<a class="test-cta" href="couple-test-run.html?key=' + key + '">' + (mine ? "Ответить снова" : "Ответить вдвоём") + "</a>";
     grid.appendChild(card);
 
     if (mine && partner) {
@@ -396,7 +404,7 @@ async function renderCoupleTests() {
   }
 
   document.getElementById("progressFill").style.width = Math.round((doneCount / totalCount) * 100) + "%";
-  document.getElementById("progressLabel").textContent = doneCount + " из " + totalCount + " тестов пройдены вместе";
+  document.getElementById("progressLabel").textContent = doneCount + " из " + totalCount + " сравнений пройдены вместе";
   return doneCount;
 }
 
@@ -435,7 +443,7 @@ async function renderReports() {
   if (!anyReport) {
     const empty = document.createElement("div");
     empty.className = "result-card";
-    empty.innerHTML = '<div class="empty-state"><span>Отчётов пока нет.</span><span>Пройдите тесты вдвоём, чтобы увидеть первый общий результат.</span></div>';
+    empty.innerHTML = '<div class="empty-state"><span>Отчётов пока нет.</span><span>Ответьте вдвоём, чтобы увидеть первый общий результат.</span></div>';
     container.appendChild(empty);
   }
 }
@@ -621,6 +629,13 @@ async function renderProgress(testsDone) {
 }
 
 async function init() {
+  if (new URLSearchParams(location.search).get("preview") === "spaces") {
+    document.getElementById("pageLoading").style.display = "none";
+    document.getElementById("pageContent").style.display = "block";
+    document.getElementById("linkedContent").style.display = "block";
+    activateCoupleTab(new URLSearchParams(location.search).get("tab") || "tests");
+    return;
+  }
   if (!isConfigured()) { document.getElementById("pageLoading").innerHTML = "<span>Supabase не настроен.</span>"; return; }
   let session;
   try {
@@ -643,6 +658,7 @@ async function init() {
   }
 
   document.getElementById("linkedContent").style.display = "block";
+  activateCoupleTab(new URLSearchParams(location.search).get("tab") || "tests");
   const testsDone = await renderCoupleTests();
   await renderReports();
   await renderDiscussCounts();

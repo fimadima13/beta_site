@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>Кабинет — RelationSync.ai</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
+<link rel="preconnect" href="https://tbbtblbytytzyvsmaqzg.supabase.co" crossorigin>
+<link rel="modulepreload" href="https://esm.sh/@supabase/supabase-js@2.94.1/es2022/supabase-js.bundle.mjs">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/auth.css">
+<script src="assets/embed-mode.js"></script>
+<script src="assets/supabase-config.js"></script>
+<script src="assets/telegram-config.js"></script>
+<style>
+#homeApp{
+  position:relative; display:flex; flex-direction:column;
+  min-height:100vh; min-height:100dvh; overflow:clip;
+}
+.home-aura, .home-aura::before, .home-aura::after, .home-grain{
+  pointer-events:none; position:absolute; inset:0;
+}
+.home-aura{
+  z-index:0;
+  background:
+    radial-gradient(1100px 640px at 16% -12%, rgba(255,255,255,.20), transparent 60%),
+    radial-gradient(860px 520px at 90% 0%, rgba(126,224,168,.18), transparent 54%),
+    radial-gradient(760px 460px at 50% 108%, rgba(255,255,255,.08), transparent 58%);
+}
+.home-aura::before, .home-aura::after{
+  content:""; border-radius:50%; filter:blur(28px);
+  animation:orbDrift 16s ease-in-out infinite;
+}
+.home-aura::before{
+  width:380px; height:380px; top:-90px; left:6%;
+  background:rgba(255,255,255,.16);
+}
+.home-aura::after{
+  width:320px; height:320px; top:20px; right:-50px;
+  background:rgba(126,224,168,.18);
+  animation-delay:-7s;
+}
+.home-grain{
+  z-index:0; opacity:.18;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  background-size:180px;
+}
+.home-top, .home-main, .home-foot{position:relative; z-index:1;}
+.home-top{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:18px 24px; max-width:760px; width:100%; margin:0 auto;
+}
+.home-nav{display:flex; align-items:center; gap:8px;}
+.home-nav a, .home-nav button{
+  height:36px; padding:0 13px; border-radius:999px; font-size:13.5px; font-weight:600;
+  color:var(--nav); display:inline-flex; align-items:center;
+  transition:color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease;
+}
+.home-nav a:hover, .home-nav button:hover{color:#fff; background:rgba(255,255,255,.07); transform:translateY(-1px);}
+.home-nav .plan-pill{
+  border:1px solid rgba(255,255,255,.14); color:#fff;
+  background:rgba(255,255,255,.06); box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+}
+.home-nav .logout{border:1px solid rgba(255,255,255,.12);}
+
+.home-main{flex:1; width:100%; max-width:760px; margin:0 auto; padding:10px 24px 80px;}
+.home-hero{margin-bottom:22px;}
+.home-kicker{
+  margin:8px 0 14px; font-size:11px; font-weight:800; letter-spacing:.12em;
+  text-transform:uppercase; color:rgba(255,255,255,.46);
+}
+.home-title{
+  margin:0 0 10px; font-size:clamp(32px,5.4vw,46px); font-weight:750;
+  letter-spacing:-.04em; line-height:1.08;
+  background:linear-gradient(180deg, #fff 20%, #d8d8d8 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.home-email{margin:0; font-size:15px; color:rgba(255,255,255,.52);}
+
+.home-facts{display:flex; flex-wrap:wrap; gap:10px; margin:0 0 22px;}
+.home-fact{
+  min-width:132px; padding:12px 14px; border-radius:14px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.055);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);
+}
+.home-fact b{
+  display:block; font-size:10.5px; font-weight:800; letter-spacing:.07em;
+  text-transform:uppercase; color:rgba(255,255,255,.42); margin-bottom:6px;
+}
+.home-fact span{
+  display:inline-flex; align-items:center; gap:7px;
+  font-size:14px; font-weight:650; color:#fff;
+}
+.home-fact span::before{
+  content:""; width:7px; height:7px; border-radius:50%; flex:none;
+  background:#6b6b6b; box-shadow:0 0 0 3px rgba(255,255,255,.04);
+}
+.home-fact.on{border-color:rgba(126,224,168,.22); background:rgba(126,224,168,.06);}
+.home-fact.on span::before{background:#7ee0a8; box-shadow:0 0 8px rgba(126,224,168,.55);}
+
+.home-stage{
+  position:relative; margin:0 0 40px; padding:26px 26px 24px; border-radius:22px;
+  border:1px solid rgba(255,255,255,.18);
+  background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
+  box-shadow:
+    0 24px 60px rgba(0,0,0,.35),
+    0 0 0 1px rgba(126,224,168,.08),
+    inset 0 1px 0 rgba(255,255,255,.2);
+  overflow:hidden;
+}
+.home-stage::before{
+  content:""; position:absolute; inset:-1px auto auto 12%;
+  width:38%; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+}
+.home-stage p{position:relative; margin:0 0 20px; font-size:16.5px; line-height:1.55; color:rgba(255,255,255,.72); max-width:30em;}
+.home-go{
+  position:relative; isolation:isolate; overflow:hidden;
+  height:50px; padding:0 22px; border-radius:999px; background:#fff; color:#050505;
+  font-size:15px; font-weight:750; display:inline-flex; align-items:center; gap:10px;
+  box-shadow:0 10px 28px rgba(255,255,255,.16);
+  transition:transform .22s ease, box-shadow .22s ease;
+}
+.home-go::after{
+  content:""; position:absolute; inset:0; transform:translateX(-120%);
+  background:linear-gradient(105deg, transparent 30%, rgba(255,255,255,.7), transparent 70%);
+  animation:shimmer 3.4s ease-in-out infinite; pointer-events:none;
+}
+.home-go:hover{transform:translateY(-2px); box-shadow:0 16px 36px rgba(255,255,255,.22);}
+.home-go svg{width:16px; height:16px; transition:transform .22s ease;}
+.home-go:hover svg{transform:translateX(3px);}
+
+.ready .home-top{animation:rise .7s cubic-bezier(.22,1,.36,1) both;}
+.ready .home-hero{animation:rise .8s cubic-bezier(.22,1,.36,1) .06s both;}
+.ready .home-facts{animation:rise .8s cubic-bezier(.22,1,.36,1) .12s both;}
+.ready .home-stage{animation:rise .85s cubic-bezier(.22,1,.36,1) .18s both;}
+.ready .home-account{animation:rise .85s cubic-bezier(.22,1,.36,1) .26s both;}
+.ready .home-foot{animation:rise .8s cubic-bezier(.22,1,.36,1) .34s both;}
+@keyframes rise{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:none;}}
+@keyframes orbDrift{
+  0%,100%{transform:translate(0,0) scale(1);}
+  50%{transform:translate(24px,18px) scale(1.08);}
+}
+@keyframes shimmer{
+  0%,70%{transform:translateX(-120%);}
+  100%{transform:translateX(120%);}
+}
+
+.home-account{padding-top:4px;}
+.home-account > h2{margin:0 0 6px; font-size:21px; font-weight:750; letter-spacing:-.02em; color:#fff;}
+.home-account > .lead{margin:0 0 18px; font-size:14px; line-height:1.5; color:rgba(255,255,255,.48);}
+
+.ac-block{
+  border:1px solid rgba(255,255,255,.09); background:rgba(255,255,255,.03);
+  border-radius:16px; margin-bottom:10px; overflow:hidden;
+  backdrop-filter:blur(12px);
+  transition:border-color .2s ease, background .2s ease;
+}
+.ac-block:hover{border-color:rgba(255,255,255,.16); background:rgba(255,255,255,.045);}
+.ac-block[open]{background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.16);}
+.ac-block.danger{border-color:rgba(255,107,107,.22);}
+.ac-block.danger:hover, .ac-block.danger[open]{border-color:rgba(255,107,107,.38);}
+.ac-block summary{
+  list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between;
+  gap:16px; padding:16px 18px; font-size:15px; font-weight:700; color:#fff;
+}
+.ac-block summary::-webkit-details-marker{display:none;}
+.ac-block summary .hint{font-size:13px; font-weight:500; color:rgba(255,255,255,.42); margin-left:auto; margin-right:10px;}
+.ac-block summary .chev{
+  width:18px; height:18px; flex:none; color:rgba(255,255,255,.4);
+  transition:transform .25s ease;
+}
+.ac-block[open] summary .chev{transform:rotate(180deg);}
+.ac-body{padding:0 18px 20px;}
+.ac-body p.desc{margin:0 0 16px; font-size:13.5px; line-height:1.55; color:rgba(255,255,255,.5);}
+
+.ac-field{margin-bottom:14px;}
+.ac-field label{display:block; font-size:12.5px; color:var(--muted); margin-bottom:7px; font-weight:600;}
+.ac-field input{
+  width:100%; height:46px; border-radius:12px; border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04); color:#fff; padding:0 15px; font-size:14.5px;
+  font-family:inherit; transition:border-color .2s ease, background .2s ease;
+}
+.ac-field input::placeholder{color:var(--muted);}
+.ac-field input:focus{outline:none; border-color:rgba(255,255,255,.4);}
+.ac-field input:disabled{opacity:.5;}
+.ac-field .ac-hint{font-size:12px; color:var(--muted); margin:7px 0 0; line-height:1.5;}
+
+.ac-btn{
+  height:44px; padding:0 20px; border-radius:999px; font-size:14px; font-weight:600;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  border:1px solid var(--line); background:var(--pill); color:var(--pill-ink);
+}
+.ac-btn:disabled{opacity:.5; cursor:default;}
+.ac-btn.ghost{background:transparent; color:#fff;}
+.ac-btn.danger{
+  background:transparent; color:var(--err); border-color:rgba(255,107,107,.35);
+}
+.ac-btn.danger-solid{
+  background:rgba(255,107,107,.12); color:var(--err); border-color:rgba(255,107,107,.45);
+}
+
+.ac-msg{margin-top:14px; padding:10px 13px; border-radius:10px; font-size:13px; line-height:1.45; display:none;}
+.ac-msg.show{display:block;}
+.ac-msg.error{background:rgba(255,107,107,.1); border:1px solid rgba(255,107,107,.25); color:var(--err);}
+.ac-msg.ok{background:rgba(126,224,168,.1); border:1px solid rgba(126,224,168,.25); color:var(--ok);}
+.ac-spinner{
+  width:14px; height:14px; border-radius:50%;
+  border:2px solid rgba(5,5,5,.25); border-top-color:var(--pill-ink);
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.ac-tg-status{
+  display:flex; align-items:flex-start; gap:12px;
+  border:1px solid var(--line); border-radius:12px; padding:14px 16px;
+  margin-bottom:16px; background:rgba(255,255,255,.02);
+}
+.ac-tg-status.connected{border-color:rgba(126,224,168,.28); background:rgba(126,224,168,.06);}
+.ac-tg-status-icon{flex:none; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.06);}
+.ac-tg-status.connected .ac-tg-status-icon{background:rgba(126,224,168,.12); color:var(--ok);}
+.ac-tg-status-icon svg{width:18px; height:18px;}
+.ac-tg-status-text{font-size:13.5px; line-height:1.55; color:var(--muted);}
+.ac-tg-status-text strong{display:block; color:var(--ink); font-size:14px; margin-bottom:2px;}
+.ac-tg-status.connected .ac-tg-status-text strong{color:var(--ok);}
+.ac-toggles{display:flex; flex-direction:column; gap:10px; margin:0 0 16px;}
+.ac-toggle{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:12px 14px; border:1px solid var(--line); border-radius:12px; background:rgba(255,255,255,.02);
+}
+.ac-toggle-label{font-size:13.5px; color:var(--ink); line-height:1.45;}
+.ac-toggle-label span{display:block; font-size:12px; color:var(--muted); margin-top:2px;}
+.ac-switch{
+  position:relative; width:44px; height:26px; flex:none; padding:0; cursor:pointer;
+  background:rgba(255,255,255,.08); border-radius:999px;
+}
+.ac-switch::after{
+  content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%;
+  background:#fff; transition:transform .2s ease;
+}
+.ac-switch.on{background:rgba(126,224,168,.35);}
+.ac-switch.on::after{transform:translateX(18px);}
+.ac-switch:disabled{opacity:.45; cursor:default;}
+.ac-link-box{
+  display:flex; align-items:center; gap:10px; margin-top:14px; flex-wrap:wrap;
+  border:1px dashed rgba(255,255,255,.18); border-radius:12px; padding:12px 14px;
+  font-size:12.5px; color:var(--muted); line-height:1.5;
+}
+.ac-link-box code{
+  font-size:11.5px; color:var(--ink); word-break:break-all;
+  background:rgba(255,255,255,.05); padding:2px 6px; border-radius:6px;
+}
+.ac-plan-name{margin:0 0 8px; font-size:22px; font-weight:750; color:#fff;}
+.ac-check{display:flex; align-items:flex-start; gap:10px; margin:14px 0 18px; font-size:13px; color:var(--muted); line-height:1.5;}
+.ac-check input{margin-top:3px; accent-color:#ff6b6b;}
+.ac-delete-confirm label{display:block; font-size:12.5px; color:var(--muted); margin-bottom:7px; font-weight:600;}
+.ac-delete-confirm input{
+  width:100%; height:46px; border-radius:12px; border:1px solid rgba(255,107,107,.25);
+  background:rgba(255,107,107,.05); color:#fff; padding:0 15px; font-size:14.5px; font-family:inherit;
+}
+.ac-delete-confirm input:focus{outline:none; border-color:rgba(255,107,107,.45);}
+
+.home-foot{
+  max-width:720px; width:100%; margin:0 auto; padding:8px 24px 28px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+}
+.home-social{display:flex; gap:8px;}
+.home-social a{
+  width:36px; height:36px; border-radius:10px; border:1px solid rgba(255,255,255,.1);
+  display:flex; align-items:center; justify-content:center; color:var(--muted);
+  transition:color .2s ease, transform .2s ease, border-color .2s ease;
+}
+.home-social a:hover{color:#fff; transform:translateY(-2px); border-color:rgba(255,255,255,.22);}
+.home-social svg{width:16px; height:16px;}
+.home-foot .muted{font-size:12.5px; color:var(--muted);}
+.home-foot .muted a{color:var(--nav);}
+.home-foot .muted a:hover{color:#fff;}
+
+.cab-loading{max-width:560px; margin:60px auto; text-align:center; line-height:1.6;}
+.cab-loading a{color:#fff; text-decoration:underline;}
+
+@media (max-width: 640px){
+  .home-top, .home-main, .home-foot{padding-left:18px; padding-right:18px;}
+  .home-go{width:100%; justify-content:center;}
+  .home-stage{padding:22px 18px;}
+  .ac-block summary .hint{display:none;}
+}
+@media (prefers-reduced-motion: reduce){
+  .home-aura::before, .home-aura::after, .home-go::after{animation:none;}
+  .ready .home-top, .ready .home-hero, .ready .home-facts, .ready .home-stage, .ready .home-account, .ready .home-foot{animation:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="loadingState" class="cab-loading"><span class="spinner"></span></div>
+
+<div id="homeApp" style="display:none">
+  <div class="home-aura" aria-hidden="true"></div>
+  <div class="home-grain" aria-hidden="true"></div>
+  <header class="home-top">
+    <a href="home.html" class="brand" aria-label="Кабинет RelationSync.ai">
+      <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
+        <defs>
+          <linearGradient id="bg1" x1="8" y1="10" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#9e9e9e"/><stop offset=".28" stop-color="#a6a6a6"/>
+            <stop offset=".34" stop-color="#a3a3a3"/><stop offset=".40" stop-color="#3a3a3a"/>
+            <stop offset=".55" stop-color="#414141"/><stop offset=".60" stop-color="#7a7a7a"/>
+            <stop offset=".68" stop-color="#8e8e8e"/><stop offset=".80" stop-color="#a9a9a9"/>
+            <stop offset=".95" stop-color="#c4c4c4"/><stop offset="1" stop-color="#cccccc"/>
+          </linearGradient>
+        </defs>
+        <path d="M21.5 0 L21.5 19.5 L31.5 19.5 L31.5 29 L10 48.5 L10 28.5 L0.5 28.5 L0.5 18.5 Z" fill="url(#bg1)"/>
+        <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/>
+        <rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
+      </svg>
+      <span class="word">RelationSync<span class="dim">.ai</span></span>
+    </a>
+    <nav class="home-nav">
+      <a class="plan-pill" href="#plan" id="navPlan">Бесплатно</a>
+      <button type="button" class="logout" id="logoutBtn">Выйти</button>
+    </nav>
+  </header>
+
+  <main class="home-main">
+    <div class="home-hero">
+      <p class="home-kicker">Личный кабинет</p>
+      <h1 class="home-title" id="hello">Здравствуйте</h1>
+      <p class="home-email" id="emailLine"></p>
+    </div>
+
+    <div class="home-facts">
+      <div class="home-fact" id="factProfileCard"><b>Анкета</b><span id="factProfile">Ещё не заполнена</span></div>
+      <div class="home-fact" id="factCoupleCard"><b>Пара</b><span id="factCouple">Не подключена</span></div>
+      <div class="home-fact" id="factPlanCard"><b>Тариф</b><span id="factPlan">Бесплатно</span></div>
+    </div>
+
+    <section class="home-stage">
+      <p id="nextText">Дальше — анкета. Это ваш взгляд на отношения, партнёр ответы не увидит.</p>
+      <a class="home-go" id="spaceGo" href="cabinet.html#solo/questionnaire">
+        Перейти в пространство
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </section>
+
+    <section class="home-account" id="account">
+      <h2>Аккаунт</h2>
+      <p class="lead">Имя, вход, Telegram и удаление — на этой странице. Пространства открываются кнопкой выше.</p>
+
+      <details class="ac-block" id="blockProfile" name="acc">
+        <summary>
+          Профиль
+          <span class="hint" id="profileHint">Имя и email</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </summary>
+        <div class="ac-body">
+          <p class="desc">Как к вам обращаться в кабинете. Смена email потребует подтверждения по почте.</p>
+          <form id="nameForm">
+            <div class="ac-field">
+              <label for="nameInput">Имя</label>
+              <input type="text" id="nameInput" placeholder="Например: Аня" autocomplete="name">
+            </div>
+            <button type="submit" class="ac-btn" id="nameBtn"><span>Сохранить имя</span></button>
+            <div class="ac-msg" id="nameMsg"></div>
+          </form>
+          <form id="emailForm" style="margin-top:22px">
+            <div class="ac-field">
+              <label for="currentEmailInput">Текущий email</label>
+              <input type="email" id="currentEmailInput" disabled>
+            </div>
+            <div class="ac-field">
+              <label for="newEmailInput">Новый email</label>
+              <input type="email" id="newEmailInput" placeholder="new@example.com" autocomplete="email">
+              <p class="ac-hint">До подтверждения вход остаётся по старому адресу.</p>
+            </div>
+            <button type="submit" class="ac-btn" id="emailBtn"><span>Изменить email</span></button>
+            <div class="ac-msg" id="emailMsg"></div>
+          </form>
+        </div>
+      </details>
+
+      <details class="ac-block" id="blockPassword" name="acc">
+        <summary>
+          Пароль
+          <span class="hint">Смена входа</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </summary>
+        <div class="ac-body">
+          <p class="desc">Новый пароль сразу заменяет текущий на этом аккаунте.</p>
+          <form id="passwordForm">
+            <div class="ac-field">
+              <label for="newPasswordInput">Новый пароль</label>
+              <input type="password" id="newPasswordInput" placeholder="Минимум 6 символов" minlength="6" autocomplete="new-password">
+            </div>
+            <div class="ac-field">
+              <label for="confirmPasswordInput">Повторите пароль</label>
+              <input type="password" id="confirmPasswordInput" placeholder="Повторите пароль" minlength="6" autocomplete="new-password">
+            </div>
+            <button type="submit" class="ac-btn" id="passwordBtn"><span>Изменить пароль</span></button>
+            <div class="ac-msg" id="passwordMsg"></div>
+          </form>
+        </div>
+      </details>
+
+      <details class="ac-block" id="blockTelegram" name="acc">
+        <summary>
+          Telegram
+          <span class="hint" id="tgHint">Не подключено</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </summary>
+        <div class="ac-body">
+          <p class="desc">Напоминания о настроении, важных датах и чек-листе. Личное в пару не уходит.</p>
+          <div class="ac-tg-status" id="tgStatusBox">
+            <div class="ac-tg-status-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.3 18.7 20c-.2.9-.9 1.1-1.7.7l-4.7-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9L18 6.8c.4-.3-.1-.5-.6-.2L6.5 13.3 1.9 11.9c-1-.3-1-1 .2-1.5l19.1-7.3c.8-.3 1.5.2 1.2 1.2z"/></svg>
+            </div>
+            <div class="ac-tg-status-text" id="tgStatusText">
+              <strong>Не подключено</strong>
+              Нажмите кнопку — откроется бот, привязка произойдёт автоматически.
+            </div>
+          </div>
+          <div id="tgPrefsBlock" style="display:none">
+            <div class="ac-toggles">
+              <div class="ac-toggle">
+                <div class="ac-toggle-label">Напоминание о настроении<span>Если давно не отмечали настроение в дневнике</span></div>
+                <button type="button" class="ac-switch" id="tgPrefMood" aria-label="Напоминание о настроении"></button>
+              </div>
+              <div class="ac-toggle">
+                <div class="ac-toggle-label">Важные даты<span>За несколько дней до события из дневника</span></div>
+                <button type="button" class="ac-switch" id="tgPrefDates" aria-label="Важные даты"></button>
+              </div>
+              <div class="ac-toggle">
+                <div class="ac-toggle-label">Чек-лист<span>Когда появится или обновится персональный чек-лист</span></div>
+                <button type="button" class="ac-switch" id="tgPrefChecklist" aria-label="Чек-лист"></button>
+              </div>
+            </div>
+            <button type="button" class="ac-btn ghost" id="tgDisconnectBtn"><span>Отключить Telegram</span></button>
+          </div>
+          <div id="tgConnectBlock">
+            <button type="button" class="ac-btn" id="tgConnectBtn"><span>Подключить Telegram</span></button>
+            <div class="ac-link-box" id="tgLinkBox" style="display:none">
+              Откройте бота по ссылке. Код действует 15 минут:
+              <code id="tgLinkCode"></code>
+            </div>
+          </div>
+          <div class="ac-msg" id="tgMsg"></div>
+        </div>
+      </details>
+
+      <details class="ac-block" id="plan" name="acc">
+        <summary>
+          Тариф
+          <span class="hint" id="planHint">Бесплатно</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </summary>
+        <div class="ac-body">
+          <p class="ac-plan-name" id="planName">Бесплатно</p>
+          <p class="desc" id="planText">Кабинет открыт. Оплата пока не подключена — выбранный план это намерение, не ключ к закрытым разделам.</p>
+          <a class="ac-btn" href="pricing.html">Смотреть тарифы</a>
+        </div>
+      </details>
+
+      <details class="ac-block danger" id="blockDanger" name="acc">
+        <summary>
+          Удалить аккаунт
+          <span class="hint">Необратимо</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </summary>
+        <div class="ac-body">
+          <p class="desc">Безвозвратно удалит аккаунт, анкету, чек-лист, дневник, тесты и привязку Telegram.</p>
+          <div class="ac-delete-confirm">
+            <label for="deleteConfirmInput">Введите <strong>УДАЛИТЬ</strong> для подтверждения</label>
+            <input type="text" id="deleteConfirmInput" autocomplete="off" spellcheck="false" placeholder="УДАЛИТЬ">
+          </div>
+          <label class="ac-check">
+            <input type="checkbox" id="deleteAckCheckbox">
+            <span>Я понимаю, что данные будут удалены без восстановления.</span>
+          </label>
+          <button type="button" class="ac-btn danger-solid" id="deleteAccountBtn" disabled><span>Удалить аккаунт навсегда</span></button>
+          <div class="ac-msg" id="deleteMsg"></div>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer class="home-foot">
+    <div class="home-social">
+      <a href="https://t.me/relationsync_ai" target="_blank" rel="noopener" aria-label="Telegram">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22l-4-9-9-4 20-7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="https://instagram.com/relationsync.ai" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.6"/><circle cx="17.3" cy="6.7" r="1.1" fill="currentColor"/></svg>
+      </a>
+      <a href="https://tiktok.com/@relationsync.ai" target="_blank" rel="noopener" aria-label="TikTok">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M14 3.5v10.8a3.7 3.7 0 1 1-3.7-3.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 3.5c.5 2.5 2.4 4.3 4.8 4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <span class="muted"><a href="about.html">О проекте</a> · личные данные не уходят в пару сами</span>
+  </footer>
+</div>
+
+<script type="module">
+import {
+  getClient, isConfigured, getSession, hasCoupleProfile, getSelectedPlan, setSelectedPlan,
+  getLandingSelectedPlan, getDisplayProfile,
+  updateDisplayName, requestEmailChange, updatePassword, deleteAccount,
+  loadTelegramLink, createTelegramLinkToken, updateTelegramNotificationPrefs,
+  disconnectTelegram, isTelegramConfigured,
+} from "./assets/auth.js";
+import { getCoupleLink, getPendingInvite } from "./assets/couple-features.js";
+
+const PLAN_LABELS = { free: "Бесплатно", premium: "Premium", couple: "Couple" };
+const PLAN_TEXT = {
+  free: "Кабинет открыт. Оплата пока не подключена — выбранный план это намерение, не ключ к закрытым разделам.",
+  premium: "Вы отметили Premium. Списаний нет: разделы не запираются выбранным тарифом.",
+  couple: "Вы отметили Couple. Пространство пары можно открыть и без оплаты — тариф пока только метка.",
+};
+const LAST_TAB_KEY = "rs_last_space_tab";
+const HASH_BLOCKS = {
+  account: "blockProfile",
+  profile: "blockProfile",
+  password: "blockPassword",
+  telegram: "blockTelegram",
+  plan: "plan",
+  danger: "blockDanger",
+};
+
+const loadingState = document.getElementById("loadingState");
+const homeApp = document.getElementById("homeApp");
+const previewMode = new URLSearchParams(location.search).get("preview") === "spaces";
+
+let client = null;
+let session = null;
+let telegramLink = null;
+let telegramPollTimer = null;
+
+function showFatal(html) { loadingState.innerHTML = html; }
+
+function withPreview(href) {
+  if (!previewMode) return href;
+  const [path, hash] = href.split("#");
+  return path + "?preview=spaces" + (hash ? "#" + hash : "");
+}
+
+function readLastTabs() {
+  try { return JSON.parse(sessionStorage.getItem(LAST_TAB_KEY) || "{}"); }
+  catch (err) { return {}; }
+}
+
+function spaceHref(state) {
+  const last = readLastTabs();
+  if (!state.profile) return "cabinet.html#solo/questionnaire";
+  if (state.couplePending) return "cabinet.html#couple/link";
+  if (state.coupleLinked) return "cabinet.html#couple/" + (last.couple || "match");
+  return "cabinet.html#solo/" + (last.solo || "questionnaire");
+}
+
+function nextCopy(state) {
+  if (!state.profile) {
+    return "Дальше — анкета. Это ваш взгляд на отношения, партнёр ответы не увидит.";
+  }
+  if (state.couplePending) {
+    return "Код уже создан. Откройте пространство и отправьте его партнёру — личное туда не уйдёт.";
+  }
+  if (state.coupleLinked) {
+    return "Пара связана. Сравнение и темы уже в пространстве.";
+  }
+  return "Пространство открыто. Можно разобрать себя или подключить партнёра, когда будете готовы.";
+}
+
+function paintHero(state) {
+  const name = state.name || "друг";
+  document.getElementById("hello").textContent = "Здравствуйте, " + name;
+  document.getElementById("emailLine").textContent = state.email || "";
+  document.getElementById("navPlan").textContent = PLAN_LABELS[state.plan] || PLAN_LABELS.free;
+  document.getElementById("factPlan").textContent = PLAN_LABELS[state.plan] || PLAN_LABELS.free;
+  document.getElementById("planHint").textContent = PLAN_LABELS[state.plan] || PLAN_LABELS.free;
+  document.getElementById("planName").textContent = PLAN_LABELS[state.plan] || PLAN_LABELS.free;
+  document.getElementById("planText").textContent = PLAN_TEXT[state.plan] || PLAN_TEXT.free;
+  document.getElementById("factProfile").textContent = state.profile ? "Заполнена" : "Ещё не заполнена";
+  document.getElementById("factCouple").textContent = state.coupleLinked
+    ? "Связана"
+    : state.couplePending
+      ? "Код создан"
+      : "Не подключена";
+  document.getElementById("factProfileCard").classList.toggle("on", !!state.profile);
+  document.getElementById("factCoupleCard").classList.toggle("on", !!(state.coupleLinked || state.couplePending));
+  document.getElementById("factPlanCard").classList.toggle("on", state.plan && state.plan !== "free");
+  document.getElementById("nextText").textContent = nextCopy(state);
+  document.getElementById("spaceGo").href = withPreview(spaceHref(state));
+  document.getElementById("profileHint").textContent = state.email || "Имя и email";
+  document.getElementById("nameInput").value = state.name || "";
+  document.getElementById("currentEmailInput").value = state.email || "";
+}
+
+function openHashBlock() {
+  const key = (location.hash || "").replace(/^#/, "");
+  const id = HASH_BLOCKS[key];
+  if (!id) return;
+  const block = document.getElementById(id);
+  if (!block) return;
+  block.open = true;
+  block.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function showMsg(elId, text, type) {
+  const el = document.getElementById(elId);
+  el.textContent = text;
+  el.className = "ac-msg show " + type;
+}
+function hideMsg(elId) {
+  document.getElementById(elId).className = "ac-msg";
+}
+function setBusy(btnId, busy, label) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = busy;
+  btn.innerHTML = busy ? '<span class="ac-spinner"></span>' : "<span>" + label + "</span>";
+}
+function setSwitch(el, on) {
+  el.classList.toggle("on", on);
+  el.setAttribute("aria-pressed", on ? "true" : "false");
+}
+
+function renderTelegramState() {
+  const statusBox = document.getElementById("tgStatusBox");
+  const statusText = document.getElementById("tgStatusText");
+  const prefsBlock = document.getElementById("tgPrefsBlock");
+  const connectBlock = document.getElementById("tgConnectBlock");
+  const linkBox = document.getElementById("tgLinkBox");
+  const hint = document.getElementById("tgHint");
+
+  if (telegramLink?.telegram_chat_id) {
+    statusBox.classList.add("connected");
+    const handle = telegramLink.telegram_username ? "@" + telegramLink.telegram_username : "чат подключён";
+    statusText.innerHTML = "<strong>Telegram подключён</strong>" + handle + ". Уведомления можно настроить ниже.";
+    hint.textContent = handle;
+    prefsBlock.style.display = "block";
+    connectBlock.style.display = "none";
+    linkBox.style.display = "none";
+    setSwitch(document.getElementById("tgPrefMood"), !!telegramLink.notify_mood_reminder);
+    setSwitch(document.getElementById("tgPrefDates"), !!telegramLink.notify_important_dates);
+    setSwitch(document.getElementById("tgPrefChecklist"), !!telegramLink.notify_checklist);
+    stopTelegramPolling();
+    return;
+  }
+
+  statusBox.classList.remove("connected");
+  statusText.innerHTML = "<strong>Не подключено</strong>Нажмите кнопку — откроется бот, привязка произойдёт автоматически.";
+  hint.textContent = "Не подключено";
+  prefsBlock.style.display = "none";
+  connectBlock.style.display = "block";
+}
+
+function stopTelegramPolling() {
+  if (telegramPollTimer) {
+    clearInterval(telegramPollTimer);
+    telegramPollTimer = null;
+  }
+}
+
+function startTelegramPolling() {
+  stopTelegramPolling();
+  telegramPollTimer = setInterval(async () => {
+    try {
+      telegramLink = await loadTelegramLink(client, session.user.id);
+      if (telegramLink?.telegram_chat_id) {
+        renderTelegramState();
+        showMsg("tgMsg", "Telegram успешно подключён.", "ok");
+      }
+    } catch (err) {
+      console.error("telegram poll failed:", err);
+    }
+  }, 2500);
+}
+
+function updateDeleteButtonState() {
+  const confirmed = document.getElementById("deleteConfirmInput").value.trim() === "УДАЛИТЬ";
+  const acked = document.getElementById("deleteAckCheckbox").checked;
+  document.getElementById("deleteAccountBtn").disabled = !(confirmed && acked);
+}
+
+function needSession(msgId) {
+  if (session && client) return true;
+  showMsg(msgId, "Войдите, чтобы сохранить изменения.", "error");
+  return false;
+}
+
+function bindAccount() {
+  document.getElementById("nameForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideMsg("nameMsg");
+    if (!needSession("nameMsg")) return;
+    const name = document.getElementById("nameInput").value.trim();
+    if (!name) { showMsg("nameMsg", "Введите имя.", "error"); return; }
+    setBusy("nameBtn", true);
+    try {
+      await updateDisplayName(client, session.user.id, name);
+      document.getElementById("hello").textContent = "Здравствуйте, " + name;
+      showMsg("nameMsg", "Имя сохранено.", "ok");
+    } catch (err) {
+      showMsg("nameMsg", "Не удалось сохранить имя: " + (err?.message || "неизвестная ошибка"), "error");
+    } finally {
+      setBusy("nameBtn", false, "Сохранить имя");
+    }
+  });
+
+  document.getElementById("emailForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideMsg("emailMsg");
+    if (!needSession("emailMsg")) return;
+    const newEmail = document.getElementById("newEmailInput").value.trim();
+    if (!newEmail) { showMsg("emailMsg", "Введите новый email.", "error"); return; }
+    setBusy("emailBtn", true);
+    try {
+      await requestEmailChange(client, newEmail);
+      showMsg("emailMsg", "Письмо для подтверждения отправлено на " + newEmail + ".", "ok");
+      document.getElementById("newEmailInput").value = "";
+    } catch (err) {
+      showMsg("emailMsg", "Не удалось изменить email: " + (err?.message || "неизвестная ошибка"), "error");
+    } finally {
+      setBusy("emailBtn", false, "Изменить email");
+    }
+  });
+
+  document.getElementById("passwordForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideMsg("passwordMsg");
+    if (!needSession("passwordMsg")) return;
+    const newPassword = document.getElementById("newPasswordInput").value;
+    const confirmPassword = document.getElementById("confirmPasswordInput").value;
+    if (newPassword !== confirmPassword) { showMsg("passwordMsg", "Пароли не совпадают.", "error"); return; }
+    if (newPassword.length < 6) { showMsg("passwordMsg", "Пароль должен быть не короче 6 символов.", "error"); return; }
+    setBusy("passwordBtn", true);
+    try {
+      await updatePassword(client, newPassword);
+      showMsg("passwordMsg", "Пароль изменён.", "ok");
+      document.getElementById("newPasswordInput").value = "";
+      document.getElementById("confirmPasswordInput").value = "";
+    } catch (err) {
+      showMsg("passwordMsg", "Не удалось изменить пароль: " + (err?.message || "неизвестная ошибка"), "error");
+    } finally {
+      setBusy("passwordBtn", false, "Изменить пароль");
+    }
+  });
+
+  document.getElementById("tgConnectBtn").addEventListener("click", async () => {
+    hideMsg("tgMsg");
+    if (!needSession("tgMsg")) return;
+    if (!isTelegramConfigured()) {
+      showMsg("tgMsg", "Сначала укажите botUsername в assets/telegram-config.js.", "error");
+      return;
+    }
+    setBusy("tgConnectBtn", true, "Создаём ссылку…");
+    try {
+      const linkData = await createTelegramLinkToken(client, session.user.id);
+      if (!linkData.deepLink) throw new Error("Не удалось сформировать ссылку на бота");
+      document.getElementById("tgLinkBox").style.display = "flex";
+      document.getElementById("tgLinkCode").textContent = linkData.deepLink;
+      window.open(linkData.deepLink, "_blank", "noopener");
+      showMsg("tgMsg", "Откройте бота в Telegram и нажмите Start. Страница обновится после привязки.", "ok");
+      startTelegramPolling();
+    } catch (err) {
+      showMsg("tgMsg", "Не удалось создать код привязки: " + (err?.message || "неизвестная ошибка"), "error");
+    } finally {
+      setBusy("tgConnectBtn", false, "Подключить Telegram");
+    }
+  });
+
+  async function saveTelegramPref(key, value, switchEl) {
+    hideMsg("tgMsg");
+    if (!needSession("tgMsg")) return;
+    switchEl.disabled = true;
+    try {
+      telegramLink = await updateTelegramNotificationPrefs(client, session.user.id, { [key]: value });
+      setSwitch(switchEl, value);
+      showMsg("tgMsg", "Настройки уведомлений сохранены.", "ok");
+    } catch (err) {
+      setSwitch(switchEl, !value);
+      showMsg("tgMsg", "Не удалось сохранить настройку: " + (err?.message || "неизвестная ошибка"), "error");
+    } finally {
+      switchEl.disabled = false;
+    }
+  }
+
+  document.getElementById("tgPrefMood").addEventListener("click", async function () {
+    await saveTelegramPref("notifyMoodReminder", !this.classList.contains("on"), this);
+  });
+  document.getElementById("tgPrefDates").addEventListener("click", async function () {
+    await saveTelegramPref("notifyImportantDates", !this.classList.contains("on"), this);
+  });
+  document.getElementById("tgPrefChecklist").addEventListener("click", async function () {
+    await saveTelegramPref("notifyChecklist", !this.classList.contains("on"), this);
+  });
+
+  document.getElementById("tgDisconnectBtn").addEventListener("click", async () => {
+    hideMsg("tgMsg");
+    if (!needSession("tgMsg")) return;
+    if (!confirm("Отключить Telegram-уведомления для этого аккаунта?")) return;
+    setBusy("tgDisconnectBtn", true, "Отключаем…");
+    try {
+      await disconnectTelegram(client, session.user.id);
+      telegramLink = null;
+      renderTelegramState();
+      showMsg("tgMsg", "Telegram отключён.", "ok");
+    } catch (err) {
+      showMsg("tgMsg", "Не удалось отключить: " + (err?.message || "неизвестная ошибка"), "error");
+    } finally {
+      setBusy("tgDisconnectBtn", false, "Отключить Telegram");
+    }
+  });
+
+  document.getElementById("deleteConfirmInput").addEventListener("input", updateDeleteButtonState);
+  document.getElementById("deleteAckCheckbox").addEventListener("change", updateDeleteButtonState);
+  document.getElementById("deleteAccountBtn").addEventListener("click", async () => {
+    hideMsg("deleteMsg");
+    if (!needSession("deleteMsg")) return;
+    if (document.getElementById("deleteConfirmInput").value.trim() !== "УДАЛИТЬ") {
+      showMsg("deleteMsg", "Введите УДАЛИТЬ для подтверждения.", "error");
+      return;
+    }
+    if (!document.getElementById("deleteAckCheckbox").checked) {
+      showMsg("deleteMsg", "Подтвердите, что понимаете последствия.", "error");
+      return;
+    }
+    if (!confirm("Последнее предупреждение: удалить аккаунт и все данные безвозвратно?")) return;
+    stopTelegramPolling();
+    setBusy("deleteAccountBtn", true, "Удаляем…");
+    try {
+      await deleteAccount(client);
+      window.location.href = "index.html?deleted=1";
+    } catch (err) {
+      showMsg("deleteMsg", err?.message || "Не удалось удалить аккаунт", "error");
+    } finally {
+      setBusy("deleteAccountBtn", false, "Удалить аккаунт навсегда");
+      updateDeleteButtonState();
+    }
+  });
+}
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  stopTelegramPolling();
+  if (client) await client.auth.signOut();
+  window.location.href = "login.html";
+});
+
+window.addEventListener("hashchange", openHashBlock);
+window.addEventListener("beforeunload", stopTelegramPolling);
+
+(async () => {
+  const state = { name: "", email: "", plan: "free", profile: false, coupleLinked: false, couplePending: false };
+
+  if (!previewMode || isConfigured()) {
+    if (!isConfigured() && !previewMode) {
+      showFatal('<span>Supabase не настроен. <a href="login.html">Войти</a></span>');
+      return;
+    }
+    if (isConfigured()) {
+      try { client = getClient(); } catch (err) {
+        if (!previewMode) { showFatal('<span>Ошибка подключения. <a href="login.html">Войти</a></span>'); return; }
+      }
+      if (client) {
+        try { session = await getSession(client); } catch (err) {
+          if (!previewMode) { showFatal('<span>Ошибка сессии. <a href="login.html">Войти</a></span>'); return; }
+        }
+      }
+    }
+    if (!session && !previewMode) {
+      window.location.href = "login.html?next=home.html";
+      return;
+    }
+  }
+
+  if (session) {
+    const display = getDisplayProfile(session);
+    state.email = session.user.email;
+    state.name = (display && display.displayName) || session.user.email.split("@")[0];
+    try {
+      state.profile = await hasCoupleProfile(client, session.user.id);
+    } catch (err) { console.error(err); }
+    try {
+      let plan = await getSelectedPlan(client, session.user.id);
+      const landingPlan = getLandingSelectedPlan();
+      if (landingPlan && landingPlan !== plan) { await setSelectedPlan(client, session.user.id, landingPlan); plan = landingPlan; }
+      state.plan = plan || "free";
+    } catch (err) { console.error(err); }
+    try {
+      const link = await getCoupleLink(client, session.user.id);
+      const pending = link ? null : await getPendingInvite(client, session.user.id);
+      state.coupleLinked = !!link;
+      state.couplePending = !!pending;
+    } catch (err) { console.error(err); }
+    try {
+      telegramLink = await loadTelegramLink(client, session.user.id);
+    } catch (err) { console.error(err); }
+  } else {
+    state.name = "test";
+    state.email = "test@gmail.com";
+  }
+
+  paintHero(state);
+  renderTelegramState();
+  if (session && !isTelegramConfigured()) {
+    document.getElementById("tgConnectBtn").disabled = true;
+    showMsg("tgMsg", "Укажите имя бота в assets/telegram-config.js (botUsername).", "error");
+  }
+  bindAccount();
+
+  loadingState.style.display = "none";
+  homeApp.style.display = "flex";
+  requestAnimationFrame(() => homeApp.classList.add("ready"));
+  openHashBlock();
+})();
+</script>
+<script type="module" src="assets/heartbeat-loader.js"></script>
+</body>
+</html>
