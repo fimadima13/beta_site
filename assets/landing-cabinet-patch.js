@@ -85,7 +85,7 @@ function patchEarlyAccessSection() {
       <p class="section-sub" style="margin:0 0 26px;">Регистрация занимает меньше минуты. Дальше — анкета о вас и партнёре, и сразу персональный план в кабинете.</p>
       <a href="login.html?mode=register&plan=free" style="display:inline-flex; align-items:center; justify-content:center; height:50px; padding:0 28px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:15px; font-weight:600; text-decoration:none;">Создать аккаунт бесплатно</a>
       <a href="login.html" style="display:inline-flex; align-items:center; justify-content:center; height:auto; margin:16px 0 0; font-size:14.5px; font-weight:500; color:#fff; text-decoration:none; opacity:.85;">Уже есть аккаунт →</a>
-      <p style="margin:20px 0 0; font-size:12.5px; color:var(--muted); text-align:center;">Без списаний на бесплатном тарифе. Отменить или сменить план можно в любой момент.</p>
+      <p style="margin:20px 0 0; font-size:12.5px; color:var(--muted); text-align:center;">Без списаний на бесплатном тарифе. Тариф можно сменить в кабинете.</p>
     </div>
   `;
 }
