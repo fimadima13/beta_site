@@ -1,32 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.perplexity.ai/computer/a/relationsync-ai-23vrNUUFShei62zA8fTzUg/</loc>
+    <loc>https://fimadima13.github.io/beta_site/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.perplexity.ai/computer/a/relationsync-ai-23vrNUUFShei62zA8fTzUg/#how</loc>
+    <loc>https://fimadima13.github.io/beta_site/#how</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.perplexity.ai/computer/a/relationsync-ai-23vrNUUFShei62zA8fTzUg/#demo</loc>
+    <loc>https://fimadima13.github.io/beta_site/#demo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.perplexity.ai/computer/a/relationsync-ai-23vrNUUFShei62zA8fTzUg/#benefits</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://www.perplexity.ai/computer/a/relationsync-ai-23vrNUUFShei62zA8fTzUg/#pricing</loc>
+    <loc>https://fimadima13.github.io/beta_site/#tests</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.perplexity.ai/computer/a/relationsync-ai-23vrNUUFShei62zA8fTzUg/#faq</loc>
+    <loc>https://fimadima13.github.io/beta_site/#benefits</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://fimadima13.github.io/beta_site/#pricing</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fimadima13.github.io/beta_site/#faq</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

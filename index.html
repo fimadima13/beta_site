@@ -6,38 +6,32 @@
   /* Prevent the browser from restoring a previous scroll position for this URL
      (this is what makes the page appear to jump down right after opening it) */
   if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
-  window.scrollTo(0, 0);
+  if (!location.hash) { window.scrollTo(0, 0); }
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050505">
 <title>RelationSync.AI — Новый уровень ваших отношений</title>
-<meta name="description" content="RelationSync.AI — ИИ-инфраструктура для отношений, созданная совместно с психологами и психотерапевтами. Персональный анализ пары, чек-листы и эмпатичная поддержка 24/7.">
-<link rel="canonical" href="https://www.perplexity.ai/computer/a/relationsync-ai-23vrNUUFShei62zA8fTzUg">
+<meta name="description" content="RelationSync.AI — кабинет для отношений: личные и парные тесты, анкета, чек-листы и персональный план. Создано вместе с психологами.">
+<link rel="canonical" href="https://fimadima13.github.io/beta_site/">
 <meta name="robots" content="index, follow">
 
-<!-- Favicons -->
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="favicon.svg">
 
-<!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="RelationSync.AI">
 <meta property="og:title" content="RelationSync.AI — Новый уровень ваших отношений">
-<meta property="og:description" content="ИИ-инфраструктура для отношений, созданная совместно с психологами и психотерапевтами. Персональный анализ пары, чек-листы и эмпатичная поддержка 24/7.">
-<meta property="og:url" content="https://www.perplexity.ai/computer/a/relationsync-ai-23vrNUUFShei62zA8fTzUg">
-<meta property="og:image" content="https://www.perplexity.ai/computer/a/relationsync-ai-23vrNUUFShei62zA8fTzUg/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+<meta property="og:description" content="Кабинет для вас и для пары: тесты, чек-листы и персональный план — без общих фраз.">
+<meta property="og:url" content="https://fimadima13.github.io/beta_site/">
+<meta property="og:image" content="https://fimadima13.github.io/beta_site/telegram-lock-cover.jpg">
+<meta property="og:image:width" content="1080">
+<meta property="og:image:height" content="1080">
 <meta property="og:locale" content="ru_RU">
 
-<!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="RelationSync.AI — Новый уровень ваших отношений">
-<meta name="twitter:description" content="ИИ-инфраструктура для отношений, созданная совместно с психологами и психотерапевтами.">
-<meta name="twitter:image" content="https://www.perplexity.ai/computer/a/relationsync-ai-23vrNUUFShei62zA8fTzUg/og-image.png">
+<meta name="twitter:description" content="Кабинет для отношений: тесты, чек-листы и персональный план.">
+<meta name="twitter:image" content="https://fimadima13.github.io/beta_site/telegram-lock-cover.jpg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,6 +47,7 @@
     --line: rgba(255,255,255,.10);
     --card: rgba(255,255,255,.025);
     --card-hover: rgba(255,255,255,.055);
+    --ok:#7ee0a8;
 
     --u: calc(100vh / 1058);
     --uw: calc(100vw / 1487);
@@ -226,6 +221,9 @@
   }
   .links a{padding:calc(4*var(--u)); transition:color .2s ease;}
   .links a:hover{color:#fff;}
+  @media (max-width:1180px){
+    .links{gap:calc(16 * var(--u)); font-size:calc(16.5 * var(--u));}
+  }
 
   .pill-nav{
     position:absolute; pointer-events:auto;
@@ -276,6 +274,8 @@
   .is-open .menu-list li:nth-child(3){transition-delay:.22s; opacity:1; transform:none;}
   .is-open .menu-list li:nth-child(4){transition-delay:.28s; opacity:1; transform:none;}
   .is-open .menu-list li:nth-child(5){transition-delay:.34s; opacity:1; transform:none;}
+  .is-open .menu-list li:nth-child(6){transition-delay:.38s; opacity:1; transform:none;}
+  .is-open .menu-list li:nth-child(7){transition-delay:.42s; opacity:1; transform:none;}
   .menu-foot{margin-top:32px; display:flex; flex-direction:column; gap:14px; opacity:0; transform:translateY(10px); transition:opacity .4s, transform .4s; transition-delay:.40s;}
   .is-open .menu-foot{opacity:1; transform:none;}
   .menu-foot .pill{display:inline-flex; align-items:center; justify-content:center; height:52px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:17px; font-weight:500;}
@@ -319,13 +319,45 @@
   }
 
   /* ================= BELOW-FOLD PAGE ================= */
-  .page{position:relative; z-index:1; background:#050505;}
+  .page{
+    position:relative; z-index:1; overflow:hidden;
+    background:#050505;
+  }
+  .page::before{
+    content:''; position:absolute; inset:-20% -10%; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(ellipse 55% 40% at 18% 22%, rgba(255,255,255,.035), transparent 70%),
+      radial-gradient(ellipse 50% 36% at 82% 58%, rgba(255,255,255,.028), transparent 68%),
+      radial-gradient(ellipse 45% 30% at 50% 88%, rgba(255,255,255,.02), transparent 70%);
+    animation:pageGlow 36s ease-in-out infinite;
+  }
+  .page::after{
+    content:''; position:absolute; inset:0; pointer-events:none; z-index:0; opacity:.03;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+  .page > *{position:relative; z-index:1;}
+  @keyframes pageGlow{
+    0%,100%{transform:translate3d(0,0,0);}
+    50%{transform:translate3d(1.2%,.8%,0);}
+  }
+
   .section{padding:clamp(76px,10vw,128px) 0; position:relative; scroll-margin-top:110px;}
-  .section-start{border-top:1px solid var(--line);}
-  .section-alt{background:radial-gradient(ellipse 80% 55% at 50% 0%, rgba(255,255,255,.032), rgba(255,255,255,.006) 55%, transparent 100%);}
+  .section-start{border-top:0;}
+  .section-start::before{
+    content:''; position:absolute; left:12%; right:12%; top:0; height:1px;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent);
+    opacity:.55;
+  }
+  #how.section-start::before{display:none;}
+  .section-alt{background:radial-gradient(ellipse 85% 70% at 50% 0%, rgba(255,255,255,.028), transparent 72%);}
+  #tests,#pricing,#start{background:none;}
   .wrap{max-width:1200px; margin:0 auto; padding:0 clamp(22px,6vw,75px);}
   .section-head{max-width:680px; margin:0 auto 52px; text-align:center;}
-  .eyebrow{display:inline-flex; align-items:center; gap:8px; margin-bottom:16px; padding:6px 13px; border-radius:5px; border:1px solid var(--line); background:var(--card); font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px; margin-bottom:16px; padding:6px 13px; border-radius:5px;
+    border:1px solid var(--line); background:rgba(255,255,255,.03);
+    font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+  }
   .section-title{font-size:clamp(28px,3.6vw,40px); font-weight:500; line-height:1.18; color:var(--ink); margin:0 0 16px;}
   .section-sub{font-size:clamp(15px,1.6vw,18px); line-height:1.6; color:var(--muted); margin:0;}
   .reveal{opacity:1; transform:translateY(18px); transition:opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1);}
@@ -334,29 +366,59 @@
   /* how it works */
   .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:28px;}
   .step{padding-top:22px; border-top:1px solid var(--line);}
-  .step-num{width:38px; height:38px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; color:var(--ink); margin-bottom:18px;}
+  .step-num{
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600;
+    color:var(--ink); margin-bottom:18px; background:rgba(255,255,255,.03);
+    transition:border-color .3s ease, background .3s ease;
+  }
+  .step:hover .step-num{border-color:rgba(255,255,255,.22); background:rgba(255,255,255,.06);}
   .step h3{font-size:17px; font-weight:600; margin:0 0 8px; color:var(--ink);}
   .step p{font-size:14.5px; line-height:1.55; color:var(--muted); margin:0;}
 
   /* benefits */
   .benefits-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
-  .benefit-card{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:30px 28px; transition:background .25s ease, transform .25s ease, border-color .25s ease;}
-  .benefit-card:hover{background:var(--card-hover); border-color:rgba(255,255,255,.18); transform:translateY(-3px);}
+  .benefit-card{
+    border:1px solid var(--line); border-radius:16px; padding:30px 28px;
+    background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    transition:background .25s ease, transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
+  .benefit-card:hover{
+    background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+    border-color:rgba(255,255,255,.16); transform:translateY(-3px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 16px 32px rgba(0,0,0,.18);
+  }
   .benefit-icon{width:26px; height:26px; margin-bottom:20px; color:var(--ink);}
   .benefit-card h3{font-size:17px; font-weight:600; margin:0 0 10px; color:var(--ink);}
   .benefit-card p{font-size:14.5px; line-height:1.6; color:var(--muted); margin:0;}
 
   /* comparison */
-  .compare-wrap{border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--card);}
-  .compare-row{display:grid; grid-template-columns:1fr 160px 160px; align-items:center;}
-  .compare-row + .compare-row{border-top:1px solid var(--line);}
-  .compare-row.head{background:rgba(255,255,255,.03);}
-  .compare-head-label{padding:16px 20px; font-size:13px; font-weight:600; text-align:center; color:var(--ink); text-transform:uppercase; letter-spacing:.06em; white-space:nowrap;}
+  .compare-wrap{
+    border:0; border-radius:0; overflow:visible;
+    background:transparent; box-shadow:none;
+  }
+  .compare-row{display:grid; grid-template-columns:minmax(0,1fr) 168px 168px; align-items:center;}
+  .compare-row + .compare-row{border-top:1px solid rgba(255,255,255,.06);}
+  .compare-row:not(.head):hover{background:rgba(255,255,255,.02);}
+  .compare-row > :nth-child(2){background:transparent;}
+  .compare-row.head{background:transparent; border-bottom:1px solid rgba(255,255,255,.08);}
+  .compare-row.head > :nth-child(2){background:transparent;}
+  .compare-head-label{
+    padding:10px 14px 18px; font-size:12px; font-weight:600; text-align:center;
+    color:var(--ink); letter-spacing:.02em; line-height:1.3;
+  }
+  .compare-head-label .full{display:block;}
   .compare-head-label .short{display:none;}
-  .compare-feature{padding:18px 24px; font-size:15px; color:var(--ink);}
-  .compare-cell{padding:18px; text-align:center;}
-  .check-yes{width:20px;height:20px;color:#fafafa;}
-  .check-no{width:16px;height:16px;color:var(--muted); opacity:.55;}
+  .compare-head-label.theirs{color:var(--muted); font-weight:500;}
+  .compare-feature{padding:20px 8px 20px 4px; font-size:15.5px; color:var(--ink); line-height:1.45;}
+  .compare-cell{padding:16px; display:flex; align-items:center; justify-content:center;}
+  .check-yes,.check-no{
+    width:22px; height:22px; padding:0; border-radius:0;
+    display:block; background:none;
+  }
+  .check-yes{color:#cfcfcf;}
+  .check-no{color:var(--muted); opacity:.38;}
 
   /* pricing */
   .price-toggle{display:flex; align-items:center; justify-content:center; gap:4px; margin:0 auto 48px; width:fit-content; padding:5px; border:1px solid var(--line); border-radius:999px; background:var(--card);}
@@ -366,8 +428,19 @@
   .toggle-btn:not(.active) .save-badge{background:rgba(201,242,108,.18); color:#c9f26c;}
 
   .pricing-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px; align-items:stretch;}
-  .price-card{border:1px solid var(--line); background:var(--card); border-radius:18px; padding:32px 28px; display:flex; flex-direction:column; position:relative;}
-  .price-card.featured{border-color:rgba(255,255,255,.32); background:var(--card-hover);}
+  .price-card{
+    border:1px solid var(--line); border-radius:18px; padding:32px 28px;
+    display:flex; flex-direction:column; position:relative;
+    background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    transition:border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+  }
+  .price-card:hover{transform:translateY(-3px); border-color:rgba(255,255,255,.18);}
+  .price-card.featured{
+    border-color:rgba(255,255,255,.22);
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 18px 40px rgba(0,0,0,.22);
+  }
   .price-badge{position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--pill); color:var(--pill-ink); font-size:12px; font-weight:700; padding:5px 14px; border-radius:999px;}
   .price-card h3{font-size:18px; font-weight:600; margin:0 0 6px;}
   .price-card .plan-desc{font-size:13.5px; color:var(--muted); margin:0 0 22px;}
@@ -383,15 +456,23 @@
   .pricing-foot{text-align:center; margin-top:26px; font-size:13px; color:var(--muted);}
 
   .duo-modes{display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:32px;}
-  .duo-card{border:1px solid var(--line); background:var(--card); border-radius:16px; padding:28px 26px; transition:background .25s ease, border-color .25s ease;}
-  .duo-card:hover{background:var(--card-hover); border-color:rgba(255,255,255,.18);}
+  .duo-card{
+    border:1px solid var(--line); border-radius:16px; padding:28px 26px;
+    background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018));
+    transition:background .25s ease, border-color .25s ease, transform .25s ease;
+  }
+  .duo-card:hover{background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03)); border-color:rgba(255,255,255,.16); transform:translateY(-2px);}
   .duo-icon{display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,.06); color:var(--ink); margin-bottom:14px;}
   .duo-icon svg{width:20px; height:20px;}
   .duo-card h4{font-size:16.5px; font-weight:600; margin:0 0 8px; color:var(--ink);}
   .duo-card p{font-size:14px; line-height:1.65; color:var(--muted); margin:0;}
 
   /* chat demo */
-  .chat-card{max-width:640px; margin:0 auto; border:1px solid var(--line); border-radius:20px; background:var(--card); overflow:hidden;}
+  .chat-card{
+    max-width:640px; margin:0 auto; border:1px solid rgba(255,255,255,.1); border-radius:20px; overflow:hidden;
+    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 24px 50px rgba(0,0,0,.22);
+  }
   .chat-head{display:flex; align-items:center; gap:12px; padding:18px 22px; border-bottom:1px solid var(--line);}
   .chat-avatar{width:38px; height:38px; border-radius:11px; background:rgba(255,255,255,.06); display:flex; align-items:center; justify-content:center; flex:none;}
   .chat-avatar svg{width:20px; height:21px; color:var(--ink);}
@@ -410,7 +491,7 @@
   .msg-ai-content p:last-child{margin-bottom:0;}
   .msg-list{list-style:none; margin:0 0 12px; padding:0; display:flex; flex-direction:column; gap:9px;}
   .msg-list li{position:relative; padding-left:18px; font-size:14px; line-height:1.5; color:var(--muted);}
-  .msg-list li::before{content:''; position:absolute; left:0; top:7px; width:7px; height:7px; border-radius:50%; background:var(--strip);}
+  .msg-list li::before{content:''; position:absolute; left:0; top:7px; width:7px; height:7px; border-radius:50%; background:var(--ok); opacity:.7;}
   .msg-footnote{font-size:13px; color:var(--muted); font-style:normal; border-top:1px solid var(--line); padding-top:12px; margin-top:2px;}
   .msg-time{font-size:11.5px; color:var(--muted); opacity:.7; padding:0 4px;}
   .msg-typing{display:flex; align-items:center; gap:5px; border:1px solid var(--line); border-radius:4px 16px 16px 16px; padding:14px 18px; width:fit-content;}
@@ -421,8 +502,68 @@
   @keyframes typingBounce{0%,60%,100%{transform:translateY(0); opacity:.5;} 30%{transform:translateY(-4px); opacity:1;}}
   .msg-ai-content.show{animation:fade .4s ease both;}
   @media (prefers-reduced-motion: reduce){
-    .dot-online,.msg-typing i{animation:none;}
+    .dot-online,.msg-typing i,.page::before{animation:none;}
   }
+
+  /* tests */
+  .tests-layout{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); gap:28px; align-items:start;}
+  .test-preview{
+    border:1px solid rgba(255,255,255,.1); border-radius:20px; overflow:hidden;
+    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 24px 50px rgba(0,0,0,.22);
+  }
+  .tp-switch{display:flex; gap:6px; padding:16px 16px 0; flex-wrap:wrap;}
+  .tp-switch button{
+    height:34px; padding:0 13px; border-radius:999px; border:1px solid var(--line);
+    background:rgba(255,255,255,.03); color:var(--nav); font-size:12.5px; font-weight:600; cursor:pointer;
+    transition:background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .tp-switch button[aria-selected="true"]{background:#fff; color:#050505; border-color:#fff;}
+  .tp-body{padding:22px 22px 24px;}
+  .tp-meta{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; font-size:12.5px; color:var(--muted);}
+  .tp-meta strong{color:var(--ink); font-weight:600;}
+  .tp-track{height:5px; border-radius:999px; background:rgba(255,255,255,.07); overflow:hidden; margin-bottom:22px;}
+  .tp-track i{display:block; height:100%; width:30%; background:var(--ok); border-radius:inherit;}
+  .tp-q{font-size:17px; font-weight:600; line-height:1.4; margin:0 0 16px; color:var(--ink);}
+  .tp-opts{display:flex; flex-direction:column; gap:10px;}
+  .tp-opt{
+    width:100%; text-align:left; padding:16px 16px; border-radius:14px; border:1px solid var(--line);
+    background:rgba(255,255,255,.025); color:var(--ink); font-size:14.5px; line-height:1.5; font-weight:500; cursor:pointer;
+    transition:background .2s ease, border-color .2s ease, transform .15s ease;
+  }
+  .tp-opt:hover{background:var(--card-hover); border-color:rgba(255,255,255,.2);}
+  .tp-opt.is-on{border-color:rgba(126,224,168,.45); background:rgba(126,224,168,.08);}
+  .tp-result{margin-top:20px; padding-top:18px; border-top:1px solid var(--line); display:none;}
+  .tp-result.is-on{display:block; animation:fade .35s ease both;}
+  .tp-result p{font-size:13.5px; color:var(--muted); margin:0 0 14px; line-height:1.55;}
+  .tp-bar{margin-bottom:10px;}
+  .tp-bar span{display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink); margin-bottom:5px;}
+  .tp-bar b{color:var(--muted); font-weight:500;}
+  .tp-bar i{display:block; height:6px; border-radius:999px; background:rgba(255,255,255,.08); overflow:hidden;}
+  .tp-bar i em{display:block; height:100%; background:var(--ok); border-radius:inherit;}
+  .tp-cta{display:inline-flex; margin-top:16px; font-size:14px; font-weight:600; color:#fff; border-bottom:1px solid rgba(255,255,255,.28);}
+
+  .tests-side h3{font-size:15px; font-weight:600; margin:0 0 6px; color:var(--ink);}
+  .tests-side .hint{font-size:13.5px; line-height:1.55; color:var(--muted); margin:0 0 18px;}
+  .tests-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .tests-grid > .tcard:nth-child(5){grid-column:1 / -1;}
+  .tests-grid.pair{grid-template-columns:1fr; margin-top:18px;}
+  .tests-grid.pair > .tcard:nth-child(5){grid-column:auto;}
+  .tcard{
+    display:flex; flex-direction:column; gap:8px; padding:18px 16px; border:1px solid var(--line);
+    border-radius:16px; min-height:100%;
+    background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018));
+    transition:background .25s ease, border-color .25s ease, transform .25s ease;
+  }
+  .tcard:hover{background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03)); border-color:rgba(255,255,255,.16); transform:translateY(-2px);}
+  .tcard-top{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .tcard-icon{width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,.06); display:flex; align-items:center; justify-content:center; color:var(--ink);}
+  .tcard-icon svg{width:17px; height:17px;}
+  .tcard-tag{font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ok); border:1px solid rgba(126,224,168,.28); background:rgba(126,224,168,.08); padding:3px 8px; border-radius:999px;}
+  .tcard h4{font-size:14.5px; font-weight:600; margin:2px 0 0; color:var(--ink);}
+  .tcard p{font-size:12.5px; line-height:1.5; color:var(--muted); margin:0;}
+  .tcard-meta{display:flex; gap:6px; flex-wrap:wrap; margin-top:auto;}
+  .tcard-meta span{font-size:11px; color:var(--muted); border:1px solid var(--line); padding:3px 8px; border-radius:999px;}
 
   /* faq */
   .faq-list{max-width:760px; margin:0 auto;}
@@ -437,7 +578,7 @@
   .faq-a p{font-size:14.5px; line-height:1.65; color:var(--muted); margin:0 0 22px; padding-right:30px;}
 
   /* final cta */
-  .final-cta{text-align:center; max-width:640px; margin:0 auto;}
+  .final-cta{text-align:center; max-width:640px; margin:0 auto; padding:8px 0 4px;}
   .cta-form{display:flex; gap:10px; margin:28px auto 0; max-width:440px;}
   .cta-input{flex:1; height:50px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.03); color:#fff; padding:0 20px; font-size:16px; font-family:inherit; transition:border-color .2s ease;}
   .cta-input::placeholder{color:var(--muted);}
@@ -446,9 +587,23 @@
   .cta-success{display:none; margin-top:20px; font-size:14.5px; color:var(--ink);}
   .cta-success.show{display:block;}
   .cta-note{margin-top:16px; font-size:12.5px; color:var(--muted);}
+  .start-cta{
+    display:inline-flex; align-items:center; justify-content:center;
+    height:50px; padding:0 28px; margin-top:28px; border-radius:999px;
+    background:var(--pill); color:var(--pill-ink); font-size:15px; font-weight:600;
+    transition:transform .15s ease, opacity .15s ease;
+  }
+  .start-cta:hover{transform:translateY(-1px);}
 
   /* footer */
-  .site-footer{border-top:1px solid var(--line); padding:52px 0 32px;}
+  .site-footer{
+    position:relative; z-index:1; padding:52px 0 32px; background:#050505;
+    border-top:0;
+  }
+  .site-footer::before{
+    content:''; position:absolute; left:12%; right:12%; top:0; height:1px;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent);
+  }
   .footer-top{display:flex; justify-content:space-between; gap:40px; flex-wrap:wrap; margin-bottom:40px;}
   .footer-brand{max-width:340px;}
   .footer-brand .flogo{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
@@ -471,21 +626,25 @@
     .benefits-grid{grid-template-columns:repeat(2,1fr);}
     .pricing-grid{grid-template-columns:1fr; max-width:420px; margin:0 auto;}
     .duo-modes{grid-template-columns:1fr; max-width:420px; margin:32px auto 0;}
-    .compare-row{grid-template-columns:1fr 90px 90px;}
-    .compare-head-label{font-size:10.5px; padding:14px 6px;}
-    .compare-feature{font-size:13.5px; padding:16px;}
+    .compare-row{grid-template-columns:minmax(0,1fr) 96px 96px;}
+    .compare-head-label{font-size:11px; padding:8px 8px 16px;}
+    .compare-head-label .full{display:none;}
+    .compare-head-label .short{display:block;}
+    .compare-feature{font-size:13.5px; padding:16px 6px;}
+    .check-yes,.check-no{width:20px; height:20px; padding:0;}
     .footer-cols{gap:32px;}
     .msg{max-width:88%;}
+    .tests-layout{grid-template-columns:1fr;}
+    .tests-grid{grid-template-columns:1fr 1fr;}
   }
   @media (max-width:560px){
     .steps{grid-template-columns:1fr;}
     .benefits-grid{grid-template-columns:1fr;}
-    .compare-row{grid-template-columns:1fr 62px 62px;}
-    .compare-head-label{font-size:10px; padding:12px 4px;}
-    .compare-head-label .full{display:none;}
-    .compare-head-label .short{display:inline;}
-    .compare-feature{padding:14px 12px; font-size:13px;}
-    .compare-cell{padding:14px 4px;}
+    .compare-row{grid-template-columns:minmax(0,1fr) 68px 68px;}
+    .compare-head-label{font-size:10.5px; padding:6px 4px 12px;}
+    .compare-feature{padding:14px 4px; font-size:13px;}
+    .compare-cell{padding:12px 4px;}
+    .check-yes,.check-no{width:18px; height:18px;}
     .cta-form{flex-direction:column;}
     .footer-top{flex-direction:column;}
     .footer-cols{gap:32px; flex-wrap:wrap;}
@@ -497,6 +656,9 @@
     .msg-user p,.msg-ai-content,.msg-typing{padding:12px 14px;}
     .msg-user p,.msg-ai-content p{font-size:13.5px;}
     .msg-list li{font-size:13px;}
+    .tests-grid{grid-template-columns:1fr;}
+    .tp-body{padding:18px 16px 20px;}
+    .tp-q{font-size:16px;}
   }
 
   /* ---------- portrait / narrow hero ---------- */
@@ -554,7 +716,7 @@
 
 <div class="stage">
   <div class="plate">
-    <video class="plate-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+    <video class="plate-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
       <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260808_112712_da9d53df-6d27-4b12-bdf6-aa9dc2622bdf.mp4" type="video/mp4">
     </video>
   </div>
@@ -565,8 +727,8 @@
       <span>ваших отношений</span>
     </h1>
     <p class="sub">
-      <span>Комплексная ИИ-инфраструктура для ваших отношений</span>
-      <span>с чек-листами и поддержкой психологов 24/7.</span>
+      <span>Кабинет для вас и для пары: тесты, чек-листы</span>
+      <span>и персональный план — без общих фраз.</span>
     </p>
     <a href="#start" class="pill pill-cta">Начать</a>
     <a href="#how" class="ghost">Как это работает</a>
@@ -600,6 +762,7 @@
   <nav class="links" aria-label="Основное">
     <a href="#how">Как это работает</a>
     <a href="#demo">Пример</a>
+    <a href="#tests">Тесты</a>
     <a href="#benefits">Возможности</a>
     <a href="#pricing">Тарифы</a>
     <a href="#faq">Вопросы</a>
@@ -619,6 +782,7 @@
     <ul class="menu-list">
       <li><a href="#how">Как это работает</a></li>
       <li><a href="#demo">Пример</a></li>
+      <li><a href="#tests">Тесты</a></li>
       <li><a href="#benefits">Возможности</a></li>
       <li><a href="#pricing">Тарифы</a></li>
       <li><a href="#faq">Вопросы</a></li>
@@ -659,8 +823,8 @@
         </div>
         <div class="step">
           <div class="step-num">4</div>
-          <h3>Пользуйтесь поддержкой 24/7</h3>
-          <p>Задавайте вопросы и получайте эмпатичную поддержку в любой момент — до и после важных разговоров.</p>
+          <h3>Возвращайтесь в кабинет</h3>
+          <p>Тесты, дневник и чек-листы остаются в вашей учётной записи — можно вернуться до и после важного разговора.</p>
         </div>
       </div>
     </div>
@@ -710,6 +874,105 @@
     </div>
   </section>
 
+  <!-- ===================== TESTS ===================== -->
+  <section class="section section-start" id="tests">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Тесты</span>
+        <h2 class="section-title">Сначала понять себя. Потом — сравнить с партнёром.</h2>
+        <p class="section-sub">Короткие методики из кабинета: личный результат остаётся только у вас. В паре сравниваются только те тесты, которые вы оба включили.</p>
+      </div>
+
+      <div class="tests-layout reveal">
+        <div class="test-preview">
+          <div class="tp-switch" role="tablist" aria-label="Примеры тестов">
+            <button type="button" role="tab" id="tpTabLove" aria-selected="true" aria-controls="tpPanel">Язык любви</button>
+            <button type="button" role="tab" id="tpTabConflict" aria-selected="false" aria-controls="tpPanel">Стиль в конфликте</button>
+            <button type="button" role="tab" id="tpTabCouple" aria-selected="false" aria-controls="tpPanel">Синхронность пары</button>
+          </div>
+          <div class="tp-body" id="tpPanel">
+            <div class="tp-meta">
+              <strong id="tpTitle">Язык любви</strong>
+              <span id="tpStep">3 из 10</span>
+            </div>
+            <div class="tp-track" aria-hidden="true"><i id="tpFill"></i></div>
+            <p class="tp-q" id="tpQuestion">Что вам ближе?</p>
+            <div class="tp-opts">
+              <button type="button" class="tp-opt" id="tpOptA"></button>
+              <button type="button" class="tp-opt" id="tpOptB"></button>
+            </div>
+            <div class="tp-result" id="tpResult">
+              <p id="tpResultText">Так выглядит результат в кабинете — не диагноз, а профиль, с которым можно работать.</p>
+              <div id="tpBars"></div>
+              <a class="tp-cta" href="login.html?mode=register&amp;next=tests.html">Пройти полный тест в кабинете →</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="tests-side">
+          <h3>Личные методики</h3>
+          <p class="hint">Партнёр эти результаты не видит. Они помогают точнее заполнить анкету.</p>
+          <div class="tests-grid">
+            <a class="tcard" href="login.html?mode=register&amp;next=self-test.html">
+              <div class="tcard-top">
+                <span class="tcard-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg></span>
+              </div>
+              <h4>Привязанность</h4>
+              <p>Стиль близости и насколько вам сейчас хорошо в отношениях.</p>
+              <div class="tcard-meta"><span>19 вопросов</span><span>~6 мин</span></div>
+            </a>
+            <a class="tcard" href="login.html?mode=register&amp;next=love-language-test.html">
+              <div class="tcard-top">
+                <span class="tcard-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 20s-7-4.5-9-9a5 5 0 0 1 9-4 5 5 0 0 1 9 4c-2 4.5-9 9-9 9z"/></svg></span>
+              </div>
+              <h4>Язык любви</h4>
+              <p>Как вам важнее получать заботу — по методике Чапмана.</p>
+              <div class="tcard-meta"><span>10 пар</span><span>~4 мин</span></div>
+            </a>
+            <a class="tcard" href="login.html?mode=register&amp;next=conflict-style-test.html">
+              <div class="tcard-top">
+                <span class="tcard-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2L3 14h7l-1 8 11-12h-7l1-8z"/></svg></span>
+              </div>
+              <h4>Стиль в конфликте</h4>
+              <p>Как вы обычно ведёте себя в разногласиях.</p>
+              <div class="tcard-meta"><span>10 пар</span><span>~4 мин</span></div>
+            </a>
+            <a class="tcard" href="login.html?mode=register&amp;next=communication-patterns-test.html">
+              <div class="tcard-top">
+                <span class="tcard-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.38 8.38 0 0 1-3.8 7 8.5 8.5 0 0 1-9.5 0A8.38 8.38 0 0 1 3.9 11.5 8.5 8.5 0 0 1 12.4 3c4.7 0 8.6 3.8 8.6 8.5z"/></svg></span>
+              </div>
+              <h4>Паттерны общения</h4>
+              <p>Есть ли цикл «требование — отстранение».</p>
+              <div class="tcard-meta"><span>11 вопросов</span><span>~5 мин</span></div>
+            </a>
+            <a class="tcard" href="login.html?mode=register&amp;next=emotional-awareness-test.html">
+              <div class="tcard-top">
+                <span class="tcard-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></span>
+              </div>
+              <h4>Эмоциональная осознанность</h4>
+              <p>Насколько легко вы замечаете и называете свои эмоции.</p>
+              <div class="tcard-meta"><span>10 вопросов</span><span>~4 мин</span></div>
+            </a>
+          </div>
+
+          <h3 style="margin-top:28px">Для пары</h3>
+          <p class="hint">Сравниваются ответы обоих. Личный дневник и анкета в общее пространство не попадают.</p>
+          <div class="tests-grid pair">
+            <a class="tcard" href="login.html?mode=register&amp;plan=couple&amp;next=couple-test.html">
+              <div class="tcard-top">
+                <span class="tcard-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 20c0-3 2.5-5 5-5s5 2 5 5M11 20c0-3 2.5-5 5-5s5 2 5 5"/></svg></span>
+                <span class="tcard-tag">Couple mode</span>
+              </div>
+              <h4>Синхронность, ценности, поддержка</h4>
+              <p>Три коротких сравнения: быт, приоритеты и то, как вы помогаете друг другу в трудный момент.</p>
+              <div class="tcard-meta"><span>3 теста</span><span>2–4 мин каждый</span></div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ===================== BENEFITS ===================== -->
   <section class="section section-start section-alt" id="benefits">
     <div class="wrap">
@@ -736,8 +999,8 @@
         </div>
         <div class="benefit-card">
           <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20s-7-4.5-9-9a5 5 0 0 1 9-4 5 5 0 0 1 9 4c-2 4.5-9 9-9 9z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 12h2l1.4-2.6L12 14l1.2-2h2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <h3>Эмпатичная поддержка 24/7</h3>
-          <p>Задавайте вопросы и получайте поддержку в любой момент — до и после важных разговоров.</p>
+          <h3>Поддержка в кабинете</h3>
+          <p>Анкета, тесты и чек-листы остаются под рукой — можно вернуться до и после важного разговора.</p>
         </div>
         <div class="benefit-card">
           <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 17l5-5 4 4 7-8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8h5v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -747,7 +1010,7 @@
         <div class="benefit-card">
           <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l7 4v5c0 4.5-3.2 7.7-7 9-3.8-1.3-7-4.5-7-9V7l7-4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <h3>Приватность по умолчанию</h3>
-          <p>Ваши данные и данные партнёра защищены, не передаются третьим лицам и никогда не используются для обучения ИИ-моделей.</p>
+          <p>Личные записи лежат в вашей учётной записи. Партнёр видит только то, что вы оба включили в общее пространство.</p>
         </div>
       </div>
     </div>
@@ -763,8 +1026,8 @@
       <div class="compare-wrap reveal">
         <div class="compare-row head">
           <div></div>
-          <div class="compare-head-label"><span class="full">RelationSync.AI</span><span class="short">RS.AI</span></div>
-          <div class="compare-head-label"><span class="full">Обычный чат-бот</span><span class="short">Чат-бот</span></div>
+          <div class="compare-head-label ours"><span class="full">RelationSync.AI</span><span class="short">RelationSync</span></div>
+          <div class="compare-head-label theirs"><span class="full">Обычный<br>чат-бот</span><span class="short">Чат-бот</span></div>
         </div>
         <div class="compare-row">
           <div class="compare-feature">Понимает стадию ваших отношений</div>
@@ -832,7 +1095,7 @@
           <ul class="price-features">
             <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Неограниченные чек-листы</li>
             <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Глубокий анализ стадии отношений</li>
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Эмпатичная поддержка 24/7</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Полный доступ к тестам и чек-листам</li>
             <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Приоритетные обновления методологии</li>
           </ul>
           <a href="#start" class="price-cta">Начать 7 дней бесплатно</a>
@@ -871,7 +1134,7 @@
         </div>
       </div>
 
-      <p class="pricing-foot reveal">Отменить подписку можно в любой момент из личного кабинета. Цены указаны в рублях, включая НДС.</p>
+      <p class="pricing-foot reveal">Тариф выбирается в кабинете. Цены указаны в рублях, включая НДС.</p>
     </div>
   </section>
 
@@ -884,40 +1147,44 @@
       </div>
       <div class="faq-list reveal">
         <div class="faq-item">
-          <button class="faq-q"><span>В чём отличие RelationSync.AI от обычного чат-бота?</span><span class="plus"></span></button>
+          <button class="faq-q" aria-expanded="false"><span>В чём отличие RelationSync.AI от обычного чат-бота?</span><span class="plus"></span></button>
           <div class="faq-a"><p>Обычный чат-бот отвечает исходя из общего текста запроса. RelationSync.AI собирает полную картину — вашу историю, характер партнёра и стадию отношений — и на основе методологии психологов даёт конкретные, персональные шаги.</p></div>
         </div>
         <div class="faq-item">
-          <button class="faq-q"><span>Партнёру тоже нужно регистрироваться?</span><span class="plus"></span></button>
+          <button class="faq-q" aria-expanded="false"><span>Партнёру тоже нужно регистрироваться?</span><span class="plus"></span></button>
           <div class="faq-a"><p>Нет, для старта достаточно рассказать о партнёре то, что вы знаете. На тарифе «Для пары» партнёр может подключиться отдельно для совместных чек-листов и синхронизации прогресса.</p></div>
         </div>
         <div class="faq-item">
-          <button class="faq-q"><span>Партнёр увидит, что я пишу о нём, если мы оба подписаны?</span><span class="plus"></span></button>
+          <button class="faq-q" aria-expanded="false"><span>Партнёр увидит, что я пишу о нём, если мы оба подписаны?</span><span class="plus"></span></button>
           <div class="faq-a"><p>Нет. Даже на тарифе «Для пары» каждый аккаунт полностью приватен по умолчанию: партнёр не видит вашу переписку и личные чек-листы. Совместные разборы появляются только в отдельном совместном режиме, который включаете осознанно вы оба.</p></div>
         </div>
         <div class="faq-item">
-          <button class="faq-q"><span>Это конфиденциально?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>Да. Ваши данные и данные партнёра защищены, не передаются третьим лицам и не используются для обучения ИИ-моделей — приватность заложена в продукт по умолчанию.</p></div>
+          <button class="faq-q" aria-expanded="false"><span>Это конфиденциально?</span><span class="plus"></span></button>
+          <div class="faq-a"><p>Да. Анкета, дневник и личные тесты открываются только вам. Партнёр не видит это автоматически. Общими становятся только те вещи, которые вы оба включили: совместные тесты, темы для разговора, сохранённые идеи.</p></div>
         </div>
         <div class="faq-item">
-          <button class="faq-q"><span>Используются ли мои данные для обучения ИИ?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>Нет. Мы не используем ваши переписки и анкеты для тренировки моделей ИИ. Данные хранятся в зашифрованном виде и используются только для того, чтобы отвечать лично вам; удалить свои данные можно в любой момент по запросу.</p></div>
+          <button class="faq-q" aria-expanded="false"><span>Как хранятся личные данные?</span><span class="plus"></span></button>
+          <div class="faq-a"><p>По дороге до кабинета соединение закрыто. На хранении записи тоже закрыты. Это не сейф, ключ от которого есть только у вас: кабинет должен показать вам ваши же записи. Удалить аккаунт можно из кабинета — вместе с ним уходят ваши личные записи.</p></div>
         </div>
         <div class="faq-item">
-          <button class="faq-q"><span>Подходит ли сервис на этапе знакомства, а не только в паре?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>Да, RelationSync.AI работает на любом этапе — от первых свиданий и знакомства до многолетних отношений и восстановления после кризиса.</p></div>
+          <button class="faq-q" aria-expanded="false"><span>Какие тесты уже есть?</span><span class="plus"></span></button>
+          <div class="faq-a"><p>В личном пространстве — пять методик: привязанность, язык любви, стиль в конфликте, паттерны общения и эмоциональная осознанность. В Couple Mode — синхронность, ценности и то, как вы поддерживаете друг друга. Результат личного теста партнёр не видит.</p></div>
         </div>
         <div class="faq-item">
-          <button class="faq-q"><span>Заменяет ли это психотерапию?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>Нет. RelationSync.AI — это ежедневная поддержка и структура между сессиями, а не замена терапии. При серьёзных кризисах мы рекомендуем очную помощь специалиста.</p></div>
+          <button class="faq-q" aria-expanded="false"><span>Подходит ли сервис на этапе знакомства, а не только в паре?</span><span class="plus"></span></button>
+          <div class="faq-a"><p>Да. Можно начать одному: заполнить анкету и пройти личные тесты. Партнёра подключать не обязательно — Couple Mode включается отдельно, когда оба готовы.</p></div>
         </div>
         <div class="faq-item">
-          <button class="faq-q"><span>Что происходит после оплаты и как отменить подписку?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>Доступ открывается сразу после оплаты, без ожидания. Отменить подписку можно в любой момент из личного кабинета — доступ сохранится до конца оплаченного периода, дальнейшие списания не происходят.</p></div>
+          <button class="faq-q" aria-expanded="false"><span>Заменяет ли это психотерапию?</span><span class="plus"></span></button>
+          <div class="faq-a"><p>Нет. RelationSync.AI — это структура и ежедневная опора между разговорами, а не замена терапии. При серьёзных кризисах лучше обратиться к специалисту очно.</p></div>
         </div>
         <div class="faq-item">
-          <button class="faq-q"><span>Когда появится личный кабинет и мобильное приложение?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>Сейчас доступен ранний доступ через сайт. Личный кабинет и приложения для iOS и Android находятся в разработке — подписавшись, вы узнаете о запуске первыми.</p></div>
+          <button class="faq-q" aria-expanded="false"><span>Как устроены тарифы?</span><span class="plus"></span></button>
+          <div class="faq-a"><p>Регистрация бесплатная: анкета, личные тесты и базовый чек-лист. Премиум и тариф для пары выбираются в кабинете. Оплату можно будет отменить там же, когда подписка подключена.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false"><span>Есть ли мобильное приложение?</span><span class="plus"></span></button>
+          <div class="faq-a"><p>Сейчас кабинет работает в браузере — с телефона тоже. Приложения для iOS и Android уже в разработке, о запуске расскажем отдельно.</p></div>
         </div>
       </div>
     </div>
@@ -927,15 +1194,11 @@
   <section class="section section-start" id="start">
     <div class="wrap">
       <div class="final-cta reveal">
-        <span class="eyebrow">Ранний доступ</span>
-        <h2 class="section-title" style="font-size:clamp(26px,3.2vw,34px)">Начните лучше понимать свои отношения уже сегодня</h2>
-        <p class="section-sub">Присоединяйтесь к раннему доступу RelationSync.AI — заполните анкету за 5 минут и получите первый персональный чек-лист.</p>
-        <form class="cta-form" id="cta-form">
-          <input type="email" class="cta-input" placeholder="Ваш email" required>
-          <button type="submit" class="btn-solid">Получить доступ</button>
-        </form>
-        <p class="cta-success" id="cta-success">Спасибо! Мы свяжемся с вами, когда откроется доступ.</p>
-        <p class="cta-note">Без спама. Отписаться можно в любой момент.</p>
+        <span class="eyebrow">Личный кабинет</span>
+        <h2 class="section-title" style="font-size:clamp(26px,3.2vw,34px)">Заполните анкету и получите первый чек-лист сегодня</h2>
+        <p class="section-sub">Регистрация занимает меньше минуты. Дальше — анкета, тесты и персональный план в кабинете.</p>
+        <a href="login.html?mode=register&amp;plan=free" class="start-cta">Создать аккаунт бесплатно</a>
+        <p class="cta-note"><a href="login.html" style="color:#fff">Уже есть аккаунт →</a></p>
       </div>
     </div>
   </section>
@@ -972,13 +1235,15 @@
           <h4>Продукт</h4>
           <a href="#how">Как это работает</a>
           <a href="#demo">Пример</a>
+          <a href="#tests">Тесты</a>
           <a href="#benefits">Возможности</a>
           <a href="#pricing">Тарифы</a>
         </div>
         <div class="footer-col">
           <h4>Компания</h4>
           <a href="#faq">Вопросы</a>
-          <a href="#start">Ранний доступ</a>
+          <a href="#start">Начать</a>
+          <a href="login.html">Кабинет</a>
         </div>
       </div>
     </div>
@@ -994,11 +1259,12 @@
   /* belt-and-suspenders: force the page to open at the very top, even if a
      stray URL hash is present or the browser tries to restore an old scroll
      position from a cached history entry (e.g. bfcache on Safari/iOS) */
-  if (location.hash) {
-    history.replaceState(null, '', location.pathname + location.search);
+  if (!location.hash) {
+    window.scrollTo(0, 0);
+    window.addEventListener('pageshow', function(){
+      if (!location.hash) window.scrollTo(0, 0);
+    });
   }
-  window.scrollTo(0, 0);
-  window.addEventListener('pageshow', function(){ window.scrollTo(0, 0); });
 
   var stage = document.querySelector('.stage');
   var burger = document.getElementById('burger');
@@ -1134,10 +1400,16 @@
       if(isOpen){
         item.classList.remove('open');
         a.style.maxHeight = null;
+        q.setAttribute('aria-expanded','false');
       } else {
         item.classList.add('open');
         a.style.maxHeight = a.scrollHeight + 'px';
+        q.setAttribute('aria-expanded','true');
       }
+      document.querySelectorAll('.faq-item').forEach(function(other){
+        var oq = other.querySelector('.faq-q');
+        if(other !== item) oq.setAttribute('aria-expanded','false');
+      });
     });
 
     /* keep open panel height correct on orientation change / resize */
@@ -1165,14 +1437,103 @@
     });
   }
 
-  /* cta form (front-end only, no backend yet) */
-  var form = document.getElementById('cta-form');
-  var success = document.getElementById('cta-success');
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
-    success.classList.add('show');
-    form.reset();
-  });
+  /* landing test preview — sample questions from the real cabinet tests */
+  var previews = {
+    love: {
+      title: 'Язык любви',
+      step: '3 из 10',
+      fill: '30%',
+      question: 'Что вам ближе?',
+      a: 'Мне важно услышать искренние слова поддержки и похвалы',
+      b: 'Мне важно, чтобы партнёр помог мне делом, а не словами',
+      note: 'Так выглядит результат в кабинете: не диагноз, а профиль. Партнёр его не видит.',
+      bars: [
+        { label: 'Слова поддержки', w: '82%' },
+        { label: 'Забота через действия', w: '64%' },
+        { label: 'Время вместе', w: '48%' }
+      ]
+    },
+    conflict: {
+      title: 'Стиль в конфликте',
+      step: '4 из 10',
+      fill: '40%',
+      question: 'Что вам ближе в конфликте с партнёром?',
+      a: 'Я ищу вариант «пополам», который частично устроит каждого',
+      b: 'Я избегаю конфликтных тем, если можно обойтись без них',
+      note: 'Пять стратегий по модели Томаса–Килманна. Полоса показывает, что звучит чаще.',
+      bars: [
+        { label: 'Компромисс', w: '76%' },
+        { label: 'Сотрудничество', w: '58%' },
+        { label: 'Избегание', w: '34%' }
+      ]
+    },
+    couple: {
+      title: 'Насколько вы синхронны',
+      step: '2 из 10',
+      fill: '20%',
+      question: 'Как обычно проходит ваш вечер после работы?',
+      a: 'Хочется заранее понять план: ужин, дела, время вместе',
+      b: 'Лучше без жёсткого плана — смотрим по настроению',
+      note: 'В Couple Mode сравниваются ответы обоих. Личный дневник в общее пространство не попадает.',
+      bars: [
+        { label: 'Совпадение быта', w: '71%' },
+        { label: 'Темп жизни', w: '54%' },
+        { label: 'Ожидания от вечера', w: '39%' }
+      ]
+    }
+  };
+
+  var tpTitle = document.getElementById('tpTitle');
+  var tpStep = document.getElementById('tpStep');
+  var tpFill = document.getElementById('tpFill');
+  var tpQuestion = document.getElementById('tpQuestion');
+  var tpOptA = document.getElementById('tpOptA');
+  var tpOptB = document.getElementById('tpOptB');
+  var tpResult = document.getElementById('tpResult');
+  var tpResultText = document.getElementById('tpResultText');
+  var tpBars = document.getElementById('tpBars');
+  var currentPreview = 'love';
+
+  function renderPreview(key, keepResult){
+    var data = previews[key];
+    if(!data || !tpTitle) return;
+    currentPreview = key;
+    tpTitle.textContent = data.title;
+    tpStep.textContent = data.step;
+    tpFill.style.width = data.fill;
+    tpQuestion.textContent = data.question;
+    tpOptA.textContent = data.a;
+    tpOptB.textContent = data.b;
+    tpResultText.textContent = data.note;
+    tpBars.innerHTML = data.bars.map(function(bar){
+      return '<div class="tp-bar"><span>' + bar.label + '<b>пример</b></span><i><em style="width:' + bar.w + '"></em></i></div>';
+    }).join('');
+    if(!keepResult){
+      tpResult.classList.remove('is-on');
+      tpOptA.classList.remove('is-on');
+      tpOptB.classList.remove('is-on');
+    }
+    document.querySelectorAll('.tp-switch button').forEach(function(btn){
+      btn.setAttribute('aria-selected', btn.id === ({
+        love: 'tpTabLove', conflict: 'tpTabConflict', couple: 'tpTabCouple'
+      })[key] ? 'true' : 'false');
+    });
+  }
+
+  if(tpOptA && tpOptB){
+    renderPreview('love');
+    document.getElementById('tpTabLove').addEventListener('click', function(){ renderPreview('love'); });
+    document.getElementById('tpTabConflict').addEventListener('click', function(){ renderPreview('conflict'); });
+    document.getElementById('tpTabCouple').addEventListener('click', function(){ renderPreview('couple'); });
+    function pick(el){
+      tpOptA.classList.remove('is-on');
+      tpOptB.classList.remove('is-on');
+      el.classList.add('is-on');
+      tpResult.classList.add('is-on');
+    }
+    tpOptA.addEventListener('click', function(){ pick(tpOptA); });
+    tpOptB.addEventListener('click', function(){ pick(tpOptB); });
+  }
 })();
 </script>
 <script type="application/ld+json">
@@ -1180,9 +1541,9 @@
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "RelationSync.AI",
-  "url": "https://www.perplexity.ai/computer/a/relationsync-ai-23vrNUUFShei62zA8fTzUg",
-  "logo": "https://www.perplexity.ai/computer/a/relationsync-ai-23vrNUUFShei62zA8fTzUg/icon-512.png",
-  "description": "ИИ-инфраструктура для отношений, созданная совместно с психологами и психотерапевтами."
+  "url": "https://fimadima13.github.io/beta_site/",
+  "logo": "https://fimadima13.github.io/beta_site/favicon.svg",
+  "description": "Кабинет для отношений: личные и парные тесты, анкета, чек-листы и персональный план."
 }
 </script>
 <script type="application/ld+json">
@@ -1193,344 +1554,17 @@
     {"@type": "Question", "name": "В чём отличие RelationSync.AI от обычного чат-бота?", "acceptedAnswer": {"@type": "Answer", "text": "Обычный чат-бот отвечает исходя из общего текста запроса. RelationSync.AI собирает полную картину — вашу историю, характер партнёра и стадию отношений — и на основе методологии психологов даёт конкретные, персональные шаги."}},
     {"@type": "Question", "name": "Партнёру тоже нужно регистрироваться?", "acceptedAnswer": {"@type": "Answer", "text": "Нет, для старта достаточно рассказать о партнёре то, что вы знаете. На тарифе «Для пары» партнёр может подключиться отдельно для совместных чек-листов и синхронизации прогресса."}},
     {"@type": "Question", "name": "Партнёр увидит, что я пишу о нём, если мы оба подписаны?", "acceptedAnswer": {"@type": "Answer", "text": "Нет. Даже на тарифе «Для пары» каждый аккаунт полностью приватен по умолчанию: партнёр не видит вашу переписку и личные чек-листы. Совместные разборы появляются только в отдельном совместном режиме, который включают осознанно оба партнёра."}},
-    {"@type": "Question", "name": "Это конфиденциально?", "acceptedAnswer": {"@type": "Answer", "text": "Да. Ваши данные и данные партнёра защищены, не передаются третьим лицам и не используются для обучения ИИ-моделей."}},
-    {"@type": "Question", "name": "Используются ли мои данные для обучения ИИ?", "acceptedAnswer": {"@type": "Answer", "text": "Нет. Мы не используем ваши переписки и анкеты для тренировки моделей ИИ. Данные хранятся в зашифрованном виде и используются только для того, чтобы отвечать лично вам; удалить свои данные можно в любой момент по запросу."}},
-    {"@type": "Question", "name": "Подходит ли сервис на этапе знакомства, а не только в паре?", "acceptedAnswer": {"@type": "Answer", "text": "Да, RelationSync.AI работает на любом этапе — от первых свиданий и знакомства до многолетних отношений и восстановления после кризиса."}},
-    {"@type": "Question", "name": "Заменяет ли это психотерапию?", "acceptedAnswer": {"@type": "Answer", "text": "Нет. RelationSync.AI — это ежедневная поддержка и структура между сессиями, а не замена терапии. При серьёзных кризисах рекомендуется очная помощь специалиста."}},
-    {"@type": "Question", "name": "Что происходит после оплаты и как отменить подписку?", "acceptedAnswer": {"@type": "Answer", "text": "Доступ открывается сразу после оплаты, без ожидания. Отменить подписку можно в любой момент из личного кабинета — доступ сохранится до конца оплаченного периода, дальнейшие списания не происходят."}},
-    {"@type": "Question", "name": "Когда появится личный кабинет и мобильное приложение?", "acceptedAnswer": {"@type": "Answer", "text": "Сейчас доступен ранний доступ через сайт. Личный кабинет и приложения для iOS и Android находятся в разработке — подписавшись, вы узнаете о запуске первыми."}}
+    {"@type": "Question", "name": "Это конфиденциально?", "acceptedAnswer": {"@type": "Answer", "text": "Анкета, дневник и личные тесты открываются только вам. Партнёр не видит это автоматически. Общими становятся только те вещи, которые вы оба включили."}},
+    {"@type": "Question", "name": "Как хранятся личные данные?", "acceptedAnswer": {"@type": "Answer", "text": "По дороге до кабинета соединение закрыто. На хранении записи тоже закрыты. Удалить аккаунт можно из кабинета — вместе с ним уходят ваши личные записи."}},
+    {"@type": "Question", "name": "Какие тесты уже есть?", "acceptedAnswer": {"@type": "Answer", "text": "В личном пространстве — пять методик: привязанность, язык любви, стиль в конфликте, паттерны общения и эмоциональная осознанность. В Couple Mode — синхронность, ценности и поддержка."}},
+    {"@type": "Question", "name": "Подходит ли сервис на этапе знакомства, а не только в паре?", "acceptedAnswer": {"@type": "Answer", "text": "Да. Можно начать одному: заполнить анкету и пройти личные тесты. Couple Mode включается отдельно, когда оба готовы."}},
+    {"@type": "Question", "name": "Заменяет ли это психотерапию?", "acceptedAnswer": {"@type": "Answer", "text": "Нет. RelationSync.AI — это структура и ежедневная опора между разговорами, а не замена терапии."}},
+    {"@type": "Question", "name": "Как устроены тарифы?", "acceptedAnswer": {"@type": "Answer", "text": "Регистрация бесплатная. Премиум и тариф для пары выбираются в кабинете."}},
+    {"@type": "Question", "name": "Есть ли мобильное приложение?", "acceptedAnswer": {"@type": "Answer", "text": "Сейчас кабинет работает в браузере. Приложения для iOS и Android уже в разработке."}}
   ]
 }
 </script>
-<script data-pplx-inline-edit>
-(function () {
-  if (window === window.top) return;
-
-  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
-  const MAX_FONT_BYTES = 500 * 1024;
-  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
-  let scrollForwarding = false;
-  let scrollRaf = 0;
-  let trustedTopOrigin = null;
-
-  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
-  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
-  // across multiple labels.
-  function matchesAllowedOrigin(origin) {
-    if (!origin) return false;
-    for (const entry of allowedParentOrigins) {
-      if (!entry.includes("*")) {
-        if (entry === origin) return true;
-        continue;
-      }
-      const pattern = new RegExp(
-        "^" +
-          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
-          "$",
-      );
-      if (pattern.test(origin)) return true;
-    }
-    return false;
-  }
-
-  // Trust decision: when the sender is same-origin-visible (event.origin is a
-  // real origin like https://www.perplexity.ai) we trust event.origin directly.
-  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
-  // broker's stamped `parentOrigin` to identify the top window. The fallback
-  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
-  // on the response path (see postToTrustedTop) to ensure replies can't be
-  // delivered to anyone but the actual top window of that claimed origin.
-  function getTrustedParentOrigin(event) {
-    const forwardedParentOrigin =
-      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
-    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
-    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
-  }
-
-  // All responses go to window.top with targetOrigin = the allowlisted origin.
-  // An attacker that iframes us inside their own null-origin broker can claim
-  // any parentOrigin they like, but the browser will drop the reply whenever
-  // the real top's origin doesn't match — so the screenshot never leaves.
-  function postToTrustedTop(message) {
-    if (!trustedTopOrigin) return;
-    try {
-      window.top.postMessage(message, trustedTopOrigin);
-    } catch (_error) {}
-  }
-
-  function inlineAll(original, clone) {
-    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
-
-    try {
-      const computedStyle = getComputedStyle(original);
-      // cssText on a computed style is the serialized declaration in modern
-      // Chromium/Safari — a single read beats enumerating ~400 longhand
-      // properties. Firefox returns "" here, so we fall back on empty.
-      const serialized = computedStyle.cssText;
-      if (serialized) {
-        clone.style.cssText = serialized;
-      } else {
-        const parts = new Array(computedStyle.length);
-        for (let index = 0; index < computedStyle.length; index += 1) {
-          const property = computedStyle[index];
-          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
-        }
-        clone.style.cssText = parts.join("");
-      }
-    } catch (_error) {}
-
-    const originalChildren = original.children;
-    const clonedChildren = clone.children;
-    for (
-      let index = 0;
-      index < originalChildren.length && index < clonedChildren.length;
-      index += 1
-    ) {
-      inlineAll(originalChildren[index], clonedChildren[index]);
-    }
-  }
-
-  function extractFontUrl(srcValue) {
-    const matches = [
-      ...srcValue.matchAll(
-        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
-      ),
-    ];
-    if (matches.length === 0) return null;
-    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
-    if (woff2) return woff2[1];
-    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
-    if (woff) return woff[1];
-    return matches[0][1];
-  }
-
-  // Cache resolved font URL -> data URI across captures. Fonts on a page
-  // essentially never change, and a batch run emits multiple captures back to
-  // back — without this we'd refetch + re-base64 every time.
-  const fontDataUriCache = new Map();
-  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
-
-  async function fetchAsDataUri(url) {
-    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
-    let dataUri = null;
-    try {
-      const response = await fetch(url, { mode: "cors", credentials: "omit" });
-      if (response.ok) {
-        const blob = await response.blob();
-        if (blob.size <= MAX_FONT_BYTES) {
-          dataUri = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () =>
-              resolve(typeof reader.result === "string" ? reader.result : null);
-            reader.onerror = () => resolve(null);
-            reader.readAsDataURL(blob);
-          });
-        }
-      }
-    } catch (_error) {
-      dataUri = null;
-    }
-    fontDataUriCache.set(url, dataUri);
-    return dataUri;
-  }
-
-  function collectFontFaceRuleTexts() {
-    const rules = [];
-    for (const sheet of document.styleSheets) {
-      let cssRules;
-      try {
-        cssRules = sheet.cssRules;
-      } catch (_error) {
-        continue;
-      }
-      if (!cssRules) continue;
-      for (const rule of cssRules) {
-        const cssText = rule.cssText || "";
-        if (cssText.startsWith("@font-face")) rules.push(cssText);
-      }
-    }
-    return rules;
-  }
-
-  async function buildInlinedFontCss() {
-    const ruleTexts = collectFontFaceRuleTexts();
-    if (ruleTexts.length === 0) return null;
-
-    const resolved = ruleTexts.map((cssText) => {
-      if (!SRC_DECLARATION_RE.test(cssText)) return null;
-      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
-      if (!srcMatch) return null;
-      const url = extractFontUrl(srcMatch[1]);
-      if (!url) return null;
-      try {
-        return { cssText, url: new URL(url, document.baseURI).href };
-      } catch (_error) {
-        return null;
-      }
-    });
-
-    const dataUris = await Promise.all(
-      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
-    );
-
-    const inlined = [];
-    let totalBytes = 0;
-    for (let index = 0; index < resolved.length; index += 1) {
-      const entry = resolved[index];
-      const dataUri = dataUris[index];
-      if (!entry || !dataUri) continue;
-      const approxBytes = dataUri.length * 0.75;
-      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
-      totalBytes += approxBytes;
-      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
-    }
-    return inlined.length > 0 ? inlined.join("\n") : null;
-  }
-
-  function stripExternal(clone) {
-    const images = clone.querySelectorAll("img");
-    for (let index = 0; index < images.length; index += 1) {
-      const src = images[index].getAttribute("src");
-      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
-    }
-
-    const elements = clone.querySelectorAll("*");
-    for (let index = 0; index < elements.length; index += 1) {
-      const style = elements[index].style.cssText;
-      if (style && style.includes("url(")) {
-        elements[index].style.cssText = style.replace(
-          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
-          "none",
-        );
-      }
-    }
-  }
-
-  function emitScroll() {
-    scrollRaf = 0;
-    if (!scrollForwarding) return;
-    postToTrustedTop({
-      type: "INLINE_EDIT_SCROLL",
-      scrollX: window.scrollX,
-      scrollY: window.scrollY,
-    });
-  }
-
-  window.addEventListener(
-    "scroll",
-    function () {
-      if (!scrollForwarding || scrollRaf) return;
-      scrollRaf = requestAnimationFrame(emitScroll);
-    },
-    { passive: true, capture: true },
-  );
-
-  async function handleCaptureRequest(event) {
-    const requestId = event.data.requestId;
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    function postResult(dataUrl) {
-      postToTrustedTop({
-        type: "INLINE_EDIT_SCREENSHOT_RESULT",
-        requestId,
-        dataUrl,
-        scrollX,
-        scrollY,
-      });
-    }
-
-    try {
-      // Wait for any pending web fonts to resolve so both inline metrics and
-      // the @font-face inlining below see the same loaded faces.
-      if (document.fonts && document.fonts.ready) {
-        try {
-          await document.fonts.ready;
-        } catch (_error) {}
-      }
-
-      const clone = document.documentElement.cloneNode(true);
-      inlineAll(document.documentElement, clone);
-
-      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
-      for (let index = 0; index < removedNodes.length; index += 1) {
-        removedNodes[index].remove();
-      }
-
-      stripExternal(clone);
-
-      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
-      // can resolve them — external font URLs aren't fetched during
-      // foreignObject rendering, which would otherwise force a fallback face
-      // and change text metrics.
-      const inlinedFontCss = await buildInlinedFontCss();
-      if (inlinedFontCss) {
-        const styleEl = document.createElement("style");
-        styleEl.textContent = inlinedFontCss;
-        const head = clone.querySelector("head");
-        if (head) head.appendChild(styleEl);
-        else clone.insertBefore(styleEl, clone.firstChild);
-      }
-
-      const html = new XMLSerializer().serializeToString(clone);
-      const svg =
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
-        '<foreignObject width="100%" height="100%">' +
-        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
-        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
-        html +
-        "</div></div></foreignObject></svg>";
-      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-      const image = new Image();
-      image.onload = function () {
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext("2d").drawImage(image, 0, 0);
-        postResult(canvas.toDataURL("image/png"));
-      };
-      image.onerror = function () {
-        postResult(null);
-      };
-      image.src = svgUrl;
-    } catch (_error) {
-      postResult(null);
-    }
-  }
-
-  window.addEventListener("message", function (event) {
-    if (!event.data) return;
-    // Only accept messages from the direct parent frame. Blocks sibling /
-    // unrelated-window postMessage senders that could otherwise reach us.
-    if (event.source !== window.parent) return;
-
-    const trustedParentOrigin = getTrustedParentOrigin(event);
-    if (!trustedParentOrigin) return;
-    trustedTopOrigin = trustedParentOrigin;
-
-    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
-      scrollForwarding = true;
-      emitScroll();
-      return;
-    }
-
-    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
-      scrollForwarding = false;
-      if (scrollRaf) cancelAnimationFrame(scrollRaf);
-      scrollRaf = 0;
-      return;
-    }
-
-    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
-
-    handleCaptureRequest(event);
-  });
-})();
 <script src="assets/supabase-config.js"></script>
 <script type="module" src="assets/landing-cabinet-patch.js"></script>
-
-</script></body>
+</body>
 </html>
-
