@@ -118,8 +118,10 @@
     z-index:0;
   }
   .hero-orb-wrap{
-    position:absolute; inset:-22%;
+    position:absolute; inset:-14%;
     opacity:0;
+    -webkit-mask-image:radial-gradient(closest-side, #000 72%, transparent 100%);
+    mask-image:radial-gradient(closest-side, #000 72%, transparent 100%);
     transition:opacity 1.6s cubic-bezier(.22,1,.36,1);
   }
   .hero-orb-wrap.is-on{opacity:1;}
@@ -1695,7 +1697,8 @@
     '}',
     'void main(){',
     '  vec2 uv=(gl_FragCoord.xy-.5*uRes)/uRes.y;',
-    '  vec3 ro=vec3(0.,0.,3.6);',
+    '  vec3 ro=vec3(0.,0.,4.3);',
+    '  float edge=smoothstep(.5,.36,length(uv));',
     '  vec3 rd=normalize(vec3(uv,-1.5));',
     '  float t=0.,md=1e3;bool hit=false;',
     '  for(int i=0;i<80;i++){',
@@ -1714,9 +1717,9 @@
     '    col+=ice*pow(f,6.)*.35;',
     '    col=col/(1.+col);',
     '    col=pow(col,vec3(.4545));',
-    '    gl_FragColor=vec4(col,1.);',
+    '    gl_FragColor=vec4(col,edge);',
     '  }else{',
-    '    float g=exp(-md*9.)*.10*smoothstep(.5,.28,length(uv));',
+    '    float g=exp(-md*9.)*.10*edge;',
     '    gl_FragColor=vec4(ice,g);',
     '  }',
     '}'
