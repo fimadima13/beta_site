@@ -103,27 +103,32 @@
   .hero-haze{
     position:absolute; inset:-12%;
     background:
-      radial-gradient(ellipse 46% 40% at 18% 42%, rgba(185,204,227,.11), transparent 64%),
-      radial-gradient(ellipse 58% 56% at 78% 46%, rgba(185,204,227,.16), transparent 68%),
-      radial-gradient(ellipse 38% 32% at 58% 80%, rgba(255,255,255,.05), transparent 70%);
+      radial-gradient(ellipse 40% 36% at 16% 42%, rgba(185,204,227,.08), transparent 64%),
+      radial-gradient(ellipse 34% 42% at 50% 48%, rgba(185,204,227,.14), transparent 64%),
+      radial-gradient(ellipse 30% 28% at 50% 78%, rgba(255,255,255,.04), transparent 70%);
     animation:hazeDrift 32s ease-in-out infinite;
   }
-  .hero-orb-wrap{
-    position:absolute;
-    right:2%;
-    top:50%;
-    width:min(68vh, 58vw);
+  .hero-orb-slot{
+    position:relative;
+    width:min(100%, 360px);
     aspect-ratio:1;
-    transform:translateY(-52%);
+    justify-self:center;
+    align-self:center;
+    pointer-events:none;
+    z-index:0;
+  }
+  .hero-orb-wrap{
+    position:absolute; inset:0;
+    will-change:transform;
   }
   .hero-orb-core{
-    position:absolute; inset:10%;
+    position:absolute; inset:12%;
     border-radius:50%;
     background:
-      radial-gradient(circle at 32% 28%, rgba(255,255,255,.24), rgba(185,204,227,.10) 28%, rgba(185,204,227,.04) 56%, transparent 72%);
+      radial-gradient(circle at 32% 28%, rgba(255,255,255,.22), rgba(185,204,227,.10) 28%, rgba(185,204,227,.04) 56%, transparent 72%);
     box-shadow:
-      0 0 90px 24px rgba(185,204,227,.09),
-      inset 0 0 70px rgba(185,204,227,.07);
+      0 0 70px 18px rgba(185,204,227,.08),
+      inset 0 0 54px rgba(185,204,227,.06);
     animation:orbBreath 10s ease-in-out infinite;
   }
   .hero-orb-wrap canvas{
@@ -142,9 +147,9 @@
     position:relative; z-index:1;
     width:100%;
     display:grid;
-    grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);
+    grid-template-columns:minmax(0,1.05fr) minmax(220px,.72fr) minmax(280px,.88fr);
     align-items:center;
-    gap:clamp(36px, 6vw, 88px);
+    gap:clamp(28px, 4.5vw, 64px);
     padding:
       calc(132 * var(--u))
       clamp(24px, calc(75 * var(--u)), 80px)
@@ -194,14 +199,14 @@
     animation:rise .9s cubic-bezier(.22,1,.36,1) .2s both;
   }
   .hero-panel{
-    position:relative;
+    position:relative; z-index:1;
     border:1px solid rgba(185,204,227,.18);
     border-radius:22px;
     padding:28px 26px 24px;
     background:
-      linear-gradient(180deg, rgba(185,204,227,.08), rgba(255,255,255,.02) 42%, rgba(5,5,5,.35)),
-      rgba(255,255,255,.028);
+      linear-gradient(180deg, rgba(16,17,19,.88), rgba(8,8,10,.92));
     box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+    -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
   }
   .hero-panel-kicker{
     margin:0 0 22px;
@@ -841,9 +846,14 @@
     .tp-q{font-size:16px;}
   }
 
+  @media (max-width:1100px){
+    main.hero{grid-template-columns:minmax(0,1fr) minmax(280px,.9fr); gap:40px;}
+    .hero-orb-slot{display:none;}
+  }
   @media (max-width:980px){
     main.hero{grid-template-columns:1fr; gap:32px;}
     .hero-aside{width:100%; justify-self:stretch;}
+    .hero-orb-slot{display:none;}
   }
 
   /* ---------- portrait / narrow hero ---------- */
@@ -877,12 +887,7 @@
         calc(40px + env(safe-area-inset-bottom, 0px));
     }
     .hero-aside{display:none;}
-    .hero-orb-wrap{
-      right:auto; left:62%; top:46%;
-      width:min(92vw, 72vh);
-      transform:translate(-50%,-50%);
-      opacity:.62;
-    }
+    .hero-orb-slot{display:none;}
     .headline{font-size:clamp(34px, 9vw, 48px); margin-bottom:18px;}
     .headline span{display:inline;}
     .headline span + span::before{content:' ';}
@@ -901,10 +906,6 @@
 <div class="stage">
   <div class="hero-field" aria-hidden="true">
     <div class="hero-haze"></div>
-    <div class="hero-orb-wrap">
-      <div class="hero-orb-core"></div>
-      <canvas id="heroOrb"></canvas>
-    </div>
   </div>
   <main class="hero">
     <div class="hero-col">
@@ -920,6 +921,12 @@
       <div class="hero-actions">
         <a href="#start" class="pill pill-cta">Начать</a>
         <a href="#how" class="ghost">Как это работает</a>
+      </div>
+    </div>
+    <div class="hero-orb-slot" aria-hidden="true">
+      <div class="hero-orb-wrap" id="heroOrbWrap">
+        <div class="hero-orb-core" id="heroOrbCore"></div>
+        <canvas id="heroOrb"></canvas>
       </div>
     </div>
     <aside class="hero-aside" aria-label="Как устроено пространство">
@@ -1659,13 +1666,18 @@
 <script>
 (function(){
   var canvas = document.getElementById('heroOrb');
-  if (!canvas) return;
+  var wrap = document.getElementById('heroOrbWrap');
+  var core = document.getElementById('heroOrbCore');
+  var stage = document.querySelector('.stage');
+  if (!canvas || !wrap || !stage) return;
   var ctx = canvas.getContext('2d');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var dpr = 1, size = 0, raf = 0, t = 0;
+  var dpr = 1, size = 0, raf = 0, idle = 0;
   var points = [];
   var N = 240;
   var i, y, r, theta;
+  var targetX = 0, targetY = 0, lookX = 0, lookY = 0, pull = 0;
+  var hasPointer = false;
   for (i = 0; i < N; i++){
     y = 1 - (i / (N - 1)) * 2;
     r = Math.sqrt(Math.max(0, 1 - y * y));
@@ -1676,6 +1688,7 @@
   function resize(){
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     size = canvas.clientWidth;
+    if (!size) return;
     canvas.width = Math.round(size * dpr);
     canvas.height = Math.round(size * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1707,21 +1720,48 @@
     ctx.stroke();
   }
 
-  function frame(now){
-    t = reduce ? 0.8 : now * 0.00011;
-    ctx.clearRect(0, 0, size, size);
-    var rotY = t;
-    var rotX = 0.38 + Math.sin(t * 0.55) * 0.07;
-    var p, a, s;
+  function onMove(e){
+    if (reduce || window.matchMedia('(pointer: coarse)').matches) return;
+    var rect = wrap.getBoundingClientRect();
+    if (!rect.width) return;
+    var nx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width * 0.62);
+    var ny = (e.clientY - (rect.top + rect.height / 2)) / (rect.height * 0.62);
+    targetX = Math.max(-1, Math.min(1, nx));
+    targetY = Math.max(-1, Math.min(1, ny));
+    hasPointer = true;
+  }
 
-    drawRing(rotY * 0.35, 0.92, 0.22, 1.08, 0.16);
-    drawRing(rotY, rotX, 0.08, 1, 0.12);
-    drawRing(rotY + 1.2, rotX, 0.95, 0.72, 0.1);
+  function onLeave(){
+    targetX = 0;
+    targetY = 0;
+    hasPointer = false;
+  }
+
+  function frame(now){
+    if (!size) resize();
+    idle = reduce ? 0.8 : now * 0.00009;
+    lookX += (targetX - lookX) * 0.065;
+    lookY += (targetY - lookY) * 0.065;
+    pull += ((hasPointer ? 1 : 0) - pull) * 0.06;
+    ctx.clearRect(0, 0, size, size);
+    var rotY = idle + lookX * 0.85;
+    var rotX = 0.34 + Math.sin(idle * 0.5) * 0.05 + lookY * 0.55;
+    var p, a, s, glow;
+
+    wrap.style.transform = 'translate3d(' + (lookX * 14) + 'px,' + (lookY * 10) + 'px,0)';
+    if (core){
+      core.style.background = 'radial-gradient(circle at ' + (32 + lookX * 16) + '% ' + (28 + lookY * 14) + '%, rgba(255,255,255,' + (0.22 + pull * 0.08) + '), rgba(185,204,227,.10) 28%, rgba(185,204,227,.04) 56%, transparent 72%)';
+    }
+
+    drawRing(rotY * 0.35, 0.92, 0.22, 1.08, 0.16 + pull * 0.06);
+    drawRing(rotY, rotX, 0.08, 1, 0.12 + pull * 0.05);
+    drawRing(rotY + 1.2, rotX, 0.95, 0.72, 0.1 + pull * 0.04);
 
     for (i = 0; i < points.length; i++){
       p = rotate(points[i], rotY, rotX);
-      a = 0.08 + (p.z + 1) * 0.22;
-      s = 0.7 + p.s * 1.15;
+      glow = hasPointer ? Math.max(0, 1 - Math.hypot((p.x / size - 0.5) - lookX * 0.18, (p.y / size - 0.5) - lookY * 0.18) * 2.4) : 0;
+      a = 0.08 + (p.z + 1) * 0.22 + glow * 0.28;
+      s = 0.7 + p.s * 1.15 + glow * 0.8;
       ctx.beginPath();
       ctx.fillStyle = 'rgba(185,204,227,' + a + ')';
       ctx.arc(p.x, p.y, s, 0, Math.PI * 2);
@@ -1738,6 +1778,8 @@
     resize();
     if (reduce) frame(0);
   }, { passive: true });
+  stage.addEventListener('mousemove', onMove, { passive: true });
+  stage.addEventListener('mouseleave', onLeave);
   document.addEventListener('visibilitychange', function(){
     if (document.hidden) cancelAnimationFrame(raf);
     else if (!reduce) raf = requestAnimationFrame(frame);
