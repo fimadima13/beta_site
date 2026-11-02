@@ -108,9 +108,10 @@
       radial-gradient(ellipse 30% 28% at 50% 78%, rgba(255,255,255,.04), transparent 70%);
     animation:hazeDrift 32s ease-in-out infinite;
   }
+  .hero-goo-svg{position:absolute; width:0; height:0; overflow:hidden;}
   .hero-orb-slot{
     position:relative;
-    width:min(100%, 360px);
+    width:min(100%, 420px);
     aspect-ratio:1;
     justify-self:center;
     align-self:center;
@@ -118,29 +119,24 @@
     z-index:0;
   }
   .hero-orb-wrap{
-    position:absolute; inset:0;
+    position:absolute; inset:-8%;
     will-change:transform;
-  }
-  .hero-orb-core{
-    position:absolute; inset:12%;
-    border-radius:50%;
-    background:
-      radial-gradient(circle at 32% 28%, rgba(255,255,255,.22), rgba(185,204,227,.10) 28%, rgba(185,204,227,.04) 56%, transparent 72%);
-    box-shadow:
-      0 0 70px 18px rgba(185,204,227,.08),
-      inset 0 0 54px rgba(185,204,227,.06);
-    animation:orbBreath 10s ease-in-out infinite;
   }
   .hero-orb-wrap canvas{
     position:absolute; inset:0; width:100%; height:100%; display:block;
+    filter:url(#heroGoo);
+  }
+  .hero-orb-sheen{
+    position:absolute; inset:22%;
+    border-radius:50%;
+    pointer-events:none;
+    background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.28), rgba(185,204,227,.08) 36%, transparent 64%);
+    mix-blend-mode:screen;
+    opacity:.42;
   }
   @keyframes hazeDrift{
     0%,100%{transform:translate3d(0,0,0) scale(1);}
     50%{transform:translate3d(-2.2%,1.6%,0) scale(1.045);}
-  }
-  @keyframes orbBreath{
-    0%,100%{opacity:.88; transform:scale(1);}
-    50%{opacity:1; transform:scale(1.035);}
   }
 
   main.hero{
@@ -281,7 +277,7 @@
     *{animation-duration:.001s !important; animation-delay:0s !important; transition-duration:.001s !important;}
     .brand,.links,.pill-nav,.hero-kicker,.headline,.hero-copy,.hero-actions,.hero-aside,.pill-cta,.ghost{opacity:1 !important; transform:none !important;}
     .links{transform:translate(-50%,-50%) !important;}
-    .hero-haze,.hero-orb-core{animation:none !important;}
+    .hero-haze{animation:none !important;}
   }
 
   /* ================= FIXED HEADER (persists across scroll) ================= */
@@ -906,6 +902,12 @@
 <div class="stage">
   <div class="hero-field" aria-hidden="true">
     <div class="hero-haze"></div>
+    <svg class="hero-goo-svg" aria-hidden="true">
+      <filter id="heroGoo" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="16" result="blur"/>
+        <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 26 -12" result="goo"/>
+      </filter>
+    </svg>
   </div>
   <main class="hero">
     <div class="hero-col">
@@ -925,8 +927,8 @@
     </div>
     <div class="hero-orb-slot" aria-hidden="true">
       <div class="hero-orb-wrap" id="heroOrbWrap">
-        <div class="hero-orb-core" id="heroOrbCore"></div>
         <canvas id="heroOrb"></canvas>
+        <div class="hero-orb-sheen" id="heroOrbSheen"></div>
       </div>
     </div>
     <aside class="hero-aside" aria-label="Как устроено пространство">
@@ -1667,23 +1669,22 @@
 (function(){
   var canvas = document.getElementById('heroOrb');
   var wrap = document.getElementById('heroOrbWrap');
-  var core = document.getElementById('heroOrbCore');
+  var sheen = document.getElementById('heroOrbSheen');
   var stage = document.querySelector('.stage');
   if (!canvas || !wrap || !stage) return;
   var ctx = canvas.getContext('2d');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var dpr = 1, size = 0, raf = 0, idle = 0;
-  var points = [];
-  var N = 240;
-  var i, y, r, theta;
+  var dpr = 1, size = 0, raf = 0;
   var targetX = 0, targetY = 0, lookX = 0, lookY = 0, pull = 0;
   var hasPointer = false;
-  for (i = 0; i < N; i++){
-    y = 1 - (i / (N - 1)) * 2;
-    r = Math.sqrt(Math.max(0, 1 - y * y));
-    theta = i * 2.399963229728653;
-    points.push({ x: Math.cos(theta) * r, y: y, z: Math.sin(theta) * r });
-  }
+  var blobs = [
+    { r: 0.26, ox: 0, oy: 0, ax: 0.08, ay: 0.06, sx: 0.55, sy: 0.42, p: 0.2, stretch: 0.12 },
+    { r: 0.16, ox: 0.07, oy: -0.03, ax: 0.11, ay: 0.10, sx: 0.80, sy: 0.70, p: 1.4, stretch: 0.20 },
+    { r: 0.13, ox: -0.06, oy: 0.05, ax: 0.12, ay: 0.11, sx: 1.05, sy: 0.88, p: 2.6, stretch: 0.24 },
+    { r: 0.10, ox: 0.03, oy: 0.07, ax: 0.14, ay: 0.12, sx: 1.25, sy: 1.10, p: 3.5, stretch: 0.30 },
+    { r: 0.08, ox: -0.08, oy: -0.06, ax: 0.15, ay: 0.13, sx: 1.45, sy: 1.20, p: 4.2, stretch: 0.34 },
+    { r: 0.06, ox: 0.10, oy: 0.01, ax: 0.17, ay: 0.14, sx: 1.70, sy: 1.55, p: 0.9, stretch: 0.40 }
+  ];
 
   function resize(){
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1694,38 +1695,25 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  function rotate(p, rotY, rotX){
-    var cosy = Math.cos(rotY), siny = Math.sin(rotY);
-    var x1 = p.x * cosy - p.z * siny;
-    var z1 = p.x * siny + p.z * cosy;
-    var cosx = Math.cos(rotX), sinx = Math.sin(rotX);
-    var y1 = p.y * cosx - z1 * sinx;
-    var z2 = p.y * sinx + z1 * cosx;
-    var persp = 1.28 / (2.05 - z2);
-    return { x: size / 2 + x1 * size * 0.36 * persp, y: size / 2 + y1 * size * 0.36 * persp, z: z2, s: persp };
-  }
-
-  function drawRing(rotY, rotX, tilt, radius, alpha){
+  function drawBlob(x, y, r){
+    var g = ctx.createRadialGradient(x - r * 0.32, y - r * 0.36, r * 0.04, x, y, r);
+    g.addColorStop(0, 'rgba(255,255,255,0.98)');
+    g.addColorStop(0.12, 'rgba(201,216,232,0.88)');
+    g.addColorStop(0.32, 'rgba(92,102,114,0.96)');
+    g.addColorStop(0.62, 'rgba(22,23,26,1)');
+    g.addColorStop(1, 'rgba(8,8,10,0)');
     ctx.beginPath();
-    var first = true, j, q, pr;
-    for (j = 0; j <= 96; j++){
-      q = (j / 96) * Math.PI * 2;
-      pr = rotate({ x: Math.cos(q) * radius, y: Math.sin(q) * radius * tilt, z: Math.sin(q) * radius * 0.18 }, rotY, rotX);
-      if (first){ ctx.moveTo(pr.x, pr.y); first = false; }
-      else ctx.lineTo(pr.x, pr.y);
-    }
-    ctx.closePath();
-    ctx.strokeStyle = 'rgba(185,204,227,' + alpha + ')';
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    ctx.fillStyle = g;
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   function onMove(e){
     if (reduce || window.matchMedia('(pointer: coarse)').matches) return;
     var rect = wrap.getBoundingClientRect();
     if (!rect.width) return;
-    var nx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width * 0.62);
-    var ny = (e.clientY - (rect.top + rect.height / 2)) / (rect.height * 0.62);
+    var nx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width * 0.55);
+    var ny = (e.clientY - (rect.top + rect.height / 2)) / (rect.height * 0.55);
     targetX = Math.max(-1, Math.min(1, nx));
     targetY = Math.max(-1, Math.min(1, ny));
     hasPointer = true;
@@ -1739,44 +1727,37 @@
 
   function frame(now){
     if (!size) resize();
-    idle = reduce ? 0.8 : now * 0.00009;
-    lookX += (targetX - lookX) * 0.065;
-    lookY += (targetY - lookY) * 0.065;
-    pull += ((hasPointer ? 1 : 0) - pull) * 0.06;
+    var t = reduce ? 1.2 : now * 0.00042;
+    lookX += (targetX - lookX) * 0.055;
+    lookY += (targetY - lookY) * 0.055;
+    pull += ((hasPointer ? 1 : 0) - pull) * 0.05;
     ctx.clearRect(0, 0, size, size);
-    var rotY = idle + lookX * 0.85;
-    var rotX = 0.34 + Math.sin(idle * 0.5) * 0.05 + lookY * 0.55;
-    var p, a, s, glow;
 
-    wrap.style.transform = 'translate3d(' + (lookX * 14) + 'px,' + (lookY * 10) + 'px,0)';
-    if (core){
-      core.style.background = 'radial-gradient(circle at ' + (32 + lookX * 16) + '% ' + (28 + lookY * 14) + '%, rgba(255,255,255,' + (0.22 + pull * 0.08) + '), rgba(185,204,227,.10) 28%, rgba(185,204,227,.04) 56%, transparent 72%)';
+    var i, b, x, y, r, driftX, driftY;
+    driftX = Math.sin(t * 0.35) * 0.06;
+    driftY = Math.cos(t * 0.28) * 0.05;
+    wrap.style.transform = 'translate3d(' + ((driftX + lookX * 0.08) * size) + 'px,' + ((driftY + lookY * 0.07) * size) + 'px,0)';
+    if (sheen){
+      sheen.style.background = 'radial-gradient(circle at ' + (32 + lookX * 18) + '% ' + (28 + lookY * 16) + '%, rgba(255,255,255,' + (0.26 + pull * 0.12) + '), rgba(185,204,227,.08) 36%, transparent 64%)';
     }
 
-    drawRing(rotY * 0.35, 0.92, 0.22, 1.08, 0.16 + pull * 0.06);
-    drawRing(rotY, rotX, 0.08, 1, 0.12 + pull * 0.05);
-    drawRing(rotY + 1.2, rotX, 0.95, 0.72, 0.1 + pull * 0.04);
-
-    for (i = 0; i < points.length; i++){
-      p = rotate(points[i], rotY, rotX);
-      glow = hasPointer ? Math.max(0, 1 - Math.hypot((p.x / size - 0.5) - lookX * 0.18, (p.y / size - 0.5) - lookY * 0.18) * 2.4) : 0;
-      a = 0.08 + (p.z + 1) * 0.22 + glow * 0.28;
-      s = 0.7 + p.s * 1.15 + glow * 0.8;
-      ctx.beginPath();
-      ctx.fillStyle = 'rgba(185,204,227,' + a + ')';
-      ctx.arc(p.x, p.y, s, 0, Math.PI * 2);
-      ctx.fill();
+    for (i = 0; i < blobs.length; i++){
+      b = blobs[i];
+      x = 0.50 + b.ox + Math.sin(t * b.sx + b.p) * b.ax + lookX * b.stretch + driftX * 0.35;
+      y = 0.50 + b.oy + Math.cos(t * b.sy + b.p * 0.8) * b.ay + lookY * b.stretch + driftY * 0.35;
+      r = b.r * (1 + Math.sin(t * (b.sx + 0.4) + b.p) * 0.08 + pull * 0.04);
+      drawBlob(x * size, y * size, r * size);
     }
 
     if (!reduce && !document.hidden) raf = requestAnimationFrame(frame);
   }
 
   resize();
-  frame(0);
+  frame(reduce ? 1200 : 0);
   if (!reduce) raf = requestAnimationFrame(frame);
   window.addEventListener('resize', function(){
     resize();
-    if (reduce) frame(0);
+    if (reduce) frame(1200);
   }, { passive: true });
   stage.addEventListener('mousemove', onMove, { passive: true });
   stage.addEventListener('mouseleave', onLeave);
