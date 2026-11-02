@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/auth.css?v=porog">
+<link rel="stylesheet" href="assets/auth.css?v=porog3">
 <script src="assets/embed-mode.js"></script>
 <script src="assets/supabase-config.js"></script>
 <style>
@@ -126,7 +126,7 @@
   animation:qFade .3s ease both;
 }
 
-.q-nav{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:8px;}
+.q-nav{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:20px;}
 .q-btn-back{
   font-size:14px; font-weight:600; color:var(--nav); padding:12px 6px;
   display:inline-flex; align-items:center; gap:6px; transition:color .2s ease;
@@ -781,7 +781,7 @@ function renderStep(){
   progressBlock.style.display = "block";
   navBlock.style.display = "flex";
   helpBanner.style.display = "flex";
-  progressFill.style.width = ((currentStep - 1) / TOTAL_STEPS * 100) + "%";
+  progressFill.style.width = (currentStep / TOTAL_STEPS * 100) + "%";
   stepCurrentEl.textContent = currentStep;
   stepHintEl.textContent = HINTS[currentStep];
   btnBack.disabled = currentStep === 1;
