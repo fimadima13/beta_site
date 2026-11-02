@@ -10,8 +10,8 @@
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050505">
-<title>RelationSync.AI — Новый уровень ваших отношений</title>
-<meta name="description" content="RelationSync.AI — кабинет для отношений: личные и парные тесты, анкета, чек-листы и персональный план. Создано вместе с психологами.">
+<title>porog — Понять себя до разговора</title>
+<meta name="description" content="Пространство для отношений: ИИ опирается на ваш контекст — анкету, тесты и динамику пары — а не на один запрос. Собрано с психологами и психотерапевтами.">
 <link rel="canonical" href="https://fimadima13.github.io/beta_site/">
 <meta name="robots" content="index, follow">
 
@@ -19,9 +19,9 @@
 <link rel="apple-touch-icon" href="favicon.svg">
 
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="RelationSync.AI">
-<meta property="og:title" content="RelationSync.AI — Новый уровень ваших отношений">
-<meta property="og:description" content="Кабинет для вас и для пары: тесты, чек-листы и персональный план — без общих фраз.">
+<meta property="og:site_name" content="porog">
+<meta property="og:title" content="porog — Понять себя до разговора">
+<meta property="og:description" content="Пространство для отношений: ИИ опирается на ваш контекст, а не на один запрос. Собрано с психологами и психотерапевтами.">
 <meta property="og:url" content="https://fimadima13.github.io/beta_site/">
 <meta property="og:image" content="https://fimadima13.github.io/beta_site/telegram-lock-cover.jpg">
 <meta property="og:image:width" content="1080">
@@ -29,12 +29,13 @@
 <meta property="og:locale" content="ru_RU">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="RelationSync.AI — Новый уровень ваших отношений">
-<meta name="twitter:description" content="Кабинет для отношений: тесты, чек-листы и персональный план.">
+<meta name="twitter:title" content="porog — Понять себя до разговора">
+<meta name="twitter:description" content="Пространство для отношений: ИИ опирается на ваш контекст, а не на один запрос.">
 <meta name="twitter:image" content="https://fimadima13.github.io/beta_site/telegram-lock-cover.jpg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -48,6 +49,9 @@
     --card: rgba(255,255,255,.025);
     --card-hover: rgba(255,255,255,.055);
     --ok:#7ee0a8;
+    --accent:#b9cce3;
+    --accent-soft:rgba(185,204,227,.12);
+    --accent-line:rgba(185,204,227,.30);
 
     --u: calc(100vh / 1058);
     --uw: calc(100vw / 1487);
@@ -88,84 +92,143 @@
   /* ================= HERO STAGE ================= */
   .stage{
     position:relative;
-    width:100%;height:100vh;height:100dvh;
-    overflow:hidden;
+    min-height:100vh; min-height:100dvh;
+    display:flex; align-items:stretch;
+    overflow:clip;
     background:#050505;
   }
-
-  .plate{position:absolute;inset:0;overflow:hidden;z-index:0;}
-  .plate-video{
-    position:absolute;
-    left:50%;
-    top:calc(1 * var(--u));
-    width:calc(1492 * var(--u));
-    height:calc(1054 * var(--u));
-    transform:translateX(calc(-50% - calc(0.5 * var(--u))));
-    object-fit:cover;
-    pointer-events:none;
-  }
-  .plate::after{
+  .stage::before{
     content:'';
-    position:absolute;inset:0;
-    pointer-events:none;
+    position:absolute; inset:0; pointer-events:none; z-index:0;
     background:
-      linear-gradient(to bottom,
-        rgba(5,5,5,0) 78.8%, rgba(5,5,5,.23) 79.6%, rgba(5,5,5,.45) 81.4%,
-        rgba(5,5,5,.75) 83.3%, rgba(5,5,5,.84) 85.2%, rgba(5,5,5,.888) 88%,
-        rgba(5,5,5,.905) 91%, rgba(5,5,5,.96) 95%, #050505 100%),
-      linear-gradient(to right,
-        #050505 calc(50% - 746 * var(--u)),
-        transparent calc(50% - 676 * var(--u)),
-        transparent calc(50% + 676 * var(--u)),
-        #050505 calc(50% + 746 * var(--u)));
+      radial-gradient(ellipse 42% 46% at 14% 48%, rgba(185,204,227,.07), transparent 64%),
+      radial-gradient(ellipse 54% 58% at 86% 44%, rgba(185,204,227,.11), transparent 68%),
+      radial-gradient(ellipse 34% 28% at 74% 72%, rgba(255,255,255,.045), transparent 70%);
   }
 
-  main.hero{position:absolute; inset:0; z-index:4; pointer-events:none;}
-  main.hero a{pointer-events:auto;}
+  main.hero{
+    position:relative; z-index:1;
+    width:100%;
+    display:grid;
+    grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);
+    align-items:center;
+    gap:clamp(36px, 6vw, 88px);
+    padding:
+      calc(132 * var(--u))
+      clamp(24px, calc(75 * var(--u)), 80px)
+      calc(72 * var(--u));
+  }
+
+  .hero-col{
+    min-width:0;
+    display:flex; flex-direction:column; justify-content:center;
+  }
+
+  .hero-kicker{
+    margin:0 0 18px;
+    font-size:12px; font-weight:600;
+    letter-spacing:.16em; text-transform:uppercase;
+    color:var(--accent);
+    animation:rise .9s cubic-bezier(.22,1,.36,1) .06s both;
+  }
 
   .headline{
-    position:absolute;
-    left:calc(75.5 * var(--u)); top:calc(230.5 * var(--u));
-    font-size:calc(71.6 * var(--h)); line-height:calc(80.5 * var(--h));
-    font-weight:400; letter-spacing:calc(0.3 * var(--h));
-    color:var(--ink); white-space:nowrap; margin:0;
-    animation:rise .9s cubic-bezier(.22,1,.36,1) .06s both;
+    position:static;
+    font-size:clamp(40px, calc(64 * var(--h)), 68px);
+    line-height:1.06;
+    font-weight:400; letter-spacing:-.025em;
+    color:var(--ink); white-space:normal; margin:0 0 26px;
+    max-width:14ch;
+    animation:rise .9s cubic-bezier(.22,1,.36,1) .1s both;
   }
   .headline span{display:block;}
 
-  .sub{
-    position:absolute;
-    left:calc(75.5 * var(--u));
-    top:calc((230.5 * var(--u)) + (189.0 * var(--h)));
-    font-size:calc(20.7 * var(--h)); line-height:calc(23.5 * var(--h));
-    font-weight:400; word-spacing:calc(1.8 * var(--h)); color:var(--muted);
-    margin:0;
-    animation:rise .9s cubic-bezier(.22,1,.36,1) .14s both;
+  .hero-copy{
+    max-width:34em; margin:0 0 36px;
+    font-size:clamp(16px, calc(18 * var(--h)), 18.5px);
+    line-height:1.62; font-weight:400; color:var(--muted);
+    animation:rise .9s cubic-bezier(.22,1,.36,1) .16s both;
   }
-  .sub span{display:block; white-space:nowrap;}
+  .hero-copy p{margin:0;}
+  .hero-copy p + p{margin-top:14px;}
+
+  .hero-actions{
+    display:flex; align-items:center; gap:22px; flex-wrap:wrap;
+    animation:rise .9s cubic-bezier(.22,1,.36,1) .22s both;
+  }
+
+  .hero-aside{
+    min-width:0; width:min(100%,440px); justify-self:end;
+    animation:rise .9s cubic-bezier(.22,1,.36,1) .2s both;
+  }
+  .hero-panel{
+    position:relative;
+    border:1px solid rgba(185,204,227,.18);
+    border-radius:22px;
+    padding:28px 26px 24px;
+    background:
+      linear-gradient(180deg, rgba(185,204,227,.08), rgba(255,255,255,.02) 42%, rgba(5,5,5,.35)),
+      rgba(255,255,255,.028);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .hero-panel-kicker{
+    margin:0 0 22px;
+    font-size:11px; font-weight:600;
+    letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent);
+  }
+  .hero-space{
+    padding:16px 0 18px;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+  .hero-space:first-of-type{border-top:0; padding-top:0;}
+  .hero-space-top{
+    display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    margin:0 0 6px;
+  }
+  .hero-space-top strong{
+    font-size:17px; font-weight:560; letter-spacing:-.02em; color:var(--ink);
+  }
+  .hero-space-top span{
+    font-size:12px; color:var(--accent); letter-spacing:.04em; white-space:nowrap;
+  }
+  .hero-space p{
+    margin:0; font-size:14px; line-height:1.5; color:var(--muted);
+  }
+  .hero-ai{
+    margin-top:6px;
+    padding:16px 16px 15px;
+    border-radius:14px;
+    background:rgba(185,204,227,.08);
+    border:1px solid rgba(185,204,227,.18);
+  }
+  .hero-ai span{
+    display:block; margin:0 0 6px;
+    font-size:11px; font-weight:600;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--accent);
+  }
+  .hero-ai p{
+    margin:0; font-size:14.5px; line-height:1.5; color:#d8dce2;
+  }
 
   .pill-cta{
-    position:absolute;
-    left:calc(74.9 * var(--u));
-    top:calc((230.5 * var(--u)) + (264.5 * var(--h)));
-    width:calc(175.6 * var(--h)); height:calc(50 * var(--h));
+    position:static;
+    width:auto; height:50px; padding:0 28px;
     border-radius:999px;
     background:var(--pill); color:var(--pill-ink);
-    display:flex; align-items:center; justify-content:center;
-    font-size:calc(20.6 * var(--h)); font-weight:500;
-    animation:rise .9s cubic-bezier(.22,1,.36,1) .22s both;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:16.5px; font-weight:500;
     transition:transform .15s ease, opacity .15s ease;
   }
+  .pill-cta:hover{transform:translateY(-1px);}
 
   .ghost{
-    position:absolute;
-    left:calc((74.9 * var(--u)) + (220.6 * var(--h)));
-    top:calc((230.5 * var(--u)) + (279.5 * var(--h)));
-    font-size:calc(20.6 * var(--h)); font-weight:500;
-    letter-spacing:calc(0.12 * var(--h)); color:#fff;
-    animation:rise .9s cubic-bezier(.22,1,.36,1) .22s both;
+    position:static;
+    font-size:16.5px; font-weight:500;
+    letter-spacing:.02em; color:#fff;
     transition:opacity .15s ease;
   }
+  .ghost:hover{opacity:.62;}
 
   @keyframes rise{
     from{opacity:0; transform:translateY(calc(14 * var(--u)));}
@@ -179,7 +242,7 @@
 
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:.001s !important; animation-delay:0s !important; transition-duration:.001s !important;}
-    .brand,.links,.pill-nav,.headline,.sub,.pill-cta,.ghost{opacity:1 !important; transform:none !important;}
+    .brand,.links,.pill-nav,.hero-kicker,.headline,.hero-copy,.hero-actions,.hero-aside,.pill-cta,.ghost{opacity:1 !important; transform:none !important;}
     .links{transform:translate(-50%,-50%) !important;}
   }
 
@@ -203,11 +266,12 @@
     position:absolute; pointer-events:auto;
     left:calc(75 * var(--u)); top:calc(27 * var(--u));
     height:calc(48.5 * var(--u)); width:auto;
-    display:flex; align-items:center; gap:calc(10 * var(--u));
+    display:flex; align-items:center; gap:0;
     animation:rise .8s cubic-bezier(.22,1,.36,1) both;
+    color:#fff;
   }
-  .brand svg{width:calc(31.5 * var(--u));height:calc(48.5 * var(--u));display:block;flex:none;}
-  .brand .word{font-size:calc(20 * var(--u));font-weight:600;letter-spacing:-0.02em;color:#fff;white-space:nowrap;}
+  .brand svg{width:calc(118 * var(--u));height:calc(34 * var(--u));display:block;flex:none;color:#fff;}
+  .brand .word{display:none;}
 
   .links{
     position:absolute; pointer-events:auto;
@@ -326,9 +390,10 @@
   .page::before{
     content:''; position:absolute; inset:-20% -10%; pointer-events:none; z-index:0;
     background:
-      radial-gradient(ellipse 55% 40% at 18% 22%, rgba(255,255,255,.035), transparent 70%),
-      radial-gradient(ellipse 50% 36% at 82% 58%, rgba(255,255,255,.028), transparent 68%),
-      radial-gradient(ellipse 45% 30% at 50% 88%, rgba(255,255,255,.02), transparent 70%);
+      radial-gradient(ellipse 42% 26% at 50% 6%, rgba(185,204,227,.045), transparent 72%),
+      radial-gradient(ellipse 55% 40% at 18% 22%, rgba(255,255,255,.03), transparent 70%),
+      radial-gradient(ellipse 50% 36% at 82% 58%, rgba(255,255,255,.024), transparent 68%),
+      radial-gradient(ellipse 45% 30% at 50% 88%, rgba(255,255,255,.018), transparent 70%);
     animation:pageGlow 36s ease-in-out infinite;
   }
   .page::after{
@@ -355,8 +420,12 @@
   .section-head{max-width:680px; margin:0 auto 52px; text-align:center;}
   .eyebrow{
     display:inline-flex; align-items:center; gap:8px; margin-bottom:16px; padding:6px 13px; border-radius:5px;
-    border:1px solid var(--line); background:rgba(255,255,255,.03);
-    font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+    border:1px solid var(--accent-line); background:var(--accent-soft);
+    font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--accent);
+  }
+  .eyebrow::before{
+    content:''; width:5px; height:5px; border-radius:50%; flex:none;
+    background:var(--accent); box-shadow:0 0 8px rgba(185,204,227,.55);
   }
   .section-title{font-size:clamp(28px,3.6vw,40px); font-weight:500; line-height:1.18; color:var(--ink); margin:0 0 16px;}
   .section-sub{font-size:clamp(15px,1.6vw,18px); line-height:1.6; color:var(--muted); margin:0;}
@@ -364,15 +433,17 @@
   .reveal.is-in{opacity:1; transform:translateY(0);}
 
   /* how it works */
-  .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:28px;}
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:28px;}
+  .mid-cta{text-align:center; margin:36px 0 0;}
+  .chat-cta{text-align:center; margin:22px 0 0;}
   .step{padding-top:22px; border-top:1px solid var(--line);}
   .step-num{
-    width:38px; height:38px; border-radius:50%; border:1px solid var(--line);
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--accent-line);
     display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600;
-    color:var(--ink); margin-bottom:18px; background:rgba(255,255,255,.03);
-    transition:border-color .3s ease, background .3s ease;
+    color:var(--accent); margin-bottom:18px; background:var(--accent-soft);
+    transition:border-color .3s ease, background .3s ease, color .3s ease;
   }
-  .step:hover .step-num{border-color:rgba(255,255,255,.22); background:rgba(255,255,255,.06);}
+  .step:hover .step-num{border-color:rgba(185,204,227,.5); background:rgba(185,204,227,.18);}
   .step h3{font-size:17px; font-weight:600; margin:0 0 8px; color:var(--ink);}
   .step p{font-size:14.5px; line-height:1.55; color:var(--muted); margin:0;}
 
@@ -401,13 +472,14 @@
   .compare-row{display:grid; grid-template-columns:minmax(0,1fr) 168px 168px; align-items:center;}
   .compare-row + .compare-row{border-top:1px solid rgba(255,255,255,.06);}
   .compare-row:not(.head):hover{background:rgba(255,255,255,.02);}
-  .compare-row > :nth-child(2){background:transparent;}
+  .compare-row > :nth-child(2){background:rgba(185,204,227,.04);}
   .compare-row.head{background:transparent; border-bottom:1px solid rgba(255,255,255,.08);}
-  .compare-row.head > :nth-child(2){background:transparent;}
+  .compare-row.head > :nth-child(2){background:rgba(185,204,227,.055);}
   .compare-head-label{
     padding:10px 14px 18px; font-size:12px; font-weight:600; text-align:center;
     color:var(--ink); letter-spacing:.02em; line-height:1.3;
   }
+  .compare-head-label.ours{color:var(--accent);}
   .compare-head-label .full{display:block;}
   .compare-head-label .short{display:none;}
   .compare-head-label.theirs{color:var(--muted); font-weight:500;}
@@ -417,7 +489,7 @@
     width:22px; height:22px; padding:0; border-radius:0;
     display:block; background:none;
   }
-  .check-yes{color:#cfcfcf;}
+  .check-yes{color:var(--accent);}
   .check-no{color:var(--muted); opacity:.38;}
 
   /* pricing */
@@ -437,11 +509,12 @@
   }
   .price-card:hover{transform:translateY(-3px); border-color:rgba(255,255,255,.18);}
   .price-card.featured{
-    border-color:rgba(255,255,255,.22);
-    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 18px 40px rgba(0,0,0,.22);
+    border-color:rgba(185,204,227,.34);
+    background:linear-gradient(180deg, rgba(185,204,227,.07), rgba(255,255,255,.02));
+    box-shadow:inset 0 1px 0 rgba(185,204,227,.1), 0 18px 40px rgba(0,0,0,.22);
   }
-  .price-badge{position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--pill); color:var(--pill-ink); font-size:12px; font-weight:700; padding:5px 14px; border-radius:999px;}
+  .price-card.featured .price-features svg{color:var(--accent);}
+  .price-badge{position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--accent); color:#081018; font-size:12px; font-weight:700; padding:5px 14px; border-radius:999px;}
   .price-card h3{font-size:18px; font-weight:600; margin:0 0 6px;}
   .price-card .plan-desc{font-size:13.5px; color:var(--muted); margin:0 0 22px;}
   .price-amount{display:flex; align-items:baseline; gap:6px; margin-bottom:6px;}
@@ -451,6 +524,7 @@
   .price-features{list-style:none; margin:0 0 28px; padding:0; display:flex; flex-direction:column; gap:12px; flex:1;}
   .price-features li{display:flex; align-items:flex-start; gap:10px; font-size:14.5px; color:var(--ink);}
   .price-features svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--muted);}
+  .price-card.featured .price-features svg{color:var(--accent);}
   .price-cta{display:flex; align-items:center; justify-content:center; height:48px; border-radius:999px; font-size:15px; font-weight:600; border:1px solid var(--line); color:#fff; transition:transform .15s ease, opacity .15s ease;}
   .price-card.featured .price-cta{background:var(--pill); color:var(--pill-ink); border-color:transparent;}
   .pricing-foot{text-align:center; margin-top:26px; font-size:13px; color:var(--muted);}
@@ -471,7 +545,7 @@
   .chat-card{
     max-width:640px; margin:0 auto; border:1px solid rgba(255,255,255,.1); border-radius:20px; overflow:hidden;
     background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 24px 50px rgba(0,0,0,.22);
+    box-shadow:inset 0 1px 0 rgba(185,204,227,.08), 0 24px 50px rgba(0,0,0,.22);
   }
   .chat-head{display:flex; align-items:center; gap:12px; padding:18px 22px; border-bottom:1px solid var(--line);}
   .chat-avatar{width:38px; height:38px; border-radius:11px; background:rgba(255,255,255,.06); display:flex; align-items:center; justify-content:center; flex:none;}
@@ -491,7 +565,7 @@
   .msg-ai-content p:last-child{margin-bottom:0;}
   .msg-list{list-style:none; margin:0 0 12px; padding:0; display:flex; flex-direction:column; gap:9px;}
   .msg-list li{position:relative; padding-left:18px; font-size:14px; line-height:1.5; color:var(--muted);}
-  .msg-list li::before{content:''; position:absolute; left:0; top:7px; width:7px; height:7px; border-radius:50%; background:var(--ok); opacity:.7;}
+  .msg-list li::before{content:''; position:absolute; left:0; top:7px; width:7px; height:7px; border-radius:50%; background:var(--accent); opacity:.85;}
   .msg-footnote{font-size:13px; color:var(--muted); font-style:normal; border-top:1px solid var(--line); padding-top:12px; margin-top:2px;}
   .msg-time{font-size:11.5px; color:var(--muted); opacity:.7; padding:0 4px;}
   .msg-typing{display:flex; align-items:center; gap:5px; border:1px solid var(--line); border-radius:4px 16px 16px 16px; padding:14px 18px; width:fit-content;}
@@ -523,7 +597,7 @@
   .tp-meta{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; font-size:12.5px; color:var(--muted);}
   .tp-meta strong{color:var(--ink); font-weight:600;}
   .tp-track{height:5px; border-radius:999px; background:rgba(255,255,255,.07); overflow:hidden; margin-bottom:22px;}
-  .tp-track i{display:block; height:100%; width:30%; background:var(--ok); border-radius:inherit;}
+  .tp-track i{display:block; height:100%; width:30%; background:var(--accent); border-radius:inherit;}
   .tp-q{font-size:17px; font-weight:600; line-height:1.4; margin:0 0 16px; color:var(--ink);}
   .tp-opts{display:flex; flex-direction:column; gap:10px;}
   .tp-opt{
@@ -532,7 +606,7 @@
     transition:background .2s ease, border-color .2s ease, transform .15s ease;
   }
   .tp-opt:hover{background:var(--card-hover); border-color:rgba(255,255,255,.2);}
-  .tp-opt.is-on{border-color:rgba(126,224,168,.45); background:rgba(126,224,168,.08);}
+  .tp-opt.is-on{border-color:rgba(185,204,227,.42); background:rgba(185,204,227,.08);}
   .tp-result{margin-top:20px; padding-top:18px; border-top:1px solid var(--line); display:none;}
   .tp-result.is-on{display:block; animation:fade .35s ease both;}
   .tp-result p{font-size:13.5px; color:var(--muted); margin:0 0 14px; line-height:1.55;}
@@ -540,7 +614,7 @@
   .tp-bar span{display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink); margin-bottom:5px;}
   .tp-bar b{color:var(--muted); font-weight:500;}
   .tp-bar i{display:block; height:6px; border-radius:999px; background:rgba(255,255,255,.08); overflow:hidden;}
-  .tp-bar i em{display:block; height:100%; background:var(--ok); border-radius:inherit;}
+  .tp-bar i em{display:block; height:100%; background:var(--accent); border-radius:inherit;}
   .tp-cta{display:inline-flex; margin-top:16px; font-size:14px; font-weight:600; color:#fff; border-bottom:1px solid rgba(255,255,255,.28);}
 
   .tests-side h3{font-size:15px; font-weight:600; margin:0 0 6px; color:var(--ink);}
@@ -559,7 +633,7 @@
   .tcard-top{display:flex; align-items:center; justify-content:space-between; gap:8px;}
   .tcard-icon{width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,.06); display:flex; align-items:center; justify-content:center; color:var(--ink);}
   .tcard-icon svg{width:17px; height:17px;}
-  .tcard-tag{font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ok); border:1px solid rgba(126,224,168,.28); background:rgba(126,224,168,.08); padding:3px 8px; border-radius:999px;}
+  .tcard-tag{font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); border:1px solid var(--accent-line); background:var(--accent-soft); padding:3px 8px; border-radius:999px;}
   .tcard h4{font-size:14.5px; font-weight:600; margin:2px 0 0; color:var(--ink);}
   .tcard p{font-size:12.5px; line-height:1.5; color:var(--muted); margin:0;}
   .tcard-meta{display:flex; gap:6px; flex-wrap:wrap; margin-top:auto;}
@@ -593,7 +667,80 @@
     background:var(--pill); color:var(--pill-ink); font-size:15px; font-weight:600;
     transition:transform .15s ease, opacity .15s ease;
   }
-  .start-cta:hover{transform:translateY(-1px);}
+  .start-cta:hover{transform:translateY(-1px); box-shadow:0 0 0 1px rgba(185,204,227,.22), 0 12px 28px rgba(0,0,0,.28);}
+
+  /* auth modal */
+  .auth-modal{
+    position:fixed; inset:0; z-index:80; display:none;
+    align-items:center; justify-content:center;
+    padding:22px 16px calc(22px + env(safe-area-inset-bottom, 0px));
+  }
+  .auth-modal.is-on{display:flex;}
+  .auth-modal-dim{
+    position:absolute; inset:0;
+    background:rgba(5,5,5,.72);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  }
+  .auth-modal-card{
+    position:relative; z-index:1; width:100%; max-width:400px;
+    border:1px solid rgba(255,255,255,.12);
+    background:linear-gradient(180deg, rgba(18,18,18,.96), rgba(8,8,8,.96));
+    border-radius:22px; padding:28px 24px 22px;
+    box-shadow:0 24px 80px rgba(0,0,0,.45);
+    animation:authPop .28s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes authPop{
+    from{opacity:0; transform:translateY(12px) scale(.98);}
+    to{opacity:1; transform:none;}
+  }
+  .auth-modal-close{
+    position:absolute; top:14px; right:14px; width:36px; height:36px;
+    border-radius:50%; border:1px solid var(--line);
+    background:transparent; padding:0;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--muted); cursor:pointer;
+  }
+  .auth-modal-close:hover{color:#fff; border-color:rgba(255,255,255,.28);}
+  .auth-modal-close svg{width:14px; height:14px;}
+  .auth-modal .am-eyebrow{
+    display:inline-flex; margin-bottom:12px; padding:6px 12px; border-radius:5px;
+    border:1px solid var(--line); font-size:11.5px; font-weight:600;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+  }
+  .auth-modal h2{font-size:24px; font-weight:700; margin:0 0 8px; letter-spacing:-.02em;}
+  .auth-modal .am-sub{font-size:14px; color:var(--muted); margin:0 0 20px; line-height:1.5;}
+  .am-tabs{display:flex; gap:6px; padding:4px; border:1px solid var(--line); border-radius:999px; margin-bottom:20px;}
+  .am-tab{flex:1; height:38px; border:0; background:transparent; border-radius:999px; font-size:13.5px; font-weight:600; color:var(--nav); cursor:pointer; font-family:inherit;}
+  .am-tab.is-on{background:#fff; color:#050505;}
+  .am-plan{
+    display:none; align-items:center; gap:8px; margin:0 0 16px; padding:10px 12px;
+    border:1px solid rgba(255,255,255,.14); border-radius:10px; font-size:13px; color:#fafafa;
+  }
+  .am-plan.is-on{display:flex;}
+  .am-field{margin-bottom:12px;}
+  .am-field label{display:block; font-size:12.5px; color:var(--muted); margin-bottom:6px; font-weight:600;}
+  .am-field input{
+    width:100%; height:48px; border-radius:12px; border:1px solid var(--line);
+    background:rgba(255,255,255,.03); color:#fff; padding:0 16px; font-size:15px; font-family:inherit;
+  }
+  .am-field input:focus{outline:none; border-color:rgba(255,255,255,.4);}
+  .am-submit{
+    width:100%; height:50px; border:0; border-radius:999px; background:#fff; color:#050505;
+    font-size:15px; font-weight:600; margin-top:6px; cursor:pointer; font-family:inherit;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .am-submit:disabled{opacity:.55; cursor:default;}
+  .am-msg{display:none; margin-top:14px; padding:11px 14px; border-radius:10px; font-size:13.5px; line-height:1.45;}
+  .am-msg.show{display:block;}
+  .am-msg.err{background:rgba(255,107,107,.1); border:1px solid rgba(255,107,107,.25); color:#ff6b6b;}
+  .am-msg.ok{background:rgba(126,224,168,.1); border:1px solid rgba(126,224,168,.25); color:#7ee0a8;}
+  .am-note{margin:16px 0 0; font-size:12.5px; color:var(--muted); text-align:center; line-height:1.5;}
+  .am-spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(5,5,5,.25);border-top-color:#050505;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  html.auth-open, html.auth-open body{overflow:hidden;}
+  @media (prefers-reduced-motion: reduce){
+    .auth-modal-card{animation:none;}
+  }
 
   /* footer */
   .site-footer{
@@ -606,9 +753,9 @@
   }
   .footer-top{display:flex; justify-content:space-between; gap:40px; flex-wrap:wrap; margin-bottom:40px;}
   .footer-brand{max-width:340px;}
-  .footer-brand .flogo{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
-  .footer-brand .flogo svg{width:20px;height:31px;}
-  .footer-brand .flogo span{font-size:17px; font-weight:600; color:#fff;}
+  .footer-brand .flogo{display:flex; align-items:center; gap:0; margin-bottom:14px; color:#fff;}
+  .footer-brand .flogo svg{width:96px;height:28px;color:#fff;}
+  .footer-brand .flogo span{display:none;}
   .footer-tagline{font-size:13.5px; line-height:1.6; color:var(--muted); margin:0;}
   .footer-social{display:flex; gap:10px; margin-top:22px;}
   .footer-social a{width:38px; height:38px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--nav); transition:color .2s ease, border-color .2s ease, transform .2s ease;}
@@ -661,16 +808,14 @@
     .tp-q{font-size:16px;}
   }
 
+  @media (max-width:980px){
+    main.hero{grid-template-columns:1fr; gap:32px;}
+    .hero-aside{width:100%; justify-self:stretch;}
+  }
+
   /* ---------- portrait / narrow hero ---------- */
   @media (max-aspect-ratio: 11/10){
     :root{ --m: min(calc(100vw / 430), 1.34px); --u: var(--m); }
-
-    .plate-video{position:absolute; inset:0; left:0; top:0; width:100%; height:100%; transform:none; object-fit:cover; object-position:43% center;}
-    .plate::after{
-      background:
-        linear-gradient(to right, rgba(5,5,5,.86) 0%, rgba(5,5,5,.66) 42%, rgba(5,5,5,.20) 78%, rgba(5,5,5,.10) 100%),
-        linear-gradient(to bottom, rgba(5,5,5,.72) 0%, rgba(5,5,5,.34) 24%, rgba(5,5,5,.34) 56%, rgba(5,5,5,.80) 82%, rgba(5,5,5,.97) 94%, #050505 100%);
-    }
 
     .links, .pill-nav{display:none;}
     .burger{
@@ -684,89 +829,88 @@
       top:calc(20px + env(safe-area-inset-top, 0px));
       height:40px;
       width:auto;
-      gap:9px;
+      gap:0;
       transition:opacity .25s ease, visibility .25s ease;
     }
-    .brand svg{width:26px; height:40px;}
-    .brand .word{font-size:16.5px;}
+    .brand svg{width:96px; height:28px;}
+    .brand .word{display:none;}
 
-    main.hero{display:flex; flex-direction:column; justify-content:flex-end; padding:0 24px calc(40 * var(--m)); inset:auto; position:absolute; left:0; right:0; bottom:0; top:auto;}
-    .headline{position:static; white-space:normal; font-size:clamp(34px, calc(44 * var(--m)), 56px); line-height:1.08; letter-spacing:0; margin:0;}
+    main.hero{
+      grid-template-columns:1fr;
+      gap:28px;
+      padding:
+        calc(112px + env(safe-area-inset-top, 0px))
+        24px
+        calc(40px + env(safe-area-inset-bottom, 0px));
+    }
+    .hero-aside{display:none;}
+    .headline{font-size:clamp(34px, 9vw, 48px); margin-bottom:18px;}
     .headline span{display:inline;}
     .headline span + span::before{content:' ';}
-    .sub{position:static; margin-top:14px; font-size:clamp(15px, calc(16 * var(--m)), 18px); line-height:1.4; word-spacing:normal;}
-    .sub span{display:inline; white-space:normal;}
-    .sub span + span::before{content:' ';}
-    .pill-cta{position:static; display:inline-flex; margin-top:22px; width:auto; padding:0 28px; height:50px; font-size:16px;}
-    .ghost{position:static; display:block; margin-top:14px; font-size:15px;}
+    .hero-copy{font-size:15.5px; line-height:1.55; margin-bottom:28px;}
+    .pill-cta{height:50px; font-size:16px;}
+    .ghost{font-size:15px;}
   }
 
   @media (min-width:600px) and (max-aspect-ratio: 11/10){
     :root{ --m: min(calc(100vw / 860), calc(100vh / 760), 1.25px); }
-    .plate-video{object-position:44% center;}
-    .plate::after{
-      background:
-        linear-gradient(to right, rgba(5,5,5,.84) 0%, rgba(5,5,5,.60) 42%, rgba(5,5,5,.16) 78%, rgba(5,5,5,.06) 100%),
-        linear-gradient(to bottom, rgba(5,5,5,.66) 0%, rgba(5,5,5,.28) 24%, rgba(5,5,5,.30) 56%, rgba(5,5,5,.78) 82%, rgba(5,5,5,.96) 94%, #050505 100%);
-    }
   }
 </style>
 </head>
 <body>
 
 <div class="stage">
-  <div class="plate">
-    <video class="plate-video" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
-      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260808_112712_da9d53df-6d27-4b12-bdf6-aa9dc2622bdf.mp4" type="video/mp4">
-    </video>
-  </div>
-
   <main class="hero">
-    <h1 class="headline">
-      <span>Новый уровень</span>
-      <span>ваших отношений</span>
-    </h1>
-    <p class="sub">
-      <span>Кабинет для вас и для пары: тесты, чек-листы</span>
-      <span>и персональный план — без общих фраз.</span>
-    </p>
-    <a href="#start" class="pill pill-cta">Начать</a>
-    <a href="#how" class="ghost">Как это работает</a>
+    <div class="hero-col">
+      <p class="hero-kicker">Пространство для отношений</p>
+      <h1 class="headline">
+        <span>Понять себя</span>
+        <span>до разговора</span>
+      </h1>
+      <div class="hero-copy">
+        <p>ИИ опирается на ваш контекст — анкету, тесты, дневник и динамику пары — а не на один запрос. Методология собрана совместно с психологами и психотерапевтами.</p>
+        <p>Можно начать одному. Партнёра подключать не обязательно. Это не терапия и не обычный чат-бот.</p>
+      </div>
+      <div class="hero-actions">
+        <a href="#start" class="pill pill-cta">Начать</a>
+        <a href="#how" class="ghost">Как это работает</a>
+      </div>
+    </div>
+    <aside class="hero-aside" aria-label="Как устроено пространство">
+      <div class="hero-panel">
+        <p class="hero-panel-kicker">Два пространства</p>
+        <div class="hero-space">
+          <div class="hero-space-top">
+            <strong>Моё</strong>
+            <span>только вам</span>
+          </div>
+          <p>Анкета, тесты, дневник и чек-лист. Личное не уходит к партнёру само.</p>
+        </div>
+        <div class="hero-space">
+          <div class="hero-space-top">
+            <strong>Пары</strong>
+            <span>когда оба готовы</span>
+          </div>
+          <p>Совместимость, темы для разговора и динамика — без смешивания с личным.</p>
+        </div>
+        <div class="hero-ai">
+          <span>ИИ</span>
+          <p>Читает собранный контекст, а не один текущий запрос. С психологами и психотерапевтами — не общие фразы чат-бота.</p>
+        </div>
+      </div>
+    </aside>
   </main>
 </div>
 
 <header class="topbar" id="topbar">
-  <a href="#" class="brand" aria-label="Главная">
-    <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
-      <defs>
-        <linearGradient id="bg1" x1="8" y1="0" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#9e9e9e"/>
-          <stop offset=".28" stop-color="#a6a6a6"/>
-          <stop offset=".34" stop-color="#a3a3a3"/>
-          <stop offset=".40" stop-color="#3a3a3a"/>
-          <stop offset=".55" stop-color="#414141"/>
-          <stop offset=".60" stop-color="#7a7a7a"/>
-          <stop offset=".68" stop-color="#8e8e8e"/>
-          <stop offset=".80" stop-color="#a9a9a9"/>
-          <stop offset=".95" stop-color="#c4c4c4"/>
-          <stop offset="1" stop-color="#cccccc"/>
-        </linearGradient>
-      </defs>
-      <path d="M21.5 0 L21.5 19.5 L31.5 19.5 L31.5 29 L10 48.5 L10 28.5 L0.5 28.5 L0.5 18.5 Z" fill="url(#bg1)"/>
-      <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/>
-      <rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
-    </svg>
-    <span class="word">RelationSync.ai</span>
+  <a href="#" class="brand" aria-label="porog — на главную">
+    <svg class="logo-word" viewBox="1.05 13.38 100.40 28.81" aria-hidden="true"><path fill="currentColor" d="M13.271493439817455 33.69610268111808Q11.092928693667998 33.69610268111808 9.625338277239019 32.814205362236166Q8.157747860810039 31.932308043354247 7.284260125499143 30.51041072447233Q6.4107723901882485 29.08851340559041 6.014464346833998 27.45943639475185Q5.618156303479749 25.83035938391329 5.618156303479749 24.35405134055904Q5.618156303479749 22.391999999999996 5.996464346833999 20.699999999999996Q6.374772390188249 19.008 7.239285795778665 17.72102567027952Q8.103799201369082 16.43405134055904 9.580363947518538 15.705077010838561Q11.056928693667997 14.976102681118082 13.271493439817455 14.976102681118082Q15.70226354820308 14.976102681118082 17.66482829435254 16.182051340559042Q19.627393040501996 17.387999999999998 20.797701083856246 19.502974329720477Q21.968009127210493 21.617948659440955 21.968009127210493 24.35405134055904Q21.968009127210493 27.126256702795207 20.779701083856246 29.232256702795205Q19.591393040501995 31.338256702795206 17.619853964632057 32.51717969195664Q15.64831488876212 33.69610268111808 13.271493439817455 33.69610268111808ZM12.154363947518538 30.50881916714204Q13.936723331431828 30.50881916714204 15.286928693667996 29.725998859098688Q16.637134055904163 28.943178551055333 17.384211066742726 27.557486594409582Q18.13128807758129 26.17179463776383 18.13128807758129 24.35405134055904Q18.13128807758129 21.618462065031373 16.5740570450656 19.881898459783226Q15.016826012549911 18.14533485453508 12.154363947518538 18.14533485453508Q10.407901882487163 18.14533485453508 9.012414147176269 18.910103822019394Q7.616926411865373 19.674872789503706 6.824618368511123 21.060564746149456Q6.032310325156873 22.446256702795207 6.032310325156873 24.35405134055904Q6.032310325156873 26.117948659440955 6.743644038790643 27.503640616086706Q7.454977752424415 28.889332572732457 8.82349115801483 29.699075869937246Q10.192004563605247 30.50881916714204 12.154363947518538 30.50881916714204ZM2.2497432972047915 15.354154021677125H5.870156303479749L6.032310325156873 19.621540216771244V40.5H2.2497432972047915Z M34.077645179691956 33.69610268111808Q31.232104962920705 33.69610268111808 28.93630918425556 32.59815402167712Q26.640513405590415 31.500205362236166 25.299231032515685 29.412256702795204Q23.957948659440955 27.324308043354247 23.957948659440955 24.37210268111808Q23.957948659440955 21.419897318881915 25.299231032515685 19.313897318881914Q26.640513405590415 17.207897318881916 28.93630918425556 16.092Q31.232104962920705 14.976102681118082 34.077645179691956 14.976102681118082Q36.923185396463204 14.976102681118082 39.19195550484883 16.092Q41.46072561323445 17.207897318881916 42.793033656588705 19.313897318881914Q44.12534169994295 21.419897318881915 44.12534169994295 24.37210268111808Q44.12534169994295 27.324308043354247 42.793033656588705 29.412256702795204Q41.46072561323445 31.500205362236166 39.19195550484883 32.59815402167712Q36.923185396463204 33.69610268111808 34.077645179691956 33.69610268111808ZM34.077645179691956 30.54481916714204Q35.770158585282374 30.54481916714204 37.183389617798056 29.833947518539645Q38.596620650313746 29.123075869937246 39.45164632059327 27.737383913291495Q40.306671990872786 26.351691956645748 40.306671990872786 24.37210268111808Q40.306671990872786 22.392513405590414 39.45164632059327 20.988770108385623Q38.596620650313746 19.585026811180832 37.192415288077584 18.84718083285796Q35.788209925841414 18.10933485453508 34.077645179691956 18.10933485453508Q32.38513177410154 18.10933485453508 30.95390074158585 18.838206503137478Q29.522669709070165 19.56707815173987 28.649644038790644 20.96179577866514Q27.776618368511123 22.356513405590412 27.776618368511123 24.37210268111808Q27.776618368511123 26.351691956645748 28.631644038790643 27.737383913291495Q29.486669709070163 29.123075869937246 30.92687507130633 29.833947518539645Q32.3670804335425 30.54481916714204 34.077645179691956 30.54481916714204Z M47.033743297204786 15.354154021677125H50.81631032515686V33.3H47.033743297204786ZM57.135901882487154 18.631796919566455Q55.20964517969195 18.631796919566455 53.85031146605817 19.47759155733029Q52.490977752424406 20.323386195094123 51.68969537934967 21.538103822019394Q50.888413006274945 22.752821448944665 50.60020764403878 23.886564746149453L50.56420764403878 21.85271876782658Q50.58225898459782 21.474564746149454 50.78041300627495 20.67343639475185Q50.978567027952074 19.872308043354245 51.4287210496292 18.900256702795204Q51.878875071306325 17.928205362236163 52.62610610382201 17.028154021677125Q53.373337136337696 16.128102681118083 54.48954249857386 15.552102681118082Q55.60574786081003 14.976102681118082 57.135901882487154 14.976102681118082Z M68.74564517969195 33.69610268111808Q65.9001049629207 33.69610268111808 63.60430918425555 32.59815402167712Q61.3085134055904 31.500205362236166 59.96723103251568 29.412256702795204Q58.62594865944095 27.324308043354247 58.62594865944095 24.37210268111808Q58.62594865944095 21.419897318881915 59.96723103251568 19.313897318881914Q61.3085134055904 17.207897318881916 63.60430918425555 16.092Q65.9001049629207 14.976102681118082 68.74564517969195 14.976102681118082Q71.5911853964632 14.976102681118082 73.85995550484883 16.092Q76.12872561323445 17.207897318881916 77.4610336565887 19.313897318881914Q78.79334169994294 21.419897318881915 78.79334169994294 24.37210268111808Q78.79334169994294 27.324308043354247 77.4610336565887 29.412256702795204Q76.12872561323445 31.500205362236166 73.85995550484883 32.59815402167712Q71.5911853964632 33.69610268111808 68.74564517969195 33.69610268111808ZM68.74564517969195 30.54481916714204Q70.43815858528237 30.54481916714204 71.85138961779805 29.833947518539645Q73.26462065031373 29.123075869937246 74.11964632059326 27.737383913291495Q74.97467199087278 26.351691956645748 74.97467199087278 24.37210268111808Q74.97467199087278 22.392513405590414 74.11964632059326 20.988770108385623Q73.26462065031373 19.585026811180832 71.86041528807758 18.84718083285796Q70.4562099258414 18.10933485453508 68.74564517969195 18.10933485453508Q67.05313177410153 18.10933485453508 65.62190074158585 18.838206503137478Q64.19066970907015 19.56707815173987 63.31764403879063 20.96179577866514Q62.444618368511115 22.356513405590412 62.444618368511115 24.37210268111808Q62.444618368511115 26.351691956645748 63.29964403879063 27.737383913291495Q64.15466970907015 29.123075869937246 65.59487507130632 29.833947518539645Q67.03508043354249 30.54481916714204 68.74564517969195 30.54481916714204Z M89.39128579577864 30.510154021677124Q86.97784826012548 30.510154021677124 85.0151294922989 29.610205362236165Q83.05241072447231 28.710256702795206 81.90917969195662 26.982256702795205Q80.76594865944094 25.254256702795207 80.76594865944094 22.824205362236164Q80.76594865944094 20.412205362236165 81.88215402167711 18.657179691956642Q82.99835938391328 16.902154021677124 84.95210382201938 15.939128351397603Q86.90584826012548 14.976102681118082 89.39128579577864 14.976102681118082Q90.1115938391329 14.976102681118082 90.77790188248714 15.075128351397604Q91.44420992584139 15.174154021677126 92.0745693097547 15.354154021677125L100.2490336565887 15.372205362236166V18.684821448944664Q98.55662293211635 18.702872789503708 96.84610952652594 18.172001140901312Q95.13559612093552 17.641129492298916 93.8750827153451 17.047180832857954L93.74913405590415 16.84902681118083Q94.9910827153451 17.478872789503704 95.93646776953791 18.369744438106103Q96.88185282373072 19.2606160867085 97.42221220764402 20.394513405590416Q97.96257159155732 21.52841072447233 97.96257159155732 22.932513405590413Q97.96257159155732 25.30841072447233 96.85534055904162 27.00933371363377Q95.74810952652594 28.710256702795206 93.81241642897888 29.610205362236165Q91.87672333143182 30.510154021677124 89.39128579577864 30.510154021677124ZM95.04431260695948 40.5902567027952V39.76215402167712Q95.04431260695948 37.980513405590415 94.0182099258414 37.22482144894467Q92.99210724472331 36.46912949229891 91.08431260695949 36.46912949229891H86.49148887621219Q85.08687278950369 36.46912949229891 84.09656474614944 36.24405248146035Q83.10625670279519 36.01897547062179 82.4941540216771 35.5868727895037Q81.88205134055903 35.15477010838562 81.59405134055902 34.55169309754706Q81.30605134055902 33.9486160867085 81.30605134055902 33.2286160867085Q81.30605134055902 31.824513405590412 82.18820536223615 31.10446206503137Q83.07035938391327 30.384410724472332 84.47487278950369 30.168308043354248Q85.87938619509411 29.952205362236164 87.39251568739303 30.114154021677123L89.39128579577864 30.510154021677124Q87.28482373074728 30.60010268111808 86.20477239018823 30.8971283513976Q85.12472104962919 31.19415402167712 85.12472104962919 32.11210268111808Q85.12472104962919 32.65210268111808 85.5477467199087 32.97605134055904Q85.97077239018823 33.3 86.7807210496292 33.3H91.58975014261264Q93.73252025099828 33.3 95.36175128351397 33.821999999999996Q96.99098231602964 34.343999999999994 97.90893097547061 35.586Q98.82687963491156 36.827999999999996 98.82687963491156 38.988V40.5902567027952ZM89.39128579577864 27.46717855105533Q90.75979920136906 27.46717855105533 91.85800456360522 26.927281232173414Q92.95620992584139 26.387383913291497 93.60420992584139 25.352614945807183Q94.2522099258414 24.31784597832287 94.2522099258414 22.842256702795204Q94.2522099258414 21.348616086708496 93.61318425556188 20.295847119224184Q92.97415858528235 19.243078151739873 91.87600456360522 18.685180832857956Q90.7778505419281 18.12728351397604 89.39128579577864 18.12728351397604Q88.02277239018824 18.12728351397604 86.90656702795206 18.685180832857956Q85.79036166571589 19.243078151739873 85.1423616657159 20.286872789503708Q84.4943616657159 21.330667427267542 84.4943616657159 22.842256702795204Q84.4943616657159 24.31784597832287 85.1423616657159 25.352614945807183Q85.79036166571589 26.387383913291497 86.89754135767254 26.927281232173414Q88.0047210496292 27.46717855105533 89.39128579577864 27.46717855105533Z"/></svg>
   </a>
 
   <nav class="links" aria-label="Основное">
     <a href="#how">Как это работает</a>
-    <a href="#demo">Пример</a>
     <a href="#tests">Тесты</a>
-    <a href="#benefits">Возможности</a>
     <a href="#pricing">Тарифы</a>
-    <a href="#faq">Вопросы</a>
-    <a href="login.html">Кабинет</a>
   </nav>
 
   <a href="#start" class="pill pill-nav"><span>Начать</span></a>
@@ -781,16 +925,12 @@
     <p class="menu-eyebrow">Меню</p>
     <ul class="menu-list">
       <li><a href="#how">Как это работает</a></li>
-      <li><a href="#demo">Пример</a></li>
       <li><a href="#tests">Тесты</a></li>
-      <li><a href="#benefits">Возможности</a></li>
       <li><a href="#pricing">Тарифы</a></li>
       <li><a href="#faq">Вопросы</a></li>
-      <li><a href="login.html">Личный кабинет</a></li>
     </ul>
     <div class="menu-foot">
-      <a href="#start" class="pill">Начать</a>
-      <a href="login.html" class="ghost">Личный кабинет</a>
+      <a href="login.html" class="pill">Войти</a>
     </div>
   </div>
 </nav>
@@ -802,29 +942,24 @@
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow">Как это работает</span>
-        <h2 class="section-title">От анкеты до персонального плана — за 4 шага</h2>
-        <p class="section-sub">Никаких сложных настроек: заполните анкету за 5 минут и сразу получите план, подходящий именно вашей паре.</p>
+        <h2 class="section-title">От контекста до разбора — три шага</h2>
+        <p class="section-sub">Сначала собирается контекст о вас и ситуации. Партнёра подключать не обязательно: достаточно того, что вы уже знаете.</p>
       </div>
       <div class="steps reveal">
         <div class="step">
           <div class="step-num">1</div>
           <h3>Расскажите о себе</h3>
-          <p>Заполните анкету: ваши ценности, стиль привязанности, ожидания от отношений.</p>
+          <p>Короткая анкета: что вам важно, как вы обычно себя ведёте в близости и в споре.</p>
         </div>
         <div class="step">
           <div class="step-num">2</div>
-          <h3>Расскажите о партнёре и стадии</h3>
-          <p>Что вы знаете о партнёре и на каком этапе вы сейчас — знакомство, свидания, отношения, кризис или восстановление.</p>
+          <h3>Ситуация и партнёр</h3>
+          <p>Знакомство, свидания, отношения или сложный момент. Партнёра опишите так, как знаете — его аккаунт не нужен.</p>
         </div>
         <div class="step">
           <div class="step-num">3</div>
-          <h3>Получите персональный план</h3>
-          <p>Чек-листы и рекомендации, собранные именно под вашу пару и ситуацию.</p>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <h3>Возвращайтесь в кабинет</h3>
-          <p>Тесты, дневник и чек-листы остаются в вашей учётной записи — можно вернуться до и после важного разговора.</p>
+          <h3>Разбор от ИИ</h3>
+          <p>Чек-лист и тесты остаются у вас. Можно открыть до разговора и вернуться после.</p>
         </div>
       </div>
     </div>
@@ -836,7 +971,7 @@
       <div class="section-head reveal">
         <span class="eyebrow">Пример диалога</span>
         <h2 class="section-title">Вот как это выглядит на практике</h2>
-        <p class="section-sub">Вы описываете ситуацию своими словами — агент сразу возвращает конкретный план действий, а не общие фразы.</p>
+        <p class="section-sub">Вы описываете ситуацию своими словами — ИИ даёт разбор и конкретные шаги, а не общие фразы.</p>
       </div>
       <div class="chat-card reveal">
         <div class="chat-head">
@@ -847,8 +982,8 @@
             </svg>
           </div>
           <div class="chat-head-text">
-            <strong>RelationSync.AI</strong>
-            <span class="chat-status"><i class="dot-online"></i>Отвечает как ваш личный агент</span>
+            <strong>porog</strong>
+            <span class="chat-status">Пример разбора ИИ</span>
           </div>
         </div>
         <div class="chat-body">
@@ -871,6 +1006,7 @@
           </div>
         </div>
       </div>
+      <p class="chat-cta reveal"><a href="login.html?mode=register&amp;plan=free" class="start-cta">Хочу такой разбор</a></p>
     </div>
   </section>
 
@@ -880,7 +1016,7 @@
       <div class="section-head reveal">
         <span class="eyebrow">Тесты</span>
         <h2 class="section-title">Сначала понять себя. Потом — сравнить с партнёром.</h2>
-        <p class="section-sub">Короткие методики из кабинета: личный результат остаётся только у вас. В паре сравниваются только те тесты, которые вы оба включили.</p>
+        <p class="section-sub">Короткие методики из пространства: личный результат остаётся только у вас. В паре сравниваются только те тесты, которые вы оба включили.</p>
       </div>
 
       <div class="tests-layout reveal">
@@ -970,63 +1106,21 @@
           </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- ===================== BENEFITS ===================== -->
-  <section class="section section-start section-alt" id="benefits">
-    <div class="wrap">
-      <div class="section-head reveal">
-        <span class="eyebrow">Возможности</span>
-        <h2 class="section-title">Не просто чат-бот. ИИ-инфраструктура для ваших отношений.</h2>
-        <p class="section-sub">Универсальные советы из обычного чат-бота не учитывают вашу историю, характер партнёра и стадию отношений. RelationSync.AI собирает полную картину — и даёт конкретные шаги, а не общие фразы.</p>
-      </div>
-      <div class="benefits-grid reveal">
-        <div class="benefit-card">
-          <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="9" cy="12" r="6" stroke="currentColor" stroke-width="1.6"/><circle cx="15" cy="12" r="6" stroke="currentColor" stroke-width="1.6"/></svg>
-          <h3>Комплексный анализ пары</h3>
-          <p>Форма о вас, партнёре и стадии отношений — от знакомства до многолетнего союза.</p>
-        </div>
-        <div class="benefit-card">
-          <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4L2 9l10 5 10-5-10-5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 12v4c0 1 3 3 6 3s6-2 6-3v-4" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-          <h3>Разработано с психологами</h3>
-          <p>Методология создана совместно с психологами и психотерапевтами, а не только на текстах из интернета.</p>
-        </div>
-        <div class="benefit-card">
-          <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 7h3M5 12h3M5 17h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M10 7h9M10 12h9M10 17h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          <h3>Персональные чек-листы</h3>
-          <p>Конкретные шаги под вашу ситуацию — вместо общих советов «просто будьте увереннее».</p>
-        </div>
-        <div class="benefit-card">
-          <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 20s-7-4.5-9-9a5 5 0 0 1 9-4 5 5 0 0 1 9 4c-2 4.5-9 9-9 9z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 12h2l1.4-2.6L12 14l1.2-2h2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <h3>Поддержка в кабинете</h3>
-          <p>Анкета, тесты и чек-листы остаются под рукой — можно вернуться до и после важного разговора.</p>
-        </div>
-        <div class="benefit-card">
-          <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 17l5-5 4 4 7-8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8h5v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <h3>Растёт вместе с отношениями</h3>
-          <p>ИИ обновляет рекомендации по мере того, как меняется стадия и динамика вашей пары.</p>
-        </div>
-        <div class="benefit-card">
-          <svg class="benefit-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l7 4v5c0 4.5-3.2 7.7-7 9-3.8-1.3-7-4.5-7-9V7l7-4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <h3>Приватность по умолчанию</h3>
-          <p>Личные записи лежат в вашей учётной записи. Партнёр видит только то, что вы оба включили в общее пространство.</p>
-        </div>
-      </div>
+      <p class="mid-cta reveal"><a href="login.html?mode=register&amp;next=tests.html" class="start-cta">Пройти полный тест в кабинете</a></p>
     </div>
   </section>
 
   <!-- ===================== COMPARISON ===================== -->
-  <section class="section section-alt" id="compare" style="padding-top:clamp(40px,6vw,64px)">
+  <section class="section section-start section-alt" id="compare">
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow">Сравнение</span>
-        <h2 class="section-title">RelationSync.AI против обычного чат-бота</h2>
+        <h2 class="section-title">porog против обычного чат-бота</h2>
       </div>
       <div class="compare-wrap reveal">
         <div class="compare-row head">
           <div></div>
-          <div class="compare-head-label ours"><span class="full">RelationSync.AI</span><span class="short">RelationSync</span></div>
+          <div class="compare-head-label ours"><span class="full">porog</span><span class="short">porog</span></div>
           <div class="compare-head-label theirs"><span class="full">Обычный<br>чат-бот</span><span class="short">Чат-бот</span></div>
         </div>
         <div class="compare-row">
@@ -1035,7 +1129,7 @@
           <div class="compare-cell"><svg class="check-no" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
         </div>
         <div class="compare-row">
-          <div class="compare-feature">Методология психологов и психотерапевтов</div>
+          <div class="compare-feature">ИИ, разработанный с психологами и психотерапевтами</div>
           <div class="compare-cell"><svg class="check-yes" viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <div class="compare-cell"><svg class="check-no" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
         </div>
@@ -1063,78 +1157,55 @@
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow">Тарифы</span>
-        <h2 class="section-title">Выберите подходящий формат поддержки</h2>
-        <p class="section-sub">Начните бесплатно. Переходите на Премиум или тариф для пары, когда захочете больше глубины и совместных инструментов.</p>
-      </div>
-
-      <div class="price-toggle reveal" id="priceToggle">
-        <span class="toggle-btn active" data-period="monthly">Ежемесячно</span>
-        <span class="toggle-btn" data-period="annual">Ежегодно <span class="save-badge">−20%</span></span>
+        <h2 class="section-title">Начните бесплатно. Остальное — когда понадобится.</h2>
+        <p class="section-sub">Регистрация ничего не списывает. Премиум и тариф для пары выбираются в кабинете, когда будете готовы.</p>
       </div>
 
       <div class="pricing-grid reveal">
         <div class="price-card">
           <h3>Базовый</h3>
-          <p class="plan-desc">Начните разбираться в своих отношениях</p>
+          <p class="plan-desc">Чтобы понять себя и собрать первый план</p>
           <div class="price-amount"><span class="value">0 ₽</span></div>
-          <p class="price-note">Бесплатно навсегда</p>
+          <p class="price-note">Бесплатно</p>
           <ul class="price-features">
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Анкета о себе и партнёре</li>
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>1 персональный чек-лист в неделю</li>
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Базовая поддержка ИИ</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Анкета о себе и ситуации</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Личные тесты</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>1 чек-лист в неделю</li>
           </ul>
-          <a href="#start" class="price-cta">Начать бесплатно</a>
+          <a href="login.html?mode=register&amp;plan=free" class="price-cta">Создать кабинет бесплатно</a>
         </div>
 
         <div class="price-card featured">
           <span class="price-badge">Популярный</span>
           <h3>Премиум</h3>
-          <p class="plan-desc">Полная поддержка на каждом этапе отношений</p>
-          <div class="price-amount"><span class="value" data-monthly="990 ₽" data-annual="790 ₽">990 ₽</span><span class="period">/мес</span></div>
-          <p class="price-note" data-monthly-note="Оплата ежемесячно" data-annual-note="9 490 ₽ раз в год">Оплата ежемесячно</p>
+          <p class="plan-desc">Больше глубины на каждом этапе</p>
+          <div class="price-amount"><span class="value">990 ₽</span><span class="period">/мес</span></div>
+          <p class="price-note">Тариф выбирается в кабинете</p>
           <ul class="price-features">
             <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Неограниченные чек-листы</li>
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Глубокий анализ стадии отношений</li>
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Полный доступ к тестам и чек-листам</li>
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Приоритетные обновления методологии</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Разбор стадии отношений</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Полный доступ к тестам</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Обновления методик в кабинете</li>
           </ul>
-          <a href="#start" class="price-cta">Начать 7 дней бесплатно</a>
+          <a href="login.html?mode=register&amp;plan=premium" class="price-cta">Открыть кабинет</a>
         </div>
 
         <div class="price-card">
           <h3>Для пары</h3>
-          <p class="plan-desc">Общий доступ для вас и партнёра</p>
-          <div class="price-amount"><span class="value" data-monthly="1490 ₽" data-annual="1190 ₽">1490 ₽</span><span class="period">/мес</span></div>
-          <p class="price-note" data-monthly-note="Оплата ежемесячно" data-annual-note="14 290 ₽ раз в год">Оплата ежемесячно</p>
+          <p class="plan-desc">Когда оба готовы смотреть вместе</p>
+          <div class="price-amount"><span class="value">1490 ₽</span><span class="period">/мес</span></div>
+          <p class="price-note">Тариф выбирается в кабинете</p>
           <ul class="price-features">
             <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Всё из тарифа «Премиум»</li>
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Один аккаунт открывает доступ обоим партнёрам — платит один, пользуются двое</li>
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Приватный режим: обсуждайте партнёра свободно — он не увидит вашу переписку</li>
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Совместный режим: общие чек-листы и разборы, когда хотите разбираться вместе</li>
-            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Синхронизация прогресса пары</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Партнёр подключается по приглашению — у каждого свой вход</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Личные записи по умолчанию закрыты</li>
+            <li><svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Общие тесты и чек-листы — только если включите оба</li>
           </ul>
-          <a href="#start" class="price-cta">Начать бесплатно</a>
+          <a href="login.html?mode=register&amp;plan=couple" class="price-cta">Открыть кабинет</a>
         </div>
       </div>
 
-      <div class="duo-modes reveal">
-        <div class="duo-card">
-          <span class="duo-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </span>
-          <h4>Приватный режим</h4>
-          <p>Даже на тарифе «Для пары» каждый аккаунт полностью приватен. Обсуждайте партнёра открыто и честно — свои чек-листы, вопросы и переписку видите только вы, партнёр не получает к ним доступа.</p>
-        </div>
-        <div class="duo-card">
-          <span class="duo-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none"><circle cx="8" cy="9" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="16" cy="9" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M3 20c0-3 2.5-5 5-5s5 2 5 5M11 20c0-3 2.5-5 5-5s5 2 5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          </span>
-          <h4>Совместный режим</h4>
-          <p>Хотите разбираться вдвоём? Открывайте общие чек-листы и договорённости вместе с партнёром осознанно — ИИ синхронизирует прогресс пары и напоминает об общих шагах.</p>
-        </div>
-      </div>
-
-      <p class="pricing-foot reveal">Тариф выбирается в кабинете. Цены указаны в рублях, включая НДС.</p>
+      <p class="pricing-foot reveal">Цены в рублях, включая НДС. Оплата подключается в кабинете, когда будете готовы.</p>
     </div>
   </section>
 
@@ -1147,44 +1218,28 @@
       </div>
       <div class="faq-list reveal">
         <div class="faq-item">
-          <button class="faq-q" aria-expanded="false"><span>В чём отличие RelationSync.AI от обычного чат-бота?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>Обычный чат-бот отвечает исходя из общего текста запроса. RelationSync.AI собирает полную картину — вашу историю, характер партнёра и стадию отношений — и на основе методологии психологов даёт конкретные, персональные шаги.</p></div>
-        </div>
-        <div class="faq-item">
           <button class="faq-q" aria-expanded="false"><span>Партнёру тоже нужно регистрироваться?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>Нет, для старта достаточно рассказать о партнёре то, что вы знаете. На тарифе «Для пары» партнёр может подключиться отдельно для совместных чек-листов и синхронизации прогресса.</p></div>
+          <div class="faq-a"><p>Нет. Для старта достаточно рассказать о партнёре то, что вы знаете. На тарифе «Для пары» он может подключиться отдельно по приглашению — у каждого свой вход.</p></div>
         </div>
         <div class="faq-item">
-          <button class="faq-q" aria-expanded="false"><span>Партнёр увидит, что я пишу о нём, если мы оба подписаны?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>Нет. Даже на тарифе «Для пары» каждый аккаунт полностью приватен по умолчанию: партнёр не видит вашу переписку и личные чек-листы. Совместные разборы появляются только в отдельном совместном режиме, который включаете осознанно вы оба.</p></div>
+          <button class="faq-q" aria-expanded="false"><span>Партнёр увидит, что я пишу о нём?</span><span class="plus"></span></button>
+          <div class="faq-a"><p>Нет. Личные записи закрыты по умолчанию. Общими становятся только тесты и чек-листы, которые вы оба включили.</p></div>
         </div>
         <div class="faq-item">
           <button class="faq-q" aria-expanded="false"><span>Это конфиденциально?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>Да. Анкета, дневник и личные тесты открываются только вам. Партнёр не видит это автоматически. Общими становятся только те вещи, которые вы оба включили: совместные тесты, темы для разговора, сохранённые идеи.</p></div>
+          <div class="faq-a"><p>Да. Анкета, дневник и личные тесты открываются только вам. Подробнее — в <a href="privacy.html" style="color:#fff;border-bottom:1px solid rgba(255,255,255,.28)">политике конфиденциальности</a>.</p></div>
         </div>
         <div class="faq-item">
-          <button class="faq-q" aria-expanded="false"><span>Как хранятся личные данные?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>По дороге до кабинета соединение закрыто. На хранении записи тоже закрыты. Это не сейф, ключ от которого есть только у вас: кабинет должен показать вам ваши же записи. Удалить аккаунт можно из кабинета — вместе с ним уходят ваши личные записи.</p></div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-q" aria-expanded="false"><span>Какие тесты уже есть?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>В личном пространстве — пять методик: привязанность, язык любви, стиль в конфликте, паттерны общения и эмоциональная осознанность. В Couple Mode — синхронность, ценности и то, как вы поддерживаете друг друга. Результат личного теста партнёр не видит.</p></div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-q" aria-expanded="false"><span>Подходит ли сервис на этапе знакомства, а не только в паре?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>Да. Можно начать одному: заполнить анкету и пройти личные тесты. Партнёра подключать не обязательно — Couple Mode включается отдельно, когда оба готовы.</p></div>
+          <button class="faq-q" aria-expanded="false"><span>Подходит ли сервис на этапе знакомства?</span><span class="plus"></span></button>
+          <div class="faq-a"><p>Да. Можно начать одному: заполнить анкету и пройти личные тесты. Режим для пары включается отдельно, когда оба готовы.</p></div>
         </div>
         <div class="faq-item">
           <button class="faq-q" aria-expanded="false"><span>Заменяет ли это психотерапию?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>Нет. RelationSync.AI — это структура и ежедневная опора между разговорами, а не замена терапии. При серьёзных кризисах лучше обратиться к специалисту очно.</p></div>
+          <div class="faq-a"><p>Нет. Это структура и опора между разговорами, а не замена терапии. При серьёзном кризисе лучше обратиться к специалисту очно.</p></div>
         </div>
         <div class="faq-item">
           <button class="faq-q" aria-expanded="false"><span>Как устроены тарифы?</span><span class="plus"></span></button>
           <div class="faq-a"><p>Регистрация бесплатная: анкета, личные тесты и базовый чек-лист. Премиум и тариф для пары выбираются в кабинете. Оплату можно будет отменить там же, когда подписка подключена.</p></div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-q" aria-expanded="false"><span>Есть ли мобильное приложение?</span><span class="plus"></span></button>
-          <div class="faq-a"><p>Сейчас кабинет работает в браузере — с телефона тоже. Приложения для iOS и Android уже в разработке, о запуске расскажем отдельно.</p></div>
         </div>
       </div>
     </div>
@@ -1197,7 +1252,7 @@
         <span class="eyebrow">Личный кабинет</span>
         <h2 class="section-title" style="font-size:clamp(26px,3.2vw,34px)">Заполните анкету и получите первый чек-лист сегодня</h2>
         <p class="section-sub">Регистрация занимает меньше минуты. Дальше — анкета, тесты и персональный план в кабинете.</p>
-        <a href="login.html?mode=register&amp;plan=free" class="start-cta">Создать аккаунт бесплатно</a>
+        <a href="login.html?mode=register&amp;plan=free" class="start-cta">Создать кабинет бесплатно</a>
         <p class="cta-note"><a href="login.html" style="color:#fff">Уже есть аккаунт →</a></p>
       </div>
     </div>
@@ -1210,14 +1265,9 @@
     <div class="footer-top">
       <div class="footer-brand">
         <div class="flogo">
-          <svg viewBox="0 0 31.5 48.5" aria-hidden="true">
-            <path d="M21.5 0 L21.5 19.5 L31.5 19.5 L31.5 29 L10 48.5 L10 28.5 L0.5 28.5 L0.5 18.5 Z" fill="#c9c9c9"/>
-            <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/>
-            <rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
-          </svg>
-          <span>RelationSync.ai</span>
+          <svg class="logo-word" viewBox="1.05 13.38 100.40 28.81" aria-hidden="true"><path fill="currentColor" d="M13.271493439817455 33.69610268111808Q11.092928693667998 33.69610268111808 9.625338277239019 32.814205362236166Q8.157747860810039 31.932308043354247 7.284260125499143 30.51041072447233Q6.4107723901882485 29.08851340559041 6.014464346833998 27.45943639475185Q5.618156303479749 25.83035938391329 5.618156303479749 24.35405134055904Q5.618156303479749 22.391999999999996 5.996464346833999 20.699999999999996Q6.374772390188249 19.008 7.239285795778665 17.72102567027952Q8.103799201369082 16.43405134055904 9.580363947518538 15.705077010838561Q11.056928693667997 14.976102681118082 13.271493439817455 14.976102681118082Q15.70226354820308 14.976102681118082 17.66482829435254 16.182051340559042Q19.627393040501996 17.387999999999998 20.797701083856246 19.502974329720477Q21.968009127210493 21.617948659440955 21.968009127210493 24.35405134055904Q21.968009127210493 27.126256702795207 20.779701083856246 29.232256702795205Q19.591393040501995 31.338256702795206 17.619853964632057 32.51717969195664Q15.64831488876212 33.69610268111808 13.271493439817455 33.69610268111808ZM12.154363947518538 30.50881916714204Q13.936723331431828 30.50881916714204 15.286928693667996 29.725998859098688Q16.637134055904163 28.943178551055333 17.384211066742726 27.557486594409582Q18.13128807758129 26.17179463776383 18.13128807758129 24.35405134055904Q18.13128807758129 21.618462065031373 16.5740570450656 19.881898459783226Q15.016826012549911 18.14533485453508 12.154363947518538 18.14533485453508Q10.407901882487163 18.14533485453508 9.012414147176269 18.910103822019394Q7.616926411865373 19.674872789503706 6.824618368511123 21.060564746149456Q6.032310325156873 22.446256702795207 6.032310325156873 24.35405134055904Q6.032310325156873 26.117948659440955 6.743644038790643 27.503640616086706Q7.454977752424415 28.889332572732457 8.82349115801483 29.699075869937246Q10.192004563605247 30.50881916714204 12.154363947518538 30.50881916714204ZM2.2497432972047915 15.354154021677125H5.870156303479749L6.032310325156873 19.621540216771244V40.5H2.2497432972047915Z M34.077645179691956 33.69610268111808Q31.232104962920705 33.69610268111808 28.93630918425556 32.59815402167712Q26.640513405590415 31.500205362236166 25.299231032515685 29.412256702795204Q23.957948659440955 27.324308043354247 23.957948659440955 24.37210268111808Q23.957948659440955 21.419897318881915 25.299231032515685 19.313897318881914Q26.640513405590415 17.207897318881916 28.93630918425556 16.092Q31.232104962920705 14.976102681118082 34.077645179691956 14.976102681118082Q36.923185396463204 14.976102681118082 39.19195550484883 16.092Q41.46072561323445 17.207897318881916 42.793033656588705 19.313897318881914Q44.12534169994295 21.419897318881915 44.12534169994295 24.37210268111808Q44.12534169994295 27.324308043354247 42.793033656588705 29.412256702795204Q41.46072561323445 31.500205362236166 39.19195550484883 32.59815402167712Q36.923185396463204 33.69610268111808 34.077645179691956 33.69610268111808ZM34.077645179691956 30.54481916714204Q35.770158585282374 30.54481916714204 37.183389617798056 29.833947518539645Q38.596620650313746 29.123075869937246 39.45164632059327 27.737383913291495Q40.306671990872786 26.351691956645748 40.306671990872786 24.37210268111808Q40.306671990872786 22.392513405590414 39.45164632059327 20.988770108385623Q38.596620650313746 19.585026811180832 37.192415288077584 18.84718083285796Q35.788209925841414 18.10933485453508 34.077645179691956 18.10933485453508Q32.38513177410154 18.10933485453508 30.95390074158585 18.838206503137478Q29.522669709070165 19.56707815173987 28.649644038790644 20.96179577866514Q27.776618368511123 22.356513405590412 27.776618368511123 24.37210268111808Q27.776618368511123 26.351691956645748 28.631644038790643 27.737383913291495Q29.486669709070163 29.123075869937246 30.92687507130633 29.833947518539645Q32.3670804335425 30.54481916714204 34.077645179691956 30.54481916714204Z M47.033743297204786 15.354154021677125H50.81631032515686V33.3H47.033743297204786ZM57.135901882487154 18.631796919566455Q55.20964517969195 18.631796919566455 53.85031146605817 19.47759155733029Q52.490977752424406 20.323386195094123 51.68969537934967 21.538103822019394Q50.888413006274945 22.752821448944665 50.60020764403878 23.886564746149453L50.56420764403878 21.85271876782658Q50.58225898459782 21.474564746149454 50.78041300627495 20.67343639475185Q50.978567027952074 19.872308043354245 51.4287210496292 18.900256702795204Q51.878875071306325 17.928205362236163 52.62610610382201 17.028154021677125Q53.373337136337696 16.128102681118083 54.48954249857386 15.552102681118082Q55.60574786081003 14.976102681118082 57.135901882487154 14.976102681118082Z M68.74564517969195 33.69610268111808Q65.9001049629207 33.69610268111808 63.60430918425555 32.59815402167712Q61.3085134055904 31.500205362236166 59.96723103251568 29.412256702795204Q58.62594865944095 27.324308043354247 58.62594865944095 24.37210268111808Q58.62594865944095 21.419897318881915 59.96723103251568 19.313897318881914Q61.3085134055904 17.207897318881916 63.60430918425555 16.092Q65.9001049629207 14.976102681118082 68.74564517969195 14.976102681118082Q71.5911853964632 14.976102681118082 73.85995550484883 16.092Q76.12872561323445 17.207897318881916 77.4610336565887 19.313897318881914Q78.79334169994294 21.419897318881915 78.79334169994294 24.37210268111808Q78.79334169994294 27.324308043354247 77.4610336565887 29.412256702795204Q76.12872561323445 31.500205362236166 73.85995550484883 32.59815402167712Q71.5911853964632 33.69610268111808 68.74564517969195 33.69610268111808ZM68.74564517969195 30.54481916714204Q70.43815858528237 30.54481916714204 71.85138961779805 29.833947518539645Q73.26462065031373 29.123075869937246 74.11964632059326 27.737383913291495Q74.97467199087278 26.351691956645748 74.97467199087278 24.37210268111808Q74.97467199087278 22.392513405590414 74.11964632059326 20.988770108385623Q73.26462065031373 19.585026811180832 71.86041528807758 18.84718083285796Q70.4562099258414 18.10933485453508 68.74564517969195 18.10933485453508Q67.05313177410153 18.10933485453508 65.62190074158585 18.838206503137478Q64.19066970907015 19.56707815173987 63.31764403879063 20.96179577866514Q62.444618368511115 22.356513405590412 62.444618368511115 24.37210268111808Q62.444618368511115 26.351691956645748 63.29964403879063 27.737383913291495Q64.15466970907015 29.123075869937246 65.59487507130632 29.833947518539645Q67.03508043354249 30.54481916714204 68.74564517969195 30.54481916714204Z M89.39128579577864 30.510154021677124Q86.97784826012548 30.510154021677124 85.0151294922989 29.610205362236165Q83.05241072447231 28.710256702795206 81.90917969195662 26.982256702795205Q80.76594865944094 25.254256702795207 80.76594865944094 22.824205362236164Q80.76594865944094 20.412205362236165 81.88215402167711 18.657179691956642Q82.99835938391328 16.902154021677124 84.95210382201938 15.939128351397603Q86.90584826012548 14.976102681118082 89.39128579577864 14.976102681118082Q90.1115938391329 14.976102681118082 90.77790188248714 15.075128351397604Q91.44420992584139 15.174154021677126 92.0745693097547 15.354154021677125L100.2490336565887 15.372205362236166V18.684821448944664Q98.55662293211635 18.702872789503708 96.84610952652594 18.172001140901312Q95.13559612093552 17.641129492298916 93.8750827153451 17.047180832857954L93.74913405590415 16.84902681118083Q94.9910827153451 17.478872789503704 95.93646776953791 18.369744438106103Q96.88185282373072 19.2606160867085 97.42221220764402 20.394513405590416Q97.96257159155732 21.52841072447233 97.96257159155732 22.932513405590413Q97.96257159155732 25.30841072447233 96.85534055904162 27.00933371363377Q95.74810952652594 28.710256702795206 93.81241642897888 29.610205362236165Q91.87672333143182 30.510154021677124 89.39128579577864 30.510154021677124ZM95.04431260695948 40.5902567027952V39.76215402167712Q95.04431260695948 37.980513405590415 94.0182099258414 37.22482144894467Q92.99210724472331 36.46912949229891 91.08431260695949 36.46912949229891H86.49148887621219Q85.08687278950369 36.46912949229891 84.09656474614944 36.24405248146035Q83.10625670279519 36.01897547062179 82.4941540216771 35.5868727895037Q81.88205134055903 35.15477010838562 81.59405134055902 34.55169309754706Q81.30605134055902 33.9486160867085 81.30605134055902 33.2286160867085Q81.30605134055902 31.824513405590412 82.18820536223615 31.10446206503137Q83.07035938391327 30.384410724472332 84.47487278950369 30.168308043354248Q85.87938619509411 29.952205362236164 87.39251568739303 30.114154021677123L89.39128579577864 30.510154021677124Q87.28482373074728 30.60010268111808 86.20477239018823 30.8971283513976Q85.12472104962919 31.19415402167712 85.12472104962919 32.11210268111808Q85.12472104962919 32.65210268111808 85.5477467199087 32.97605134055904Q85.97077239018823 33.3 86.7807210496292 33.3H91.58975014261264Q93.73252025099828 33.3 95.36175128351397 33.821999999999996Q96.99098231602964 34.343999999999994 97.90893097547061 35.586Q98.82687963491156 36.827999999999996 98.82687963491156 38.988V40.5902567027952ZM89.39128579577864 27.46717855105533Q90.75979920136906 27.46717855105533 91.85800456360522 26.927281232173414Q92.95620992584139 26.387383913291497 93.60420992584139 25.352614945807183Q94.2522099258414 24.31784597832287 94.2522099258414 22.842256702795204Q94.2522099258414 21.348616086708496 93.61318425556188 20.295847119224184Q92.97415858528235 19.243078151739873 91.87600456360522 18.685180832857956Q90.7778505419281 18.12728351397604 89.39128579577864 18.12728351397604Q88.02277239018824 18.12728351397604 86.90656702795206 18.685180832857956Q85.79036166571589 19.243078151739873 85.1423616657159 20.286872789503708Q84.4943616657159 21.330667427267542 84.4943616657159 22.842256702795204Q84.4943616657159 24.31784597832287 85.1423616657159 25.352614945807183Q85.79036166571589 26.387383913291497 86.89754135767254 26.927281232173414Q88.0047210496292 27.46717855105533 89.39128579577864 27.46717855105533Z"/></svg>
         </div>
-        <p class="footer-tagline">ИИ-инфраструктура для отношений, созданная совместно с психологами и психотерапевтами.</p>
+        <p class="footer-tagline">Пространство для отношений. ИИ опирается на ваш контекст. Методология — с психологами и психотерапевтами.</p>
         <div class="footer-social">
           <a href="https://t.me/relationsync_ai" target="_blank" rel="noopener" aria-label="Telegram">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 2L11 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22l-4-9-9-4 20-7z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
@@ -1234,21 +1284,20 @@
         <div class="footer-col">
           <h4>Продукт</h4>
           <a href="#how">Как это работает</a>
-          <a href="#demo">Пример</a>
           <a href="#tests">Тесты</a>
-          <a href="#benefits">Возможности</a>
           <a href="#pricing">Тарифы</a>
+          <a href="#faq">Вопросы</a>
         </div>
         <div class="footer-col">
-          <h4>Компания</h4>
-          <a href="#faq">Вопросы</a>
-          <a href="#start">Начать</a>
-          <a href="login.html">Кабинет</a>
+          <h4>Документы</h4>
+          <a href="privacy.html">Конфиденциальность</a>
+          <a href="terms.html">Оферта</a>
+          <a href="login.html">Войти</a>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 RelationSync.AI. Все права защищены.</span>
+      <span>© 2026 porog. Все права защищены.</span>
       <span>Не является заменой психотерапии или медицинской помощи.</span>
     </div>
   </div>
@@ -1266,11 +1315,9 @@
     });
   }
 
-  var stage = document.querySelector('.stage');
   var burger = document.getElementById('burger');
   var menu = document.getElementById('menu');
   var topbar = document.getElementById('topbar');
-  var video = document.querySelector('.plate-video');
 
   /* enable :active feedback on iOS Safari (requires a touch listener to exist) */
   document.addEventListener('touchstart', function(){}, {passive:true});
@@ -1324,14 +1371,6 @@
     if(!scrollTicking){ requestAnimationFrame(onScroll); scrollTicking = true; }
   }, {passive:true});
   onScroll();
-
-  /* pause background video when tab/app is hidden — saves battery & data on mobile */
-  if(video){
-    document.addEventListener('visibilitychange', function(){
-      if(document.hidden){ video.pause(); }
-      else { video.play().catch(function(){}); }
-    });
-  }
 
   /* reveal on scroll (opacity never fully hidden -> no blank-section risk) */
   var revealEls = document.querySelectorAll('.reveal');
@@ -1417,25 +1456,6 @@
       if(item.classList.contains('open')){ a.style.maxHeight = a.scrollHeight + 'px'; }
     });
   });
-
-  /* pricing monthly / annual toggle */
-  var toggle = document.getElementById('priceToggle');
-  if(toggle){
-    var btns = toggle.querySelectorAll('.toggle-btn');
-    btns.forEach(function(btn){
-      btn.addEventListener('click', function(){
-        btns.forEach(function(b){ b.classList.remove('active'); });
-        btn.classList.add('active');
-        var period = btn.getAttribute('data-period');
-        document.querySelectorAll('.price-amount .value[data-monthly]').forEach(function(v){
-          v.textContent = period === 'annual' ? v.getAttribute('data-annual') : v.getAttribute('data-monthly');
-        });
-        document.querySelectorAll('.price-note[data-monthly-note]').forEach(function(n){
-          n.textContent = period === 'annual' ? n.getAttribute('data-annual-note') : n.getAttribute('data-monthly-note');
-        });
-      });
-    });
-  }
 
   /* landing test preview — sample questions from the real cabinet tests */
   var previews = {
@@ -1540,10 +1560,10 @@
 {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "RelationSync.AI",
+  "name": "porog",
   "url": "https://fimadima13.github.io/beta_site/",
   "logo": "https://fimadima13.github.io/beta_site/favicon.svg",
-  "description": "Кабинет для отношений: личные и парные тесты, анкета, чек-листы и персональный план."
+  "description": "Пространство для отношений: ИИ опирается на ваш контекст, а не на один запрос. Методология собрана совместно с психологами и психотерапевтами."
 }
 </script>
 <script type="application/ld+json">
@@ -1551,20 +1571,47 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "В чём отличие RelationSync.AI от обычного чат-бота?", "acceptedAnswer": {"@type": "Answer", "text": "Обычный чат-бот отвечает исходя из общего текста запроса. RelationSync.AI собирает полную картину — вашу историю, характер партнёра и стадию отношений — и на основе методологии психологов даёт конкретные, персональные шаги."}},
-    {"@type": "Question", "name": "Партнёру тоже нужно регистрироваться?", "acceptedAnswer": {"@type": "Answer", "text": "Нет, для старта достаточно рассказать о партнёре то, что вы знаете. На тарифе «Для пары» партнёр может подключиться отдельно для совместных чек-листов и синхронизации прогресса."}},
-    {"@type": "Question", "name": "Партнёр увидит, что я пишу о нём, если мы оба подписаны?", "acceptedAnswer": {"@type": "Answer", "text": "Нет. Даже на тарифе «Для пары» каждый аккаунт полностью приватен по умолчанию: партнёр не видит вашу переписку и личные чек-листы. Совместные разборы появляются только в отдельном совместном режиме, который включают осознанно оба партнёра."}},
-    {"@type": "Question", "name": "Это конфиденциально?", "acceptedAnswer": {"@type": "Answer", "text": "Анкета, дневник и личные тесты открываются только вам. Партнёр не видит это автоматически. Общими становятся только те вещи, которые вы оба включили."}},
-    {"@type": "Question", "name": "Как хранятся личные данные?", "acceptedAnswer": {"@type": "Answer", "text": "По дороге до кабинета соединение закрыто. На хранении записи тоже закрыты. Удалить аккаунт можно из кабинета — вместе с ним уходят ваши личные записи."}},
-    {"@type": "Question", "name": "Какие тесты уже есть?", "acceptedAnswer": {"@type": "Answer", "text": "В личном пространстве — пять методик: привязанность, язык любви, стиль в конфликте, паттерны общения и эмоциональная осознанность. В Couple Mode — синхронность, ценности и поддержка."}},
-    {"@type": "Question", "name": "Подходит ли сервис на этапе знакомства, а не только в паре?", "acceptedAnswer": {"@type": "Answer", "text": "Да. Можно начать одному: заполнить анкету и пройти личные тесты. Couple Mode включается отдельно, когда оба готовы."}},
-    {"@type": "Question", "name": "Заменяет ли это психотерапию?", "acceptedAnswer": {"@type": "Answer", "text": "Нет. RelationSync.AI — это структура и ежедневная опора между разговорами, а не замена терапии."}},
-    {"@type": "Question", "name": "Как устроены тарифы?", "acceptedAnswer": {"@type": "Answer", "text": "Регистрация бесплатная. Премиум и тариф для пары выбираются в кабинете."}},
-    {"@type": "Question", "name": "Есть ли мобильное приложение?", "acceptedAnswer": {"@type": "Answer", "text": "Сейчас кабинет работает в браузере. Приложения для iOS и Android уже в разработке."}}
+    {"@type": "Question", "name": "Партнёру тоже нужно регистрироваться?", "acceptedAnswer": {"@type": "Answer", "text": "Нет. Для старта достаточно рассказать о партнёре то, что вы знаете. На тарифе «Для пары» он может подключиться отдельно по приглашению."}},
+    {"@type": "Question", "name": "Партнёр увидит, что я пишу о нём?", "acceptedAnswer": {"@type": "Answer", "text": "Нет. Личные записи закрыты по умолчанию. Общими становятся только тесты и чек-листы, которые вы оба включили."}},
+    {"@type": "Question", "name": "Это конфиденциально?", "acceptedAnswer": {"@type": "Answer", "text": "Анкета, дневник и личные тесты открываются только вам."}},
+    {"@type": "Question", "name": "Подходит ли сервис на этапе знакомства?", "acceptedAnswer": {"@type": "Answer", "text": "Да. Можно начать одному: заполнить анкету и пройти личные тесты."}},
+    {"@type": "Question", "name": "Заменяет ли это психотерапию?", "acceptedAnswer": {"@type": "Answer", "text": "Нет. Это структура и опора между разговорами, а не замена терапии."}},
+    {"@type": "Question", "name": "Как устроены тарифы?", "acceptedAnswer": {"@type": "Answer", "text": "Регистрация бесплатная. Премиум и тариф для пары выбираются в кабинете."}}
   ]
 }
 </script>
+<div class="auth-modal" id="authModal" aria-hidden="true">
+  <div class="auth-modal-dim" data-auth-close></div>
+  <div class="auth-modal-card" role="dialog" aria-modal="true" aria-labelledby="amTitle">
+    <button type="button" class="auth-modal-close" data-auth-close aria-label="Закрыть">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>
+    </button>
+    <span class="am-eyebrow">Личный кабинет</span>
+    <h2 id="amTitle">Вход в аккаунт</h2>
+    <p class="am-sub" id="amSub">Войдите, чтобы открыть кабинет и свои записи.</p>
+    <div class="am-plan" id="amPlan"></div>
+    <div class="am-tabs">
+      <button type="button" class="am-tab is-on" id="amTabLogin">Войти</button>
+      <button type="button" class="am-tab" id="amTabRegister">Регистрация</button>
+    </div>
+    <form id="amForm">
+      <div class="am-field">
+        <label for="amEmail">Email</label>
+        <input type="email" id="amEmail" name="email" placeholder="you@example.com" required autocomplete="email">
+      </div>
+      <div class="am-field">
+        <label for="amPassword">Пароль</label>
+        <input type="password" id="amPassword" name="password" placeholder="Минимум 6 символов" required minlength="6" autocomplete="current-password">
+      </div>
+      <button type="submit" class="am-submit" id="amSubmit"><span id="amSubmitLabel">Войти</span></button>
+    </form>
+    <div class="am-msg" id="amMsg"></div>
+    <p class="am-note">После входа откроется кабинет. Страницу лендинга закрывать не нужно.</p>
+  </div>
+</div>
+
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/landing-cabinet-patch.js"></script>
+<script type="module" src="assets/landing-cabinet-patch.js?v=20261031"></script>
+<script type="module" src="assets/landing-auth-modal.js?v=20261031"></script>
 </body>
 </html>
