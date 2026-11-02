@@ -273,6 +273,35 @@ body:has(.auth-wrap)::before{
 .auth-tab{font-weight:500;}
 .auth-tab.active{font-weight:600; box-shadow:0 6px 18px rgba(255,255,255,.1);}
 
+/* section pages inside the cabinet: eyebrows, titles, progress */
+.q-eyebrow, .th-eyebrow, .j-panel-eyebrow, .cl-eyebrow{
+  border-radius:999px !important; border-color:rgba(185,204,227,.2) !important;
+  background:rgba(185,204,227,.05) !important; color:#dbe5f1 !important;
+  font-family:var(--mono) !important; font-weight:500 !important;
+  font-size:10.5px !important; letter-spacing:.12em !important;
+  padding:5px 12px 5px 10px !important;
+}
+.q-eyebrow::before, .th-eyebrow::before, .j-panel-eyebrow::before, .cl-eyebrow::before{
+  content:""; width:5px; height:5px; border-radius:50%; background:var(--accent);
+  box-shadow:0 0 10px rgba(185,204,227,.8);
+}
+.q-title, .th-title, .j-panel-title, .cl-title, .couple-hero h1{
+  font-weight:500 !important; letter-spacing:-.035em !important;
+}
+.link-panel h2, .plans-panel h2, .generator-panel h2, .q-done h2, .cl-empty h2{
+  font-weight:600 !important; letter-spacing:-.02em !important;
+}
+.q-progress-track{background:rgba(255,255,255,.1) !important;}
+.q-progress-fill{background:linear-gradient(90deg, #b9cce3, #fff) !important; box-shadow:0 0 12px rgba(185,204,227,.5);}
+.q-progress-label{font-family:var(--mono); font-size:11.5px !important; letter-spacing:.04em;}
+.q-card, .link-panel, .plans-panel{position:relative;}
+.q-card::before{
+  content:""; position:absolute; top:-1px; left:14%; width:42%; height:1px; pointer-events:none;
+  background:linear-gradient(90deg, transparent, rgba(185,204,227,.5), transparent);
+}
+html.embed .q-wrap, html.embed .couple-main{padding-top:28px !important;}
+html.embed .j-shell{min-height:100vh;}
+
 .cab-card{overflow:hidden;}
 .cab-card h3{font-weight:600; letter-spacing:-.015em;}
 .cab-hello{font-weight:500; letter-spacing:-.035em;}
