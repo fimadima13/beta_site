@@ -730,7 +730,7 @@ export function formatTestResultForShare(testKey, resultRow) {
   const meta = TEST_META[testKey];
   const core = extractCoreResult(testKey, resultRow);
   return [
-    `Мой результат теста «${meta?.title || testKey}» в RelationSync.AI:`,
+    `Мой результат теста «${meta?.title || testKey}» в porog:`,
     core,
     "",
     SITE_URL,
@@ -743,7 +743,7 @@ export function formatTestResultForShare(testKey, resultRow) {
  */
 export function formatOverallProfileForShare(overallProfile) {
   if (!overallProfile) return "";
-  const lines = ["Мой профиль взаимодействия в отношениях (RelationSync.AI):"];
+  const lines = ["Мой профиль взаимодействия в отношениях (porog):"];
 
   if (overallProfile.resources[0]) lines.push("Ресурс: " + overallProfile.resources[0]);
   if (overallProfile.attentionAreas[0]) lines.push("Зона внимания: " + overallProfile.attentionAreas[0]);

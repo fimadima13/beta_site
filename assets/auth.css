@@ -37,9 +37,9 @@ img,svg{display:block;}
   padding:22px 24px;
   max-width:1100px; width:100%; margin:0 auto;
 }
-.brand{display:inline-flex; align-items:center; gap:10px;}
-.brand svg{width:19px; height:29px;}
-.brand .word{font-size:16px; font-weight:600; letter-spacing:-.01em;}
+.brand{display:inline-flex; align-items:center; gap:0; color:#fff;}
+.brand svg{width:108px; height:31px; color:#fff;}
+.brand .word{display:none;}
 .brand .word .dim{color:var(--muted);}
 .back-link{font-size:14px; color:var(--nav); display:inline-flex; align-items:center; gap:6px; transition:color .2s ease;}
 .back-link:hover{color:#fff;}
