@@ -97,13 +97,45 @@
     overflow:clip;
     background:#050505;
   }
-  .stage::before{
-    content:'';
-    position:absolute; inset:0; pointer-events:none; z-index:0;
+  .hero-field{
+    position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none;
+  }
+  .hero-haze{
+    position:absolute; inset:-12%;
     background:
-      radial-gradient(ellipse 42% 46% at 14% 48%, rgba(185,204,227,.07), transparent 64%),
-      radial-gradient(ellipse 54% 58% at 86% 44%, rgba(185,204,227,.11), transparent 68%),
-      radial-gradient(ellipse 34% 28% at 74% 72%, rgba(255,255,255,.045), transparent 70%);
+      radial-gradient(ellipse 46% 40% at 18% 42%, rgba(185,204,227,.11), transparent 64%),
+      radial-gradient(ellipse 58% 56% at 78% 46%, rgba(185,204,227,.16), transparent 68%),
+      radial-gradient(ellipse 38% 32% at 58% 80%, rgba(255,255,255,.05), transparent 70%);
+    animation:hazeDrift 32s ease-in-out infinite;
+  }
+  .hero-orb-wrap{
+    position:absolute;
+    right:2%;
+    top:50%;
+    width:min(68vh, 58vw);
+    aspect-ratio:1;
+    transform:translateY(-52%);
+  }
+  .hero-orb-core{
+    position:absolute; inset:10%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 32% 28%, rgba(255,255,255,.24), rgba(185,204,227,.10) 28%, rgba(185,204,227,.04) 56%, transparent 72%);
+    box-shadow:
+      0 0 90px 24px rgba(185,204,227,.09),
+      inset 0 0 70px rgba(185,204,227,.07);
+    animation:orbBreath 10s ease-in-out infinite;
+  }
+  .hero-orb-wrap canvas{
+    position:absolute; inset:0; width:100%; height:100%; display:block;
+  }
+  @keyframes hazeDrift{
+    0%,100%{transform:translate3d(0,0,0) scale(1);}
+    50%{transform:translate3d(-2.2%,1.6%,0) scale(1.045);}
+  }
+  @keyframes orbBreath{
+    0%,100%{opacity:.88; transform:scale(1);}
+    50%{opacity:1; transform:scale(1.035);}
   }
 
   main.hero{
@@ -244,6 +276,7 @@
     *{animation-duration:.001s !important; animation-delay:0s !important; transition-duration:.001s !important;}
     .brand,.links,.pill-nav,.hero-kicker,.headline,.hero-copy,.hero-actions,.hero-aside,.pill-cta,.ghost{opacity:1 !important; transform:none !important;}
     .links{transform:translate(-50%,-50%) !important;}
+    .hero-haze,.hero-orb-core{animation:none !important;}
   }
 
   /* ================= FIXED HEADER (persists across scroll) ================= */
@@ -844,6 +877,12 @@
         calc(40px + env(safe-area-inset-bottom, 0px));
     }
     .hero-aside{display:none;}
+    .hero-orb-wrap{
+      right:auto; left:62%; top:46%;
+      width:min(92vw, 72vh);
+      transform:translate(-50%,-50%);
+      opacity:.62;
+    }
     .headline{font-size:clamp(34px, 9vw, 48px); margin-bottom:18px;}
     .headline span{display:inline;}
     .headline span + span::before{content:' ';}
@@ -860,6 +899,13 @@
 <body>
 
 <div class="stage">
+  <div class="hero-field" aria-hidden="true">
+    <div class="hero-haze"></div>
+    <div class="hero-orb-wrap">
+      <div class="hero-orb-core"></div>
+      <canvas id="heroOrb"></canvas>
+    </div>
+  </div>
   <main class="hero">
     <div class="hero-col">
       <p class="hero-kicker">Пространство для отношений</p>
@@ -1610,6 +1656,94 @@
   </div>
 </div>
 
+<script>
+(function(){
+  var canvas = document.getElementById('heroOrb');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var dpr = 1, size = 0, raf = 0, t = 0;
+  var points = [];
+  var N = 240;
+  var i, y, r, theta;
+  for (i = 0; i < N; i++){
+    y = 1 - (i / (N - 1)) * 2;
+    r = Math.sqrt(Math.max(0, 1 - y * y));
+    theta = i * 2.399963229728653;
+    points.push({ x: Math.cos(theta) * r, y: y, z: Math.sin(theta) * r });
+  }
+
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    size = canvas.clientWidth;
+    canvas.width = Math.round(size * dpr);
+    canvas.height = Math.round(size * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function rotate(p, rotY, rotX){
+    var cosy = Math.cos(rotY), siny = Math.sin(rotY);
+    var x1 = p.x * cosy - p.z * siny;
+    var z1 = p.x * siny + p.z * cosy;
+    var cosx = Math.cos(rotX), sinx = Math.sin(rotX);
+    var y1 = p.y * cosx - z1 * sinx;
+    var z2 = p.y * sinx + z1 * cosx;
+    var persp = 1.28 / (2.05 - z2);
+    return { x: size / 2 + x1 * size * 0.36 * persp, y: size / 2 + y1 * size * 0.36 * persp, z: z2, s: persp };
+  }
+
+  function drawRing(rotY, rotX, tilt, radius, alpha){
+    ctx.beginPath();
+    var first = true, j, q, pr;
+    for (j = 0; j <= 96; j++){
+      q = (j / 96) * Math.PI * 2;
+      pr = rotate({ x: Math.cos(q) * radius, y: Math.sin(q) * radius * tilt, z: Math.sin(q) * radius * 0.18 }, rotY, rotX);
+      if (first){ ctx.moveTo(pr.x, pr.y); first = false; }
+      else ctx.lineTo(pr.x, pr.y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(185,204,227,' + alpha + ')';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  function frame(now){
+    t = reduce ? 0.8 : now * 0.00011;
+    ctx.clearRect(0, 0, size, size);
+    var rotY = t;
+    var rotX = 0.38 + Math.sin(t * 0.55) * 0.07;
+    var p, a, s;
+
+    drawRing(rotY * 0.35, 0.92, 0.22, 1.08, 0.16);
+    drawRing(rotY, rotX, 0.08, 1, 0.12);
+    drawRing(rotY + 1.2, rotX, 0.95, 0.72, 0.1);
+
+    for (i = 0; i < points.length; i++){
+      p = rotate(points[i], rotY, rotX);
+      a = 0.08 + (p.z + 1) * 0.22;
+      s = 0.7 + p.s * 1.15;
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(185,204,227,' + a + ')';
+      ctx.arc(p.x, p.y, s, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (!reduce && !document.hidden) raf = requestAnimationFrame(frame);
+  }
+
+  resize();
+  frame(0);
+  if (!reduce) raf = requestAnimationFrame(frame);
+  window.addEventListener('resize', function(){
+    resize();
+    if (reduce) frame(0);
+  }, { passive: true });
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden) cancelAnimationFrame(raf);
+    else if (!reduce) raf = requestAnimationFrame(frame);
+  });
+})();
+</script>
 <script src="assets/supabase-config.js"></script>
 <script type="module" src="assets/landing-cabinet-patch.js?v=20261031"></script>
 <script type="module" src="assets/landing-auth-modal.js?v=20261031"></script>
