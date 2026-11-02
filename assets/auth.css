@@ -1,7 +1,10 @@
-/* RelationSync.ai — shared styles for auth (login.html) and cabinet (cabinet.html)
+/* porog — shared styles for auth (login.html) and cabinet pages.
    Reuses the same design tokens as index.html so both pages feel native to the site. */
 
 :root{
+  --sans:'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono:'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --accent:#b9cce3;
   --ink:#fafafa;
   --muted:#a7a6a6;
   --nav:#b6b5b5;
@@ -144,6 +147,8 @@ html.embed .couple-main{padding-top:8px;}
 .auth-msg.ok{background:rgba(185,204,227,.1); border:1px solid rgba(185,204,227,.25); color:var(--ok);}
 
 .auth-foot-note{margin-top:20px; font-size:12.5px; color:var(--muted); line-height:1.5; text-align:center;}
+.auth-foot-note a{color:var(--nav); border-bottom:1px solid rgba(255,255,255,.18); transition:color .2s ease, border-color .2s ease;}
+.auth-foot-note a:hover{color:#fff; border-color:rgba(255,255,255,.4);}
 
 .spinner{
   width:16px; height:16px; border-radius:50%;
@@ -205,3 +210,69 @@ html.embed .couple-main{padding-top:8px;}
   .cab-grid{grid-template-columns:1fr;}
   .cab-user-email{display:none;}
 }
+
+/* ================= DESIGN SYSTEM LAYER (matches landing) ================= */
+::selection{background:rgba(185,204,227,.28); color:#fff;}
+:focus-visible{outline:2px solid rgba(185,204,227,.7); outline-offset:2px;}
+*{scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.14) transparent;}
+
+.auth-eyebrow, .space-chip, .cab-badge{
+  font-family:var(--mono); font-weight:500; letter-spacing:.1em;
+}
+.auth-eyebrow{
+  border-radius:999px; border-color:rgba(185,204,227,.2); background:rgba(185,204,227,.05);
+  color:#dbe5f1; font-size:11px; padding:6px 13px 6px 11px;
+}
+.auth-eyebrow::before{
+  content:""; width:6px; height:6px; border-radius:50%; background:var(--accent);
+  box-shadow:0 0 0 3px rgba(185,204,227,.14), 0 0 12px rgba(185,204,227,.8);
+}
+.auth-title{font-weight:500; letter-spacing:-.035em; font-size:28px;}
+.auth-card{
+  position:relative;
+  background:linear-gradient(180deg, rgba(16,17,19,.86), rgba(8,8,10,.92));
+  border-color:rgba(255,255,255,.1);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 30px 80px rgba(0,0,0,.45);
+  -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+}
+.auth-card::before, .cab-card::before{
+  content:""; position:absolute; top:-1px; left:14%; width:42%; height:1px; pointer-events:none;
+  background:linear-gradient(90deg, transparent, rgba(185,204,227,.55), transparent);
+}
+
+body:has(.auth-wrap){position:relative; isolation:isolate;}
+body:has(.auth-wrap)::before{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(ellipse 46% 40% at 50% 46%, rgba(185,204,227,.12), transparent 66%),
+    linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px) center/64px 64px,
+    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px) center/64px 64px;
+  -webkit-mask-image:radial-gradient(ellipse 70% 65% at 50% 48%, #000 0%, transparent 78%);
+  mask-image:radial-gradient(ellipse 70% 65% at 50% 48%, #000 0%, transparent 78%);
+}
+
+.field input, .ac-field input{transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;}
+.field input:focus, .ac-field input:focus{
+  border-color:rgba(185,204,227,.55);
+  box-shadow:0 0 0 4px rgba(185,204,227,.1);
+  background:rgba(255,255,255,.045);
+}
+.field label, .ac-field label{font-weight:500;}
+
+.auth-submit, .ac-btn:not(.ghost):not(.danger):not(.danger-solid){
+  font-weight:600;
+  box-shadow:0 0 0 1px rgba(255,255,255,.14), 0 10px 30px rgba(255,255,255,.12);
+  transition:transform .2s ease, box-shadow .2s ease, opacity .15s ease;
+}
+.auth-submit:hover:not(:disabled), .ac-btn:not(.ghost):not(.danger):not(.danger-solid):hover:not(:disabled){
+  transform:translateY(-1px);
+  box-shadow:0 0 0 1px rgba(255,255,255,.2), 0 14px 38px rgba(255,255,255,.18);
+}
+.ac-btn.ghost{transition:border-color .2s ease, background .2s ease;}
+.ac-btn.ghost:hover{border-color:rgba(255,255,255,.24); background:rgba(255,255,255,.05);}
+.auth-tab{font-weight:500;}
+.auth-tab.active{font-weight:600; box-shadow:0 6px 18px rgba(255,255,255,.1);}
+
+.cab-card{overflow:hidden;}
+.cab-card h3{font-weight:600; letter-spacing:-.015em;}
+.cab-hello{font-weight:500; letter-spacing:-.035em;}
