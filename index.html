@@ -1946,7 +1946,7 @@
   var slot = canvas && canvas.closest('.hero-orb-slot');
   var stage = document.querySelector('.stage');
   if (!canvas || !wrap || !stage) return;
-  var gl = canvas.getContext('webgl', { alpha: true, antialias: false, premultipliedAlpha: false, powerPreference: 'high-performance' });
+  var gl = canvas.getContext('webgl', { alpha: true, antialias: false, premultipliedAlpha: true, powerPreference: 'high-performance' });
   if (!gl){ if (slot) slot.style.display = 'none'; return; }
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -2004,10 +2004,10 @@
     '    col+=ice*pow(f,6.)*.35;',
     '    col=col/(1.+col);',
     '    col=pow(col,vec3(.4545));',
-    '    gl_FragColor=vec4(col,edge);',
+    '    gl_FragColor=vec4(col*edge,edge);',
     '  }else{',
     '    float g=exp(-md*9.)*.10*edge;',
-    '    gl_FragColor=vec4(ice,g);',
+    '    gl_FragColor=vec4(ice*g,g);',
     '  }',
     '}'
   ].join('\n');
