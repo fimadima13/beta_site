@@ -108,10 +108,9 @@
       radial-gradient(ellipse 30% 28% at 50% 78%, rgba(255,255,255,.04), transparent 70%);
     animation:hazeDrift 32s ease-in-out infinite;
   }
-  .hero-goo-svg{position:absolute; width:0; height:0; overflow:hidden;}
   .hero-orb-slot{
     position:relative;
-    width:min(100%, 420px);
+    width:min(100%, 440px);
     aspect-ratio:1;
     justify-self:center;
     align-self:center;
@@ -119,20 +118,13 @@
     z-index:0;
   }
   .hero-orb-wrap{
-    position:absolute; inset:-8%;
-    will-change:transform;
+    position:absolute; inset:-22%;
+    opacity:0;
+    transition:opacity 1.6s cubic-bezier(.22,1,.36,1);
   }
+  .hero-orb-wrap.is-on{opacity:1;}
   .hero-orb-wrap canvas{
     position:absolute; inset:0; width:100%; height:100%; display:block;
-    filter:url(#heroGoo);
-  }
-  .hero-orb-sheen{
-    position:absolute; inset:22%;
-    border-radius:50%;
-    pointer-events:none;
-    background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.28), rgba(185,204,227,.08) 36%, transparent 64%);
-    mix-blend-mode:screen;
-    opacity:.42;
   }
   @keyframes hazeDrift{
     0%,100%{transform:translate3d(0,0,0) scale(1);}
@@ -902,12 +894,6 @@
 <div class="stage">
   <div class="hero-field" aria-hidden="true">
     <div class="hero-haze"></div>
-    <svg class="hero-goo-svg" aria-hidden="true">
-      <filter id="heroGoo" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="16" result="blur"/>
-        <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 26 -12" result="goo"/>
-      </filter>
-    </svg>
   </div>
   <main class="hero">
     <div class="hero-col">
@@ -928,7 +914,6 @@
     <div class="hero-orb-slot" aria-hidden="true">
       <div class="hero-orb-wrap" id="heroOrbWrap">
         <canvas id="heroOrb"></canvas>
-        <div class="hero-orb-sheen" id="heroOrbSheen"></div>
       </div>
     </div>
     <aside class="hero-aside" aria-label="Как устроено пространство">
@@ -1669,102 +1654,162 @@
 (function(){
   var canvas = document.getElementById('heroOrb');
   var wrap = document.getElementById('heroOrbWrap');
-  var sheen = document.getElementById('heroOrbSheen');
+  var slot = canvas && canvas.closest('.hero-orb-slot');
   var stage = document.querySelector('.stage');
   if (!canvas || !wrap || !stage) return;
-  var ctx = canvas.getContext('2d');
+  var gl = canvas.getContext('webgl', { alpha: true, antialias: false, premultipliedAlpha: false, powerPreference: 'high-performance' });
+  if (!gl){ if (slot) slot.style.display = 'none'; return; }
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var dpr = 1, size = 0, raf = 0;
-  var targetX = 0, targetY = 0, lookX = 0, lookY = 0, pull = 0;
-  var hasPointer = false;
-  var blobs = [
-    { r: 0.26, ox: 0, oy: 0, ax: 0.08, ay: 0.06, sx: 0.55, sy: 0.42, p: 0.2, stretch: 0.12 },
-    { r: 0.16, ox: 0.07, oy: -0.03, ax: 0.11, ay: 0.10, sx: 0.80, sy: 0.70, p: 1.4, stretch: 0.20 },
-    { r: 0.13, ox: -0.06, oy: 0.05, ax: 0.12, ay: 0.11, sx: 1.05, sy: 0.88, p: 2.6, stretch: 0.24 },
-    { r: 0.10, ox: 0.03, oy: 0.07, ax: 0.14, ay: 0.12, sx: 1.25, sy: 1.10, p: 3.5, stretch: 0.30 },
-    { r: 0.08, ox: -0.08, oy: -0.06, ax: 0.15, ay: 0.13, sx: 1.45, sy: 1.20, p: 4.2, stretch: 0.34 },
-    { r: 0.06, ox: 0.10, oy: 0.01, ax: 0.17, ay: 0.14, sx: 1.70, sy: 1.55, p: 0.9, stretch: 0.40 }
-  ];
+
+  var VERT = 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+  var FRAG = [
+    'precision highp float;',
+    'uniform vec2 uRes;uniform float uTime;uniform vec3 uMouse;uniform vec2 uLook;',
+    'float smin(float a,float b,float k){float h=clamp(.5+.5*(b-a)/k,0.,1.);return mix(b,a,h)-k*h*(1.-h);}',
+    'mat2 rot(float a){float c=cos(a),s=sin(a);return mat2(c,-s,s,c);}',
+    'float map(vec3 q){',
+    '  float t=uTime;',
+    '  vec3 p=q;',
+    '  p.xz*=rot(t*.12+uLook.x*.35);',
+    '  p.yz*=rot(-uLook.y*.25);',
+    '  float d=length(p)-.46;',
+    '  d=smin(d,length(p-vec3(sin(t*.71)*.78,cos(t*.93)*.46,sin(t*.53)*.34))-.24,.26);',
+    '  d=smin(d,length(p-vec3(cos(t*.61+1.3)*.72,sin(t*.83+.7)*.66,cos(t*.41)*.36))-.19,.24);',
+    '  d=smin(d,length(p-vec3(sin(t*.47+2.)*.52,cos(t*.57+1.)*.80,sin(t*.69+.5)*.30))-.15,.22);',
+    '  d=smin(d,length(p-vec3(cos(t*.39+4.)*.90,sin(t*.33+2.2)*.30,cos(t*.77+1.4)*.40))-.11,.22);',
+    '  d=smin(d,length(p-vec3(sin(t*.29+5.)*.40,sin(t*.51+3.)*-.86,cos(t*.63)*.30))-.09,.20);',
+    '  float r=.04+.12*uMouse.z;',
+    '  d=smin(d,length(q-vec3(uMouse.xy,.25))-r,.42*uMouse.z+.04);',
+    '  d+=sin(p.x*6.+t*1.3)*sin(p.y*5.2-t*1.1)*sin(p.z*5.6+t*.8)*.022;',
+    '  return d;',
+    '}',
+    'vec3 nrm(vec3 p){vec2 e=vec2(.0015,-.0015);return normalize(e.xyy*map(p+e.xyy)+e.yyx*map(p+e.yyx)+e.yxy*map(p+e.yxy)+e.xxx*map(p+e.xxx));}',
+    'vec3 env(vec3 r){',
+    '  vec3 c=vec3(.006,.007,.009);',
+    '  c+=vec3(1.)*smoothstep(.45,.98,r.y)*1.35;',
+    '  c+=vec3(.96,.98,1.)*pow(max(dot(r,normalize(vec3(-.65,.42,.62))),0.),28.)*3.2;',
+    '  c+=vec3(.55,.68,.86)*pow(max(dot(r,normalize(vec3(.95,-.05,.25))),0.),5.)*1.25;',
+    '  c+=vec3(.32,.36,.42)*exp(-abs(r.y+.08)*16.)*.9;',
+    '  c+=vec3(.08,.10,.14)*smoothstep(-.2,-.9,r.y);',
+    '  return c;',
+    '}',
+    'void main(){',
+    '  vec2 uv=(gl_FragCoord.xy-.5*uRes)/uRes.y;',
+    '  vec3 ro=vec3(0.,0.,3.6);',
+    '  vec3 rd=normalize(vec3(uv,-1.5));',
+    '  float t=0.,md=1e3;bool hit=false;',
+    '  for(int i=0;i<80;i++){',
+    '    vec3 p=ro+rd*t;float d=map(p);md=min(md,d);',
+    '    if(d<.0012){hit=true;break;}',
+    '    t+=d*.85;if(t>7.)break;',
+    '  }',
+    '  vec3 ice=vec3(.725,.80,.89);',
+    '  if(hit){',
+    '    vec3 p=ro+rd*t;vec3 n=nrm(p);',
+    '    float f=pow(1.-max(dot(n,-rd),0.),3.);',
+    '    vec3 col=env(reflect(rd,n));',
+    '    col*=mix(.42,1.05,f);',
+    '    vec3 ir=.5+.5*cos(6.2831*(f*.85+vec3(.0,.33,.67))+uTime*.25);',
+    '    col+=mix(ir,ice,.8)*f*.22;',
+    '    col+=ice*pow(f,6.)*.35;',
+    '    col=col/(1.+col);',
+    '    col=pow(col,vec3(.4545));',
+    '    gl_FragColor=vec4(col,1.);',
+    '  }else{',
+    '    float g=exp(-md*9.)*.10*smoothstep(.5,.28,length(uv));',
+    '    gl_FragColor=vec4(ice,g);',
+    '  }',
+    '}'
+  ].join('\n');
+
+  function compile(type, src){
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) return null;
+    return s;
+  }
+  var vs = compile(gl.VERTEX_SHADER, VERT);
+  var fs = compile(gl.FRAGMENT_SHADER, FRAG);
+  if (!vs || !fs){ if (slot) slot.style.display = 'none'; return; }
+  var prog = gl.createProgram();
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)){ if (slot) slot.style.display = 'none'; return; }
+  gl.useProgram(prog);
+
+  var buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  var loc = gl.getAttribLocation(prog, 'p');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  var uRes = gl.getUniformLocation(prog, 'uRes');
+  var uTime = gl.getUniformLocation(prog, 'uTime');
+  var uMouse = gl.getUniformLocation(prog, 'uMouse');
+  var uLook = gl.getUniformLocation(prog, 'uLook');
+
+  var raf = 0, visible = true, started = false;
+  var tx = 0, ty = 0, mx = 0, my = 0, pull = 0, hasPointer = false;
 
   function resize(){
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    size = canvas.clientWidth;
-    if (!size) return;
-    canvas.width = Math.round(size * dpr);
-    canvas.height = Math.round(size * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  function drawBlob(x, y, r){
-    var g = ctx.createRadialGradient(x - r * 0.32, y - r * 0.36, r * 0.04, x, y, r);
-    g.addColorStop(0, 'rgba(255,255,255,0.98)');
-    g.addColorStop(0.12, 'rgba(201,216,232,0.88)');
-    g.addColorStop(0.32, 'rgba(92,102,114,0.96)');
-    g.addColorStop(0.62, 'rgba(22,23,26,1)');
-    g.addColorStop(1, 'rgba(8,8,10,0)');
-    ctx.beginPath();
-    ctx.fillStyle = g;
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
+    var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    var w = canvas.clientWidth;
+    if (!w) return;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(w * dpr);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.uniform2f(uRes, canvas.width, canvas.height);
   }
 
   function onMove(e){
     if (reduce || window.matchMedia('(pointer: coarse)').matches) return;
-    var rect = wrap.getBoundingClientRect();
+    var rect = canvas.getBoundingClientRect();
     if (!rect.width) return;
-    var nx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width * 0.55);
-    var ny = (e.clientY - (rect.top + rect.height / 2)) / (rect.height * 0.55);
-    targetX = Math.max(-1, Math.min(1, nx));
-    targetY = Math.max(-1, Math.min(1, ny));
+    var nx = ((e.clientX - rect.left) / rect.width - 0.5) * 2.4;
+    var ny = -((e.clientY - rect.top) / rect.height - 0.5) * 2.4;
+    var len = Math.hypot(nx, ny);
+    if (len > 1.05){ nx *= 1.05 / len; ny *= 1.05 / len; }
+    tx = nx; ty = ny;
     hasPointer = true;
   }
+  function onLeave(){ hasPointer = false; }
 
-  function onLeave(){
-    targetX = 0;
-    targetY = 0;
-    hasPointer = false;
+  function render(now){
+    var t = reduce ? 6.0 : now * 0.001 * 0.55;
+    mx += (tx - mx) * 0.06;
+    my += (ty - my) * 0.06;
+    pull += ((hasPointer ? 1 : 0) - pull) * 0.045;
+    gl.uniform1f(uTime, t);
+    gl.uniform3f(uMouse, mx * pull, my * pull, pull);
+    gl.uniform2f(uLook, mx * pull, my * pull);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if (!started){ started = true; wrap.classList.add('is-on'); }
   }
 
-  function frame(now){
-    if (!size) resize();
-    var t = reduce ? 1.2 : now * 0.00042;
-    lookX += (targetX - lookX) * 0.055;
-    lookY += (targetY - lookY) * 0.055;
-    pull += ((hasPointer ? 1 : 0) - pull) * 0.05;
-    ctx.clearRect(0, 0, size, size);
-
-    var i, b, x, y, r, driftX, driftY;
-    driftX = Math.sin(t * 0.35) * 0.06;
-    driftY = Math.cos(t * 0.28) * 0.05;
-    wrap.style.transform = 'translate3d(' + ((driftX + lookX * 0.08) * size) + 'px,' + ((driftY + lookY * 0.07) * size) + 'px,0)';
-    if (sheen){
-      sheen.style.background = 'radial-gradient(circle at ' + (32 + lookX * 18) + '% ' + (28 + lookY * 16) + '%, rgba(255,255,255,' + (0.26 + pull * 0.12) + '), rgba(185,204,227,.08) 36%, transparent 64%)';
-    }
-
-    for (i = 0; i < blobs.length; i++){
-      b = blobs[i];
-      x = 0.50 + b.ox + Math.sin(t * b.sx + b.p) * b.ax + lookX * b.stretch + driftX * 0.35;
-      y = 0.50 + b.oy + Math.cos(t * b.sy + b.p * 0.8) * b.ay + lookY * b.stretch + driftY * 0.35;
-      r = b.r * (1 + Math.sin(t * (b.sx + 0.4) + b.p) * 0.08 + pull * 0.04);
-      drawBlob(x * size, y * size, r * size);
-    }
-
-    if (!reduce && !document.hidden) raf = requestAnimationFrame(frame);
+  function loop(now){
+    render(now);
+    if (!reduce && visible && !document.hidden) raf = requestAnimationFrame(loop);
+  }
+  function start(){
+    cancelAnimationFrame(raf);
+    if (reduce) render(0);
+    else raf = requestAnimationFrame(loop);
   }
 
   resize();
-  frame(reduce ? 1200 : 0);
-  if (!reduce) raf = requestAnimationFrame(frame);
-  window.addEventListener('resize', function(){
-    resize();
-    if (reduce) frame(1200);
-  }, { passive: true });
+  start();
+  window.addEventListener('resize', function(){ resize(); if (reduce) render(0); }, { passive: true });
   stage.addEventListener('mousemove', onMove, { passive: true });
   stage.addEventListener('mouseleave', onLeave);
-  document.addEventListener('visibilitychange', function(){
-    if (document.hidden) cancelAnimationFrame(raf);
-    else if (!reduce) raf = requestAnimationFrame(frame);
-  });
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) start(); });
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver(function(entries){
+      visible = entries[0].isIntersecting;
+      if (visible) start();
+    }).observe(stage);
+  }
 })();
 </script>
 <script src="assets/supabase-config.js"></script>
