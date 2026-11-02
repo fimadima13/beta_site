@@ -82,8 +82,8 @@ function patchEarlyAccessSection() {
     <div style="display:flex; flex-direction:column; align-items:center; gap:0;">
       <span class="eyebrow">Личный кабинет</span>
       <h2 class="section-title" style="font-size:clamp(26px,3.2vw,34px); margin:16px 0 14px;">Заполните анкету и получите первый чек-лист сегодня</h2>
-      <p class="section-sub" style="margin:0 0 26px;">Регистрация занимает меньше минуты. Дальше — анкета о вас и партнёре, и сразу персональный план в кабинете.</p>
-      <a href="login.html?mode=register&plan=free" style="display:inline-flex; align-items:center; justify-content:center; height:50px; padding:0 28px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:15px; font-weight:600; text-decoration:none;">Создать аккаунт бесплатно</a>
+      <p class="section-sub" style="margin:0 0 26px;">Регистрация занимает меньше минуты. Дальше — анкета, тесты и план в кабинете. Партнёра подключать не обязательно.</p>
+      <a href="login.html?mode=register&plan=free" style="display:inline-flex; align-items:center; justify-content:center; height:50px; padding:0 28px; border-radius:999px; background:var(--pill); color:var(--pill-ink); font-size:15px; font-weight:600; text-decoration:none;">Создать кабинет бесплатно</a>
       <a href="login.html" style="display:inline-flex; align-items:center; justify-content:center; height:auto; margin:16px 0 0; font-size:14.5px; font-weight:500; color:#fff; text-decoration:none; opacity:.85;">Уже есть аккаунт →</a>
       <p style="margin:20px 0 0; font-size:12.5px; color:var(--muted); text-align:center;">Без списаний на бесплатном тарифе. Тариф можно сменить в кабинете.</p>
     </div>
