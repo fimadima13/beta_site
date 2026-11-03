@@ -170,7 +170,11 @@
 }
 .q-done-icon svg{width:26px; height:26px; color:var(--ok);}
 .q-done h2{font-size:21px; font-weight:700; margin:0 0 10px;}
-.q-done p{font-size:14px; color:var(--muted); line-height:1.6; margin:0 0 26px;}
+.q-done p{font-size:14px; color:var(--muted); line-height:1.6; margin:0 auto 26px; max-width:420px;}
+.q-done-actions{display:flex; flex-direction:column; align-items:center; gap:14px;}
+.q-done-actions .auth-submit{display:inline-flex; align-items:center; justify-content:center; max-width:280px; text-decoration:none;}
+.q-done-link{font-size:13.5px; color:var(--muted); text-decoration:underline; text-underline-offset:3px;}
+.q-done-link:hover{color:#fff;}
 
 @media (max-width:560px){
   .q-wrap{padding:14px 18px 60px;}
@@ -524,8 +528,11 @@
             <svg viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
           <h2>Анкета сохранена</h2>
-          <p>Ответы остались в вашем пространстве. Партнёр их не видит.</p>
-          <a href="home.html" class="auth-submit" style="display:inline-flex; max-width:280px; margin:0 auto;">На главную</a>
+          <p>Ответы остались в вашем пространстве. Следующий шаг — короткие методики: с ними ИИ точнее поймёт, как вы ведёте себя в близости и в споре.</p>
+          <div class="q-done-actions">
+            <a href="tests.html" class="auth-submit" id="doneNext">Пройти методики</a>
+            <a href="cabinet.html#chat" target="_top" class="q-done-link" id="doneChat">Что ИИ уже знает обо мне</a>
+          </div>
         </div>
       </section>
 
@@ -856,5 +863,11 @@ btnNext.addEventListener("click", async () => {
 init();
 </script>
 
+<script>
+if (new URLSearchParams(location.search).get("preview") === "spaces") {
+  document.getElementById("doneNext").href = "tests.html?preview=spaces&embed=1";
+  document.getElementById("doneChat").href = "cabinet.html?preview=spaces#chat";
+}
+</script>
 </body>
 </html>
