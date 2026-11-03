@@ -103,6 +103,15 @@
   .hero-field{
     position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none;
   }
+  .hero-field::after{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:64px 64px; background-position:center top;
+    -webkit-mask-image:radial-gradient(ellipse 60% 55% at 50% 40%, #000, transparent 75%);
+    mask-image:radial-gradient(ellipse 60% 55% at 50% 40%, #000, transparent 75%);
+  }
   .hero-haze{
     position:absolute; inset:-12%;
     background:
@@ -943,6 +952,13 @@
     box-shadow:none;
   }
   .tcard:hover,.price-card:hover{border-color:rgba(255,255,255,.16); background:rgba(255,255,255,.03);}
+  .hero-panel,.step,.chat-card,.test-preview,.tcard,.price-card,.duo-card{isolation:isolate;}
+  .hero-panel::after,.step::after,.chat-card::after,.test-preview::after,.tcard::after,.price-card::after,.duo-card::after{
+    content:''; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:-1;
+    background:radial-gradient(420px circle at var(--mx,50%) var(--my,-40%), rgba(185,204,227,.09), transparent 45%);
+    opacity:0; transition:opacity .35s ease;
+  }
+  .hero-panel:hover::after,.step:hover::after,.chat-card:hover::after,.test-preview:hover::after,.tcard:hover::after,.price-card:hover::after,.duo-card:hover::after{opacity:1;}
 
   .hero-panel{
     background:#0b0c0e;
@@ -1057,6 +1073,15 @@
     border-radius:32px; border:1px solid rgba(185,204,227,.16);
     background:rgba(255,255,255,.02);
     display:flex; flex-direction:column; align-items:center;
+  }
+  .final-cta::before{
+    content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+    background-size:48px 48px; background-position:center top;
+    -webkit-mask-image:radial-gradient(70% 80% at 50% 0%, #000, transparent 75%);
+    mask-image:radial-gradient(70% 80% at 50% 0%, #000, transparent 75%);
   }
   .final-mark{
     width:56px; height:56px; border-radius:16px; margin:0 0 28px;
@@ -1671,6 +1696,17 @@
       playChatDemo();
     }
     setTimeout(playChatDemo, 4000);
+  }
+
+  /* cursor spotlight on cards */
+  if (window.matchMedia('(hover:hover)').matches){
+    document.querySelectorAll('.hero-panel,.step,.chat-card,.test-preview,.tcard,.price-card,.duo-card').forEach(function(card){
+      card.addEventListener('pointermove', function(e){
+        var r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      });
+    });
   }
 
   /* faq accordion */
