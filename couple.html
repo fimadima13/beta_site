@@ -9,7 +9,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/auth.css?v=porog3">
+<link rel="stylesheet" href="assets/auth.css?v=porog4">
 <script src="assets/embed-mode.js"></script>
 <script src="assets/supabase-config.js"></script>
 <style>
@@ -43,11 +43,7 @@
   width:44px; height:44px; flex-shrink:0;
 }
 .link-bolt svg{width:26px; height:26px; color:rgba(255,255,255,.26); transition:color .4s ease, filter .4s ease; stroke:currentColor;}
-.link-bolt.active svg{color:#b9cce3; filter:drop-shadow(0 0 6px rgba(185,204,227,.55)); animation:bolt-pulse 1.8s ease-in-out infinite;}
-@keyframes bolt-pulse{
-  0%, 100%{opacity:.75; transform:scale(1);}
-  50%{opacity:1; transform:scale(1.08);}
-}
+.link-bolt.active svg{color:#b9cce3; }
 
 .status-line{
   text-align:center; font-size:13px; color:var(--muted); margin:-6px 0 24px;
@@ -87,7 +83,7 @@
 .plans-panel h2{font-size:17px; font-weight:700; margin:0 0 18px;}
 .plans-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
 .plan-col{border:1px solid var(--line); border-radius:14px; padding:20px;}
-.plan-col.highlight{border-color:rgba(185,204,227,.32); background:rgba(185,204,227,.045); box-shadow:inset 0 1px 0 rgba(255,255,255,.06);}
+.plan-col.highlight{border-color:rgba(185,204,227,.32); background:rgba(185,204,227,.045);}
 .plan-col h3{font-size:14.5px; font-weight:700; margin:0 0 4px; display:flex; align-items:center; gap:8px;}
 .plan-price{font-size:12.5px; color:var(--muted); margin:0 0 14px;}
 .plan-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px;}
@@ -96,7 +92,7 @@
 .plan-list li.locked{color:var(--muted);}
 .plan-list li.ok svg{color:#b9cce3;}
 .plan-list li.locked svg{color:var(--muted);}
-.upgrade-cta{display:inline-flex; align-items:center; justify-content:center; height:42px; padding:0 20px; border-radius:999px; background:#fff; color:#050505; font-size:13.5px; font-weight:600; margin-top:16px; width:100%; box-shadow:0 0 0 1px rgba(255,255,255,.14), 0 10px 30px rgba(255,255,255,.12);}
+.upgrade-cta{display:inline-flex; align-items:center; justify-content:center; height:42px; padding:0 20px; border-radius:999px; background:#fff; color:#050505; font-size:13.5px; font-weight:600; margin-top:16px; width:100%;}
 
 .nav-to-tests{
   display:flex; align-items:center; justify-content:space-between; gap:16px;

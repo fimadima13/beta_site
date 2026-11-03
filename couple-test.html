@@ -9,7 +9,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/auth.css?v=porog3">
+<link rel="stylesheet" href="assets/auth.css?v=porog4">
 <script src="assets/embed-mode.js"></script>
 <script src="assets/supabase-config.js"></script>
 <style>
@@ -147,7 +147,7 @@
 .premium-banner{display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; border:1px solid rgba(185,204,227,.22); background:rgba(185,204,227,.045); border-radius:16px; padding:22px 26px;}
 .premium-banner h3{font-size:16px; font-weight:700; margin:0 0 6px; color:#fff;}
 .premium-banner p{font-size:13px; color:var(--muted); margin:0; max-width:480px; line-height:1.5;}
-.premium-cta{display:inline-flex; align-items:center; justify-content:center; height:46px; padding:0 24px; border-radius:999px; background:#fff; color:#050505; font-size:14px; font-weight:600; white-space:nowrap; flex-shrink:0; box-shadow:0 0 0 1px rgba(255,255,255,.14), 0 10px 30px rgba(255,255,255,.12);}
+.premium-cta{display:inline-flex; align-items:center; justify-content:center; height:46px; padding:0 24px; border-radius:999px; background:#fff; color:#050505; font-size:14px; font-weight:600; white-space:nowrap; flex-shrink:0;}
 
 .page-loading{flex:1; display:flex; align-items:center; justify-content:center; gap:10px; color:var(--muted); font-size:14px; padding:60px 24px;}
 
@@ -207,7 +207,7 @@
     <!-- ===== ВКЛАДКА: ТЕМЫ ДЛЯ ОБСУЖДЕНИЯ ===== -->
     <section class="tab-panel" id="panel-discuss">
       <div class="how-it-works">
-        <h3>💬 Как это работает</h3>
+        <h3>Как это работает</h3>
         <p>Каждая карточка — вопрос, где ваши ответы с партнёром разошлись в одном из тестов. Это не проблема и не тест на правильность, а повод для короткого личного разговора.</p>
         <p class="hint">Обсудите карточку вслух, лично вдвоём — не в переписке. «Позже» отложит карточку на неделю, «В архив» уберёт её из списка — вернуть можно в любой момент из вкладки «Архив».</p>
       </div>
@@ -259,7 +259,6 @@
         <button class="gen-cta" id="generateIdeaBtn">Сгенерировать идею</button>
 
         <div class="idea-result" id="ideaResult">
-          <div class="idea-emoji">🎲</div>
           <p class="idea-text" id="ideaText"></p>
           <p class="idea-explain" id="ideaExplain"></p>
           <div class="idea-actions">
@@ -482,7 +481,7 @@ async function renderDiscussionCards() {
 
     const el = document.createElement("div");
     el.className = "discuss-card" + (card.status === "discussed" ? " discussed" : "") + (card.status === "archived" ? " archived" : "");
-    el.innerHTML = '<div class="dc-top"><span class="dc-icon">💬 Тема для разговора</span>' +
+    el.innerHTML = '<div class="dc-top"><span class="dc-icon">Тема для разговора</span>' +
       '<span class="dc-badge ' + card.status + '">' + badgeMap[card.status] + "</span></div>" +
       '<p class="dc-question">«' + q.text + '»</p>' +
       '<div class="dc-answers">' +
@@ -506,11 +505,11 @@ async function renderDiscussionCards() {
 function buildActionsHtml(card) {
   if (card.status === "new" || card.status === "snoozed") {
     return '<button class="dc-btn primary" data-id="' + card.id + '" data-action="discussed">✓ Обсудили</button>' +
-      '<button class="dc-btn" data-id="' + card.id + '" data-action="snoozed">🕓 Позже</button>' +
-      '<button class="dc-btn" data-id="' + card.id + '" data-action="archived">🗄 В архив</button>';
+      '<button class="dc-btn" data-id="' + card.id + '" data-action="snoozed">Позже</button>' +
+      '<button class="dc-btn" data-id="' + card.id + '" data-action="archived">В архив</button>';
   }
   if (card.status === "discussed") {
-    return '<button class="dc-btn" data-id="' + card.id + '" data-action="archived">🗄 В архив</button>' +
+    return '<button class="dc-btn" data-id="' + card.id + '" data-action="archived">В архив</button>' +
       '<button class="dc-btn" data-id="' + card.id + '" data-action="restore">↺ Вернуть в активные</button>';
   }
   return '<button class="dc-btn primary" data-id="' + card.id + '" data-action="restore">↺ Вернуть в активные</button>';
